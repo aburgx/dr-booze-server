@@ -30,7 +30,6 @@ public class Repository {
     private static EntityManager em = emf.createEntityManager();
 
     public void testJPA() {
-
         em.getTransaction().begin();
 
         User user1 = new User("burgus");
