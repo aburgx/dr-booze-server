@@ -50,7 +50,9 @@ class LoginCredentials {
     private String password;
     private String email;
 
-    public LoginCredentials() {}
+    public LoginCredentials() {
+
+    }
 
     public LoginCredentials(String username, String password) {
         this.username = username;
