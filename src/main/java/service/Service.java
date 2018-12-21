@@ -24,13 +24,13 @@ public class Service {
 
     @Path("register")
     @POST
-    public void register(ServiceUser serviceUser) {
-        repository.register(serviceUser.getUsername(), serviceUser.getPassword(), serviceUser.getEmail());
+    public void register(LoginCredentials credentials) {
+        repository.register(credentials.getUsername(), credentials.getPassword(), credentials.getEmail());
     }
 
     @Path("login")
     @POST
-    public String login(ServiceUser serviceUser) {
+    public String login(LoginCredentials serviceUser) {
         // repository.login(serviceUser.getUsername(), serviceUser.getPassword());
         return "Not supported yet.";
     }
@@ -45,15 +45,20 @@ public class Service {
 
 }
 
-class ServiceUser {
+class LoginCredentials {
 
     private String username;
     private String password;
     private String email;
 
-    public ServiceUser() {}
+    public LoginCredentials() {}
 
-    public ServiceUser(String username, String password, String email) {
+    public LoginCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public LoginCredentials(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
