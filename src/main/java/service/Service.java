@@ -1,6 +1,5 @@
 package service;
 
-import oracle.jdbc.proxy.annotation.Post;
 import repository.Repository;
 
 import javax.ws.rs.*;

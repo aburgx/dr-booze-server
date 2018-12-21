@@ -39,6 +39,6 @@ public class REST_JavaSE {
 
         System.out.println(String.format("Server startet at %s\nHit enter to stop ...", BASE_URI));
         System.in.read();
-        server.stop();
+        server.shutdownNow();
     }
 }
