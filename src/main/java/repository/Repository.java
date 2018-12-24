@@ -15,20 +15,7 @@ public class Repository {
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
     private static EntityManager em = emf.createEntityManager();
 
-    public void testJPA() {
-        em.getTransaction().begin();
-
-        User user1 = new User("burgus","passme","burgi@burgmail.com");
-
-        em.persist(user1);
-        em.getTransaction().commit();
-    }
-
-    public void login(String username, String password) {
-        // TODO: login
-    }
-
-    public void register(String username, String password, String email) {
+    public void register(String username,  String email, String password) {
         em.getTransaction().begin();
 
         // TODO: Registrier Überprüfung
@@ -36,5 +23,7 @@ public class Repository {
 
         em.persist(user);
         em.getTransaction().commit();
+
+        System.out.println("Registered new user: " + user.getUsername());
     }
 }

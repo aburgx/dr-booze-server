@@ -4,7 +4,6 @@ import repository.Repository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.Serializable;
 
 /**
  * @author Alexander Burghuber
@@ -23,23 +22,15 @@ public class Service {
 
     @Path("register")
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public void register(LoginCredentials credentials) {
-        repository.register(credentials.getUsername(), credentials.getPassword(), credentials.getEmail());
+        repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
 
     @Path("login")
     @POST
     public String login(LoginCredentials serviceUser) {
-        // repository.login(serviceUser.getUsername(), serviceUser.getPassword());
         return "Not supported yet.";
-    }
-
-    @Path("testJPA")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String test() {
-        repository.testJPA();
-        return "Testing completed.";
     }
 
 }
@@ -47,45 +38,44 @@ public class Service {
 class LoginCredentials {
 
     private String username;
-    private String password;
     private String email;
+    private String password;
 
-    public LoginCredentials() {
+    LoginCredentials() {}
 
-    }
-
-    public LoginCredentials(String username, String password) {
+    LoginCredentials(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
-    public LoginCredentials(String username, String password, String email) {
+    LoginCredentials(String username, String email, String password) {
         this.username = username;
-        this.password = password;
         this.email = email;
+        this.password = password;
     }
 
-    public String getUsername() {
+    String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    void setUsername(String username) {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
+    String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    void setEmail(String email) {
         this.email = email;
     }
+
+    String getPassword() {
+        return password;
+    }
+
+    void setPassword(String password) {
+        this.password = password;
+    }
+
 }
