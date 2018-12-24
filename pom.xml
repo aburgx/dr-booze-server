@@ -9,6 +9,15 @@
 
     <dependencies>
 
+        <!-- Oracle JDBC driver //added by A. Burghuber -->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <version>12.1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/ojdbc7.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
@@ -60,6 +69,7 @@
             <version>2.6.4</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- Für Json Parsing -->
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -67,6 +77,7 @@
             <version>1.0.4</version>
             <type>jar</type>
         </dependency>
+
         <!-- Für JSON Parsing -->
         <dependency>
             <groupId>org.json</groupId>
@@ -74,6 +85,7 @@
             <version>20160810</version>
             <type>jar</type>
         </dependency>
+
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
