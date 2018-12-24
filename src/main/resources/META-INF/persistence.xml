@@ -5,9 +5,9 @@
     <class>entities.User</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:oracle:thin:@atlas.htl-leonding.ac.at:1521:atlasdb"/>
-      <property name="javax.persistence.jdbc.user" value="it150157"/>
+      <property name="javax.persistence.jdbc.user" value=""/>
       <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
-      <property name="javax.persistence.jdbc.password" value="Todtiat8"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
     </properties>
   </persistence-unit>

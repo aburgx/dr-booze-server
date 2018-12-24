@@ -23,8 +23,9 @@ public class Service {
     @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void register(LoginCredentials credentials) {
-        repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
+    @Produces(MediaType.TEXT_PLAIN)
+    public String register(LoginCredentials credentials) {
+        return repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
 
     @Path("login")
