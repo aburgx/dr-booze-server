@@ -1,6 +1,6 @@
-package service;
+package services;
 
-import repository.Repository;
+import repositories.Repository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -13,6 +13,13 @@ public class Service {
 
     private Repository repository = new Repository();
 
+    @Path("testJPA")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String testJPA() {
+        return repository.testJPA();
+    }
+
     @Path("message")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -20,10 +27,14 @@ public class Service {
         return "Hello REST Service powered by Java SE.";
     }
 
+    /**
+     * @param credentials a Json String that includes an username, an email and a password
+     * @return a Json String that includes either the newly registered user or all validation errors
+     */
     @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String register(LoginCredentials credentials) {
         return repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
@@ -42,7 +53,8 @@ class LoginCredentials {
     private String email;
     private String password;
 
-    LoginCredentials() {}
+    LoginCredentials() {
+    }
 
     LoginCredentials(String username, String password) {
         this.username = username;
