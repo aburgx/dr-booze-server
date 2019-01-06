@@ -36,7 +36,7 @@ public class User {
     @Size(min = 8, max = 25, message = "603")
     private String password;
 
-    private boolean emailConfirmed = false;
+    private boolean enabled = false;
 
     public User() {
     }
@@ -87,11 +87,11 @@ public class User {
         this.password = password;
     }
 
-    public boolean isEmailConfirmed() {
-        return emailConfirmed;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setEmailConfirmed(boolean emailConfirmed) {
-        this.emailConfirmed = emailConfirmed;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

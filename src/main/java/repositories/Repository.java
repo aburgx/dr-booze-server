@@ -1,8 +1,9 @@
 package repositories;
 
 import entities.User;
+import entities.VerificationToken;
 import org.json.JSONObject;
-import services.Mail;
+import services.MailService;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
@@ -13,13 +14,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
-import java.util.Timer;
 
 /**
  * @author Alexander Burghuber
@@ -30,6 +27,7 @@ public class Repository {
     private EntityManager em = emf.createEntityManager();
     private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
+    private MailService mailService = new MailService();
 
     public String test() {
         return "Does currently nothing.";
@@ -62,11 +60,11 @@ public class Repository {
             return jsonString;
         }
 
-        // Check if the username is already taken
+        // check if the username is already taken
         TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.checkUniqueName", Long.class).setParameter("username", username);
         long numberOfEntriesName = queryUniqueName.getSingleResult();
 
-        // Check if the email is already taken
+        // check if the email is already taken
         TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.checkUniqueEmail", Long.class).setParameter("email", email);
         long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
@@ -85,14 +83,20 @@ public class Repository {
             System.out.println("Violations: " + jsonString);
             return errorJson.toString();
         } else {
+
+            // setup the verification token of the user
+            VerificationToken verificationToken = new VerificationToken(user);
+            System.out.println("Setup token: " + verificationToken.getToken() + " Expire: " + verificationToken.getExpiryDate());
+
+            // persist the new user
+            em.getTransaction().begin();
+            em.persist(user);
+            em.persist(verificationToken);
+            em.getTransaction().commit();
+
             // send the email confirmation
-            Mail confirmationMail = new Mail(email);
             try {
-                confirmationMail.sendConfirmationMail();
-                // persist the new user
-                em.getTransaction().begin();
-                em.persist(user);
-                em.getTransaction().commit();
+                mailService.send(user, verificationToken);
                 // return user as json
                 String jsonString = user.toJson();
                 System.out.println(jsonString);
@@ -100,7 +104,6 @@ public class Repository {
             } catch (MessagingException e) {
                 // an exception occured while sending the email
                 System.out.println(e.toString());
-
                 JSONObject errorJson = new JSONObject();
                 errorJson.put("email", "606");
                 String jsonString = errorJson.toString();
@@ -108,6 +111,28 @@ public class Repository {
                 return jsonString;
             }
 
+        }
+    }
+
+    // TODO: Delete Verificationtoken
+    // TODO: optimize namedqueries
+    public Response verify(final String token) {
+        // check if a user has the unique token
+        TypedQuery<Long> queryToken = em.createNamedQuery("VerificationToken.verify", Long.class).setParameter("token", token);
+        long numberOfTokens = queryToken.getSingleResult();
+
+        if (numberOfTokens != 0) {
+            // verify and enable the user
+            TypedQuery<User> queryGetUser = em.createNamedQuery("VerificationToken.getUser", User.class).setParameter("token", token);
+            User user = queryGetUser.getSingleResult();
+            em.getTransaction().begin();
+
+            user.setEnabled(true);
+            em.getTransaction().commit();
+            return Response.status(200).entity("OK").build();
+        } else {
+            // return error
+            return Response.status(400).entity("BAD").build();
         }
     }
 

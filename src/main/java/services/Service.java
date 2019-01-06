@@ -4,6 +4,7 @@ import repositories.Repository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Alexander Burghuber
@@ -37,6 +38,12 @@ public class Service {
     @Produces(MediaType.APPLICATION_JSON)
     public String register(final LoginCredentials credentials) {
         return repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
+    }
+
+    @Path("verify/{token}")
+    @GET
+    public Response verify(@PathParam("token") String token) {
+        return repository.verify(token);
     }
 
     @Path("login")

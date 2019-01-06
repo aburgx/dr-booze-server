@@ -1,5 +1,8 @@
 package services;
 
+import entities.User;
+import entities.VerificationToken;
+
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -9,19 +12,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
 import static javax.mail.Message.RecipientType;
 
 /**
  * @author Alexander Burghuber
  */
-public class Mail {
-    private String targetAddress;
+public class MailService {
+
     private String emailPassword;
 
-    public Mail(String targetAddress) {
-        this.targetAddress = targetAddress;
+    public MailService() {
         // load the email password from the config file
-        try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")){
+        try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();
             prop.load(input);
             emailPassword = prop.getProperty("email_password");
@@ -30,7 +33,7 @@ public class Mail {
         }
     }
 
-    public void sendConfirmationMail() throws MessagingException {
+    public void send(User user, VerificationToken verificationToken) throws MessagingException {
         // setup properties
         Properties properties = System.getProperties();
         properties.put("mail.smtp.port", "587");
@@ -42,9 +45,10 @@ public class Mail {
 
         // setup message
         MimeMessage message = new MimeMessage(session);
-        message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(targetAddress)));
-        message.setSubject("Welcome to DrBooze");
-        String mailBody = "<h1>Confirm your email</h1>";
+        message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
+        message.setSubject("Welcome to Dr Booze");
+        String mailBody = "<h1>Welcome to Dr Booze</h1><br>" +
+                "<a href='http://localhost:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
         message.setContent(mailBody, "text/html");
 
         // send mail
