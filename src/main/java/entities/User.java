@@ -3,10 +3,13 @@ package entities;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity(name = "Booze_User")
 @NamedQueries({
+        @NamedQuery(name = "User.getUser", query = "SELECT u FROM Booze_User u WHERE u.username = :username"),
         @NamedQuery(name = "User.checkUniqueName", query = "SELECT COUNT(u) FROM Booze_User u WHERE u.username = :username"),
         @NamedQuery(name = "User.checkUniqueEmail", query = "SELECT COUNT(u) FROM Booze_User u WHERE u.email = :email")
 })
@@ -16,36 +19,39 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @NotNull(message = "notnull")
-    @Size(min = 4, max = 25, message = "notbetween{min}-{max}")
+    @NotNull(message = "601")
+    @Size(min = 4, max = 25, message = "603")
     @Column(unique = true)
     private String username;
 
-    @NotNull(message = "notnull")
-    @Email(message = "notanemail", regexp =
+    @NotNull(message = "601")
+    @Email(message = "604", regexp =
             "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\" +
                     "[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$")
+    @Size(min = 6, max = 100, message = "603")
     @Column(unique = true)
     private String email;
 
-    @NotNull(message = "notnull")
-    @Size(min = 8, max = 25, message = "notbetween{min}-{max}")
+    @NotNull(message = "601")
+    @Size(min = 8, max = 25, message = "603")
     private String password;
+
+    private boolean emailConfirmed = false;
 
     public User() {
     }
 
     public User(String username, String email, String password) {
-        this.username = username;
+        this.username = username.toLowerCase();
         this.email = email;
         this.password = password;
     }
 
     public String toJson() {
         JSONObject json = new JSONObject();
-        json.put("username", username);
-        json.put("email", email);
         json.put("password", "***");
+        json.put("email", email);
+        json.put("username", username);
         return json.toString();
     }
 
@@ -62,7 +68,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = username.toLowerCase();
     }
 
     public String getEmail() {
@@ -81,4 +87,11 @@ public class User {
         this.password = password;
     }
 
+    public boolean isEmailConfirmed() {
+        return emailConfirmed;
+    }
+
+    public void setEmailConfirmed(boolean emailConfirmed) {
+        this.emailConfirmed = emailConfirmed;
+    }
 }
