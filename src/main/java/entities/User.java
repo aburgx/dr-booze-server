@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Entity(name = "Booze_User")
@@ -32,7 +33,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    //TODO: add new error code for password pattern on register
     @NotNull(message = "601")
+    @Pattern(message = "605", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$")
     @Size(min = 8, max = 25, message = "603")
     private String password;
 

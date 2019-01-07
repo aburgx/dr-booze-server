@@ -53,7 +53,8 @@ public class Repository {
                 /* getPropertyPath() is the credential where the error occured and getMessage() the errorcode.
                 if a single credential has multiple errors then the value of the name/value pair will be
                 a list of all errors. this is why accumulate() was used instead of put() */
-                errorJson.accumulate(violation.getPropertyPath().toString(), violation.getMessage());
+                errorJson.accumulate("error_code", violation.getMessage());
+                errorJson.accumulate("error_reason", violation.getPropertyPath());
             });
             String jsonString = errorJson.toString();
             System.out.println("Violations: " + jsonString);
@@ -72,10 +73,12 @@ public class Repository {
             // the username or email already exists
             JSONObject errorJson = new JSONObject();
             if (numberOfEntriesName != 0) {
-                errorJson.put("username", "602");
+                errorJson.put("error_code", "602");
+                errorJson.put("error_reason", "username");
             }
             if (numberOfEntriesEmail != 0) {
-                errorJson.put("email", "602");
+                errorJson.put("error_code", "602");
+                errorJson.put("error_reason", "email");
             }
 
             // return the errors as a json
@@ -105,7 +108,8 @@ public class Repository {
                 // an exception occured while sending the email
                 System.out.println(e.toString());
                 JSONObject errorJson = new JSONObject();
-                errorJson.put("email", "606");
+                errorJson.put("error_code", "606");
+                errorJson.put("error_reason", "email");
                 String jsonString = errorJson.toString();
                 System.out.println("Violations: " + jsonString);
                 return jsonString;
@@ -140,16 +144,18 @@ public class Repository {
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
 
-        if(resultsGetUser.size() == 0) {
+        if (resultsGetUser.size() == 0) {
             JSONObject json = new JSONObject();
-            json.put("login", "605");
+            json.put("error_code", "605");
+            json.put("error_reason", "login");
             return json.toString();
         }
 
         User user = resultsGetUser.get(0);
         if (!user.getPassword().equals(password)) {
             JSONObject json = new JSONObject();
-            json.put("login", "wrong");
+            json.put("error_code", "606");
+            json.put("error_reason", "null");
             return json.toString();
         }
 
