@@ -35,7 +35,7 @@ public class User {
 
     //TODO: add new error code for password pattern on register
     @NotNull(message = "601")
-    @Pattern(message = "605", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$")
+    @Pattern(message = "605", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
     @Size(min = 8, max = 25, message = "603")
     private String password;
 

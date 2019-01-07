@@ -120,7 +120,7 @@ public class Repository {
 
     // TODO: Delete Verificationtoken
     // TODO: optimize namedqueries
-    public Response verify(final String token) {
+    public boolean verify(final String token) {
         // check if a user has the unique token
         TypedQuery<Long> queryToken = em.createNamedQuery("VerificationToken.verify", Long.class).setParameter("token", token);
         long numberOfTokens = queryToken.getSingleResult();
@@ -133,10 +133,9 @@ public class Repository {
 
             user.setEnabled(true);
             em.getTransaction().commit();
-            return Response.status(200).entity("OK").build();
+            return true;
         } else {
-            // return error
-            return Response.status(400).entity("BAD").build();
+            return false;
         }
     }
 
@@ -155,7 +154,6 @@ public class Repository {
         if (!user.getPassword().equals(password)) {
             JSONObject json = new JSONObject();
             json.put("error_code", "606");
-            json.put("error_reason", "null");
             return json.toString();
         }
 

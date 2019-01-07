@@ -5,6 +5,7 @@ import repositories.Repository;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URISyntaxException;
 
 /**
  * @author Alexander Burghuber
@@ -43,7 +44,23 @@ public class Service {
     @Path("verify/{token}")
     @GET
     public Response verify(@PathParam("token") String token) {
-        return repository.verify(token);
+        java.net.URI location = null;
+        // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
+        if (repository.verify(token)) {
+            try {
+                location = new java.net.URI("http://localhost:4200/login?token=false");
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                location = new java.net.URI("http://localhost:4200/login?token=true");
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(location);
+        return Response.temporaryRedirect(location).build();
     }
 
     @Path("login")
