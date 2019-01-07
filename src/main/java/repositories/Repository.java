@@ -153,7 +153,7 @@ public class Repository {
         User user = resultsGetUser.get(0);
         if (!user.getPassword().equals(password)) {
             JSONObject json = new JSONObject();
-            json.put("error_code", "606");
+            json.put("error_code", "607");
             return json.toString();
         }
 
