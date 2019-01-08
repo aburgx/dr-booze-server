@@ -14,7 +14,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
@@ -50,11 +49,9 @@ public class Repository {
             // collect all violations and put them into a json object
             JSONObject errorJson = new JSONObject();
             constraintViolations.forEach(violation -> {
-                /* getPropertyPath() is the credential where the error occured and getMessage() the errorcode.
-                if a single credential has multiple errors then the value of the name/value pair will be
-                a list of all errors. this is why accumulate() was used instead of put() */
-                errorJson.accumulate("error_code", violation.getMessage());
-                errorJson.accumulate("error_reason", violation.getPropertyPath());
+                // getPropertyPath() is the credential where the error occured and getMessage() the errorcode.
+                errorJson.put("error_code", violation.getMessage());
+                errorJson.put("error_reason", violation.getPropertyPath());
             });
             String jsonString = errorJson.toString();
             System.out.println("Violations: " + jsonString);
@@ -130,7 +127,6 @@ public class Repository {
             TypedQuery<User> queryGetUser = em.createNamedQuery("VerificationToken.getUser", User.class).setParameter("token", token);
             User user = queryGetUser.getSingleResult();
             em.getTransaction().begin();
-
             user.setEnabled(true);
             em.getTransaction().commit();
             return true;
@@ -142,7 +138,6 @@ public class Repository {
     public String login(final String username, final String password) {
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
-
         if (resultsGetUser.size() == 0) {
             JSONObject json = new JSONObject();
             json.put("error_code", "605");
@@ -153,7 +148,8 @@ public class Repository {
         User user = resultsGetUser.get(0);
         if (!user.getPassword().equals(password)) {
             JSONObject json = new JSONObject();
-            json.put("error_code", "607");
+            json.put("error_code", "605");
+            json.put("error_reason", "login");
             return json.toString();
         }
 

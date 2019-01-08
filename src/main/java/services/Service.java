@@ -1,5 +1,6 @@
 package services;
 
+import objects.LoginCredentials;
 import repositories.Repository;
 
 import javax.print.URIException;
@@ -67,47 +68,3 @@ public class Service {
 
 }
 
-class LoginCredentials {
-
-    private String username;
-    private String email;
-    private String password;
-
-    LoginCredentials() {
-    }
-
-    LoginCredentials(String username, String password) {
-        this.username = username.toLowerCase();
-        this.password = password;
-    }
-
-    LoginCredentials(String username, String email, String password) {
-        this.username = username.toLowerCase();
-        this.email = email;
-        this.password = password;
-    }
-
-    String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username.toLowerCase();
-    }
-
-    String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-}
