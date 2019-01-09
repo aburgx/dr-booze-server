@@ -16,8 +16,6 @@ import java.net.URI;
 @Path("booze")
 public class Service {
 
-    private Repository repository = new Repository();
-
     @Path("message")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -29,7 +27,7 @@ public class Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String testJPA() {
-        return repository.test();
+        return Repository.getInstance().test();
     }
 
     /**
@@ -41,7 +39,7 @@ public class Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String register(final LoginCredentials credentials) {
-        return repository.register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
+        return Repository.getInstance().register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
 
     @Path("verify/{token}")
@@ -50,7 +48,7 @@ public class Service {
         URI location = null;
         // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
         try {
-            location = new URI("http://localhost:4200/login?token=" + repository.verify(token));
+            location = new URI("http://localhost:4200/login?token=" + Repository.getInstance().verify(token));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -63,7 +61,7 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public String login(final LoginCredentials credentials) {
-        return repository.login(credentials.getUsername(), credentials.getPassword());
+        return Repository.getInstance().login(credentials.getUsername(), credentials.getPassword());
     }
 
 }

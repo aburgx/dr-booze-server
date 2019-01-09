@@ -48,7 +48,7 @@ public class MailService {
         message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
         message.setSubject("Welcome to Dr Booze");
         String mailBody = "<h1>Welcome to Dr Booze</h1><br>" +
-                "<a href='http://localhost:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
+                "<a href='http://192.168.137.1:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
         message.setContent(mailBody, "text/html");
 
         // send mail
