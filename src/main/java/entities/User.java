@@ -8,6 +8,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 @Entity(name = "Booze_User")
 @NamedQueries({
@@ -40,23 +43,30 @@ public class User {
     @Size(min = 8, max = 25, message = "603")
     private String password;
 
+    private String salt;
+
     private boolean enabled = false;
 
     public User() {
     }
 
     public User(String username, String email, String password) {
-        this.username = username.toLowerCase();
+        this.username = username;
         this.email = email;
         this.password = password;
     }
 
     public String toJson() {
         JSONObject json = new JSONObject();
-        json.put("password", "***");
         json.put("email", email);
         json.put("username", username);
         return json.toString();
+    }
+
+    private String hashPassword(String normalPassword) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        String hashedPassword = Arrays.toString(md.digest(normalPassword.getBytes(StandardCharsets.UTF_8)));
+        return hashedPassword;
     }
 
     public long getId() {
