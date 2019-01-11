@@ -69,27 +69,29 @@ public class User {
 
     @PrePersist
     public void hashPassword() {
-        // generate the salt
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
+        if (this.passwordHash == null) {
+            // generate the salt
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[16];
+            random.nextBytes(salt);
 
-        // setup the encryption
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(salt);
+            try {
+                // setup the encryption
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                md.update(salt);
 
-            // encrypt
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            String encryptedPassword = new String(Hex.encode(hash));
-            this.passwordHash = encryptedPassword;
-            String saltString = new String(Hex.encode(salt));
-            this.salt = saltString;
+                // encrypt
+                byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+                String encryptedPassword = new String(Hex.encode(hash));
+                this.passwordHash = encryptedPassword;
+                String saltString = new String(Hex.encode(salt));
+                this.salt = saltString;
 
-            System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
+                System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
         }
     }
 

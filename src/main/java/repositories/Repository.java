@@ -2,6 +2,7 @@ package repositories;
 
 import entities.User;
 import entities.VerificationToken;
+import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import services.MailService;
@@ -15,6 +16,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +59,7 @@ public class Repository {
      * @return a Json String that includes either the newly registered user or all validation errors
      */
     public String register(final String username, final String email, final String password) {
+
         User user = new User(username, email, password);
 
         // validate the credentials
@@ -71,6 +76,7 @@ public class Repository {
                 jsonList.add(errorJson);
             });
 
+            // return the violations
             JSONObject json = new JSONObject();
             json.put("error", jsonList);
             String jsonString = json.toString();
@@ -100,7 +106,6 @@ public class Repository {
         em.getTransaction().begin();
         em.persist(user);
         em.persist(verificationToken);
-        em.flush();
         em.getTransaction().commit();
 
         // send the email confirmation
@@ -138,28 +143,37 @@ public class Repository {
         }
     }
 
+    /***
+     * Logs the user in if the username and password is correct
+     * @param username the username of the user
+     * @param password the password of the user
+     * @return a Json containing either the user if the login was successful or an error code
+     */
     public String login(final String username, final String password) {
-        /*
+
+        // check if the username exists in the database
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
         if (resultsGetUser.size() == 0) {
-            JSONObject json = new JSONObject();
-            json.put("error_code", "605");
-            json.put("error_reason", "login");
-            return json.toString();
+            return generateErrorJson(605, "login");
         }
 
+        // check if the password is correct
         User user = resultsGetUser.get(0);
-        if (!user.getPassword().equals(password)) {
-            JSONObject json = new JSONObject();
-            json.put("error_code", 605);
-            json.put("error_reason", "login");
-            return json.toString();
-        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(Hex.decode(user.getSalt()));
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
+            if (!new String(Hex.encode(hash)).equals(user.getPasswordHash())) {
+                return generateErrorJson(605, "login");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        // return the user if the login was successful
+        System.out.println("Loged in: " + user.getUsername());
         return user.toJson();
-        */
-        return "";
     }
 
     /**
