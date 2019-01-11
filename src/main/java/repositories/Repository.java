@@ -43,7 +43,7 @@ public class Repository {
     }
 
     public String test() {
-        return "Does currently nothing.";
+        return "Does nothing.";
     }
 
     /**
@@ -100,6 +100,7 @@ public class Repository {
         em.getTransaction().begin();
         em.persist(user);
         em.persist(verificationToken);
+        em.flush();
         em.getTransaction().commit();
 
         // send the email confirmation
@@ -138,6 +139,7 @@ public class Repository {
     }
 
     public String login(final String username, final String password) {
+        /*
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
         if (resultsGetUser.size() == 0) {
@@ -156,6 +158,8 @@ public class Repository {
         }
 
         return user.toJson();
+        */
+        return "";
     }
 
     /**

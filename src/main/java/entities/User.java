@@ -1,5 +1,6 @@
 package entities;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -7,8 +8,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
 
@@ -37,12 +40,13 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    //TODO: add new error code for password pattern on register
+    @Transient
     @NotNull(message = "601")
     @Pattern(message = "605", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
     @Size(min = 8, max = 25, message = "603")
     private String password;
 
+    private String passwordHash;
     private String salt;
 
     private boolean enabled = false;
@@ -63,18 +67,34 @@ public class User {
         return json.toString();
     }
 
-    private String hashPassword(String normalPassword) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        String hashedPassword = Arrays.toString(md.digest(normalPassword.getBytes(StandardCharsets.UTF_8)));
-        return hashedPassword;
+    @PrePersist
+    public void hashPassword() {
+        // generate the salt
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+
+        // setup the encryption
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt);
+
+            // encrypt
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            String encryptedPassword = new String(Hex.encode(hash));
+            this.passwordHash = encryptedPassword;
+            String saltString = new String(Hex.encode(salt));
+            this.salt = saltString;
+
+            System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -93,20 +113,20 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getSalt() {
+        return salt;
     }
 
 }
