@@ -3,7 +3,6 @@ package repositories;
 import entities.User;
 import entities.VerificationToken;
 import org.bouncycastle.util.encoders.Hex;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import services.MailService;
 
@@ -37,7 +36,6 @@ public class Repository {
     private static Repository instance = null;
 
     private Repository() {
-
     }
 
     public static Repository getInstance() {
@@ -59,7 +57,6 @@ public class Repository {
      * @return a Json String that includes either the newly registered user or all validation errors
      */
     public String register(final String username, final String email, final String password) {
-
         User user = new User(username, email, password);
 
         // validate the credentials
@@ -108,9 +105,10 @@ public class Repository {
         em.persist(verificationToken);
         em.getTransaction().commit();
 
-        // send the email confirmation
         try {
+            // send the email confirmation
             mailService.send(user, verificationToken);
+
             // return user as json
             String jsonString = user.toJson();
             System.out.println(jsonString);
@@ -150,7 +148,6 @@ public class Repository {
      * @return a Json containing either the user if the login was successful or an error code
      */
     public String login(final String username, final String password) {
-
         // check if the username exists in the database
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
@@ -176,14 +173,6 @@ public class Repository {
         return user.toJson();
     }
 
-    /**
-     * {
-     * {
-     * "error_code":601,
-     * "error_reason":"username"
-     * }
-     * }
-     **/
     private String generateErrorJson(int error_code, String error_reason) {
         JSONObject innerJson = new JSONObject();
         innerJson.put("error_code", error_code);

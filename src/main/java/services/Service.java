@@ -3,12 +3,11 @@ package services;
 import objects.LoginCredentials;
 import repositories.Repository;
 
-import javax.print.URIException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URISyntaxException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author Alexander Burghuber
@@ -42,6 +41,10 @@ public class Service {
         return Repository.getInstance().register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
 
+    /**
+     * @param token the unique string that is a pathparam of the url inside the verification email
+     * @return either a success or failure Reponse
+     */
     @Path("verify/{token}")
     @GET
     public Response verify(@PathParam("token") String token) {

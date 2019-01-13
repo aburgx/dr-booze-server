@@ -1,6 +1,6 @@
 package enums;
 
-//TODO: ENums Errors lul
+//TODO
 public enum CustomError {
 
     E601, E602, E603, E604, E605, E606;
