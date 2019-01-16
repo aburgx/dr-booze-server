@@ -6,10 +6,6 @@ import java.util.Date;
 import java.util.UUID;
 
 @Entity(name = "Booze_VerificationToken")
-@NamedQueries({
-        @NamedQuery(name = "VerificationToken.verify", query = "SELECT COUNT(v) FROM Booze_VerificationToken v WHERE v.token = :token"),
-        @NamedQuery(name = "VerificationToken.getUser", query = "SELECT v.user FROM Booze_VerificationToken v WHERE v.token = :token")
-})
 public class VerificationToken {
 
     @Id

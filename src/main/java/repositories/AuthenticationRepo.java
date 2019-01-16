@@ -2,6 +2,7 @@ package repositories;
 
 import entities.User;
 import entities.VerificationToken;
+import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 import services.MailService;
@@ -25,22 +26,23 @@ import java.util.Set;
 /**
  * @author Alexander Burghuber
  */
-public class Repository {
+public class AuthenticationRepo {
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
     private EntityManager em = emf.createEntityManager();
     private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
     private MailService mailService = new MailService();
+    private ErrorGenerator errorgen = new ErrorGenerator();
 
-    private static Repository instance = null;
+    private static AuthenticationRepo instance = null;
 
-    private Repository() {
+    private AuthenticationRepo() {
     }
 
-    public static Repository getInstance() {
+    public static AuthenticationRepo getInstance() {
         if (instance == null)
-            instance = new Repository();
+            instance = new AuthenticationRepo();
         return instance;
     }
 
@@ -50,7 +52,6 @@ public class Repository {
 
     /**
      * Registers a new user and validates his credentials
-     *
      * @param username the username of the user
      * @param email    the email of the user
      * @param password the password of the user
@@ -89,10 +90,10 @@ public class Repository {
 
         // check if the username or the email is already taken
         if (numberOfEntriesName != 0) {
-            return generateErrorJson(602, "username");
+            return errorgen.generate(602, "username");
         }
         if (numberOfEntriesEmail != 0) {
-            return generateErrorJson(602, "email");
+            return errorgen.generate(602, "email");
         }
 
         // setup the verification token of the user
@@ -116,24 +117,29 @@ public class Repository {
         } catch (MessagingException ex) {
             // an exception occured while sending the email
             System.out.println(ex.toString());
-            return generateErrorJson(606, "email");
+            return errorgen.generate(606, "email");
         }
 
     }
 
-    // TODO: Delete Verificationtoken
-    // TODO: optimize namedqueries
+    /***
+     * Verifies an user using the token that was send with the url inside the verification email.
+     * @param token the verification token
+     * @return a boolean that indicates if the verification was successful or not
+     */
     public boolean verify(final String token) {
-        // check if a user has the unique token
-        TypedQuery<Long> queryToken = em.createNamedQuery("VerificationToken.verify", Long.class).setParameter("token", token);
-        long numberOfTokens = queryToken.getSingleResult();
-
-        if (numberOfTokens != 0) {
-            // verify and enable the user
-            TypedQuery<User> queryGetUser = em.createNamedQuery("VerificationToken.getUser", User.class).setParameter("token", token);
-            User user = queryGetUser.getSingleResult();
+        // check if the token exists
+        List<VerificationToken> tokenList
+                = em.createQuery("SELECT v FROM Booze_VerificationToken v WHERE v.token = :token", VerificationToken.class)
+                .setParameter("token", token)
+                .getResultList();
+        if (tokenList.size() != 0) {
+            VerificationToken verificationToken = tokenList.get(0);
+            User user = verificationToken.getUser();
+            // set the user enabled and delete the token
             em.getTransaction().begin();
             user.setEnabled(true);
+            em.remove(verificationToken);
             em.getTransaction().commit();
             return true;
         } else {
@@ -152,7 +158,7 @@ public class Repository {
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
         if (resultsGetUser.size() == 0) {
-            return generateErrorJson(605, "login");
+            return errorgen.generate(605, "login");
         }
 
         // check if the password is correct
@@ -163,27 +169,14 @@ public class Repository {
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             if (!new String(Hex.encode(hash)).equals(user.getPasswordHash())) {
-                return generateErrorJson(605, "login");
+                return errorgen.generate(605, "login");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         // return the user if the login was successful
-        System.out.println("Loged in: " + user.getUsername());
+        System.out.println("Logged in: " + user.getUsername());
         return user.toJson();
-    }
-
-    private String generateErrorJson(int error_code, String error_reason) {
-        JSONObject innerJson = new JSONObject();
-        innerJson.put("error_code", error_code);
-        innerJson.put("error_reason", error_reason);
-
-        JSONObject outerJson = new JSONObject();
-        outerJson.put("error", innerJson);
-
-        String jsonString = outerJson.toString();
-        System.out.println(jsonString);
-        return jsonString;
     }
 
 }

@@ -3,7 +3,7 @@ package services;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import repositories.Repository;
+import repositories.AuthenticationRepo;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,8 +36,8 @@ public class REST_JavaSE {
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
 
-        // call Repository to start the entitymanager & the validator
-        Repository.getInstance();
+        // call AuthenticationRepo to start the entitymanager & the validator
+        AuthenticationRepo.getInstance();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", BASE_URI));
         System.in.read();

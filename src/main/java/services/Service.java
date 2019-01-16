@@ -1,7 +1,7 @@
 package services;
 
 import objects.LoginCredentials;
-import repositories.Repository;
+import repositories.AuthenticationRepo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -26,7 +26,7 @@ public class Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String testJPA() {
-        return Repository.getInstance().test();
+        return AuthenticationRepo.getInstance().test();
     }
 
     /**
@@ -38,7 +38,7 @@ public class Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String register(final LoginCredentials credentials) {
-        return Repository.getInstance().register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
+        return AuthenticationRepo.getInstance().register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
     }
 
     /**
@@ -51,7 +51,7 @@ public class Service {
         URI location = null;
         // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
         try {
-            location = new URI("http://localhost:4200/login?token=" + Repository.getInstance().verify(token));
+            location = new URI("http://localhost:4200/login?token=" + AuthenticationRepo.getInstance().verify(token));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -64,7 +64,7 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public String login(final LoginCredentials credentials) {
-        return Repository.getInstance().login(credentials.getUsername(), credentials.getPassword());
+        return AuthenticationRepo.getInstance().login(credentials.getUsername(), credentials.getPassword());
     }
 
 }
