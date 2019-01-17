@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 /**
  * @author Alexander Burghuber
  */
-public class REST_JavaSE {
+public class Main {
 
     private static final String BASE_URI = "http://0.0.0.0:8080/rest";
 

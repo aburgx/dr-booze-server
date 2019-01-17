@@ -15,7 +15,6 @@ public class VerificationToken {
     @OneToOne(cascade = CascadeType.PERSIST)
     private User user;
 
-    @Column(unique = true)
     private String token;
 
     @Temporal(value = TemporalType.DATE)

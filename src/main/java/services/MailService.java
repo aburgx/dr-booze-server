@@ -21,6 +21,7 @@ import static javax.mail.Message.RecipientType;
 public class MailService {
 
     private String emailPassword;
+    private Session session;
 
     public MailService() {
         // load the email password from the config file
@@ -28,21 +29,23 @@ public class MailService {
             Properties prop = new Properties();
             prop.load(input);
             emailPassword = prop.getProperty("email_password");
+
+            // setup properties
+            Properties properties = System.getProperties();
+            properties.put("mail.smtp.port", "587");
+            properties.put("mail.smtp.auth", "true");
+            properties.put("mail.smtp.starttls.enable", "true");
+
+            // setup mail session
+            session = Session.getDefaultInstance(properties, null);
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
     }
 
     public void send(User user, VerificationToken verificationToken) throws MessagingException {
-        // setup properties
-        Properties properties = System.getProperties();
-        properties.put("mail.smtp.port", "587");
-        properties.put("mail.smtp.auth", "true");
-        properties.put("mail.smtp.starttls.enable", "true");
-
-        // setup mail session
-        Session session = Session.getDefaultInstance(properties, null);
-
         // setup message
         MimeMessage message = new MimeMessage(session);
         message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));

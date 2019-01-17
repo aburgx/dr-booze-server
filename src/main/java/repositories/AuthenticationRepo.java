@@ -108,14 +108,17 @@ public class AuthenticationRepo {
 
         try {
             // send the email confirmation
+            final long startTime = System.currentTimeMillis();
             mailService.send(user, verificationToken);
+            final long endTime = System.currentTimeMillis();
+            System.out.println("Email time: " + (endTime - startTime));
 
             // return user as json
             String jsonString = user.toJson();
             System.out.println(jsonString);
             return jsonString;
         } catch (MessagingException ex) {
-            // an exception occured while sending the email
+            // an exception occurred while sending the email
             System.out.println(ex.toString());
             return errorgen.generate(606, "email");
         }

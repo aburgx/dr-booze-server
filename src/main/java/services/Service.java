@@ -43,7 +43,7 @@ public class Service {
 
     /**
      * @param token the unique string that is a pathparam of the url inside the verification email
-     * @return either a success or failure Reponse
+     * @return either a success or failure response
      */
     @Path("verify/{token}")
     @GET
@@ -60,6 +60,10 @@ public class Service {
 
     }
 
+    /**
+     * @param credentials a Json string that includes the username and the password
+     * @return a Json String that includes either the logged in user or login errors
+     */
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
