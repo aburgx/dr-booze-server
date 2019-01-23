@@ -47,7 +47,6 @@ public class Main {
     private static HttpServer startServer() {
         // search all classes in the package "services" to find REST services
         final ResourceConfig rc = new ResourceConfig().packages("services", "filters");
-
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 }

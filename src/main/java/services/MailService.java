@@ -18,12 +18,17 @@ import static javax.mail.Message.RecipientType;
 /**
  * @author Alexander Burghuber
  */
-public class MailService {
+public class MailService implements Runnable {
 
     private String emailPassword;
     private Session session;
+    private User user;
+    private VerificationToken verificationToken;
 
-    public MailService() {
+    public MailService(User user, VerificationToken verificationToken) {
+        this.user = user;
+        this.verificationToken = verificationToken;
+
         // load the email password from the config file
         try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();
@@ -45,21 +50,25 @@ public class MailService {
 
     }
 
-    public void send(User user, VerificationToken verificationToken) throws MessagingException {
-        // setup message
-        MimeMessage message = new MimeMessage(session);
-        message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
-        message.setSubject("Welcome to Dr Booze");
-        String mailBody = "<h1>Welcome to Dr Booze</h1><br>" +
-                "<a href='http://192.168.137.1:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
-        message.setContent(mailBody, "text/html");
+    @Override
+    public void run() {
+        try {
+            // setup message
+            MimeMessage message = new MimeMessage(session);
+            message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
+            message.setSubject("Welcome to Dr Booze");
+            String mailBody = "<h1>Welcome to Dr Booze</h1><br>" +
+                    "<a href='http://192.168.137.1:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
+            message.setContent(mailBody, "text/html");
 
-        // send mail
-        Transport transport = session.getTransport("smtp");
-        transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
-        transport.sendMessage(message, message.getAllRecipients());
-        transport.close();
-        System.out.println("Email Confirmation sent.");
+            // send mail
+            Transport transport = session.getTransport("smtp");
+            transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
+
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        }
     }
-
 }

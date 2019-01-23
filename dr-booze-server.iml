@@ -6,7 +6,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="EclipseLink" />
         <datasource-mapping>
-          <factory-entry name="DrBoozePU" />
+          <factory-entry name="DrBoozePU" value="f7f8ac97-9079-4ce5-ae3f-f026666de69c" />
           <factory-entry name="Entities" />
           <factory-entry name="JPAExample" />
           <factory-entry name="PersonPU" />

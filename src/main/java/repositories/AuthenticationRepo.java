@@ -22,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Alexander Burghuber
@@ -32,8 +34,8 @@ public class AuthenticationRepo {
     private EntityManager em = emf.createEntityManager();
     private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
-    private MailService mailService = new MailService();
     private ErrorGenerator errorgen = new ErrorGenerator();
+    private ExecutorService executer = Executors.newFixedThreadPool(10);
 
     private static AuthenticationRepo instance = null;
 
@@ -106,26 +108,20 @@ public class AuthenticationRepo {
         em.persist(verificationToken);
         em.getTransaction().commit();
 
-        try {
-            // send the email confirmation
-            final long startTime = System.currentTimeMillis();
-            mailService.send(user, verificationToken);
-            final long endTime = System.currentTimeMillis();
-            System.out.println("Email time: " + (endTime - startTime));
+        // multithreaded email sending
+        executer.execute(() -> {
+            System.out.println("Sending email confirmation.");
+            new MailService(user, verificationToken).run();
+            System.out.println("Email confirmation sent.");
+        });
 
-            // return user as json
-            String jsonString = user.toJson();
-            System.out.println(jsonString);
-            return jsonString;
-        } catch (MessagingException ex) {
-            // an exception occurred while sending the email
-            System.out.println(ex.toString());
-            return errorgen.generate(606, "email");
-        }
-
+        // return user as json
+        String jsonString = user.toJson();
+        System.out.println(jsonString);
+        return jsonString;
     }
 
-    /***
+    /**
      * Verifies an user using the token that was send with the url inside the verification email.
      * @param token the verification token
      * @return a boolean that indicates if the verification was successful or not
@@ -133,7 +129,7 @@ public class AuthenticationRepo {
     public boolean verify(final String token) {
         // check if the token exists
         List<VerificationToken> tokenList
-                = em.createQuery("SELECT v FROM Booze_VerificationToken v WHERE v.token = :token", VerificationToken.class)
+                = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
                 .setParameter("token", token)
                 .getResultList();
         if (tokenList.size() != 0) {
@@ -150,7 +146,7 @@ public class AuthenticationRepo {
         }
     }
 
-    /***
+    /**
      * Logs the user in if the username and password is correct
      * @param username the username of the user
      * @param password the password of the user

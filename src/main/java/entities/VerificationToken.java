@@ -5,14 +5,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-@Entity(name = "Booze_VerificationToken")
+@Entity
+@Table(name = "Booze_VerificationToken")
 public class VerificationToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private User user;
 
     private String token;

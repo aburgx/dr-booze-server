@@ -13,11 +13,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-@Entity(name = "Booze_User")
+@Entity
+@Table(name = "Booze_User")
 @NamedQueries({
-        @NamedQuery(name = "User.getUser", query = "SELECT u FROM Booze_User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.checkUniqueName", query = "SELECT COUNT(u) FROM Booze_User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.checkUniqueEmail", query = "SELECT COUNT(u) FROM Booze_User u WHERE u.email = :email")
+        @NamedQuery(name = "User.getUser", query = "SELECT u FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.checkUniqueName", query = "SELECT COUNT(u) FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.checkUniqueEmail", query = "SELECT COUNT(u) FROM User u WHERE u.email = :email")
 })
 public class User {
 
