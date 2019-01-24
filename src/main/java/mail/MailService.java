@@ -1,4 +1,4 @@
-package services;
+package mail;
 
 import entities.User;
 import entities.VerificationToken;

@@ -5,9 +5,8 @@ import entities.VerificationToken;
 import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
-import services.MailService;
+import mail.MailService;
 
-import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
