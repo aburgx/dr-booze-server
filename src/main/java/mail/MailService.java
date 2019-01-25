@@ -4,6 +4,7 @@ import entities.User;
 import entities.VerificationToken;
 import services.Main;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -39,7 +40,6 @@ public class MailService {
 
             // setup mail session
             session = Session.getDefaultInstance(properties, null);
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -47,7 +47,6 @@ public class MailService {
 
     public void sendConfirmation(User user, VerificationToken verificationToken) {
         try {
-            // setup message
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
             message.setSubject("Welcome to Dr. Booze");
@@ -55,30 +54,34 @@ public class MailService {
                     "<h1>Welcome to Dr. Booze</h1><br>" +
                             "<a href='" + Main.BASE_URI + "/booze/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
-            message.setContent(mailBody, "text/html");
-
-            // send mail
-            Transport transport = session.getTransport("smtp");
-            transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
-            transport.sendMessage(message, message.getAllRecipients());
-            transport.close();
-
+            transport(message, mailBody);
         } catch (MessagingException ex) {
             ex.printStackTrace();
         }
     }
 
     // TODO: code password reset
-    public void sendPasswordReset(User user) {
+    public void sendPasswordReset(User user, VerificationToken verificationToken) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress((user.getEmail()))));
             message.setSubject("Reset your password");
-            String mailBody = "<h1>Reset your Dr. Booze</h1><br>" +
-                    "<a href='http://" + Main.BASE_URI + "/rest/booze/resetPassword/";
+            String mailBody = "<h1>Reset your Dr. Booze Password</h1><br>" +
+                    "<a href='http://" + Main.BASE_URI + "/rest/booze/resetPwd/token/" + verificationToken.getToken() + "'>" +
+                    "Reset the password</a>";
+            transport(message, mailBody);
         } catch (MessagingException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private void transport(Message message, String mailBody) throws MessagingException {
+        message.setContent(mailBody, "text/html");
+
+        Transport transport = session.getTransport("smtp");
+        transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
+        transport.sendMessage(message, message.getAllRecipients());
+        transport.close();
     }
 
 }

@@ -1,6 +1,7 @@
 package services;
 
 import objects.LoginCredentials;
+import oracle.jdbc.proxy.annotation.Post;
 import repositories.AuthenticationRepo;
 
 import javax.ws.rs.*;
@@ -51,12 +52,27 @@ public class Service {
         return AuthenticationRepo.getInstance().login(credentials.getUsername(), credentials.getPassword());
     }
 
-    @Path("resetPwd")
+    // TODO: oida wtf fix this
+    @Path("reset/password/step/1")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public String resetPassword(final String email) {
         return AuthenticationRepo.getInstance().resetPassword(email);
     }
+
+    // TODO: code password reset
+    @Path("reset/password/step/2/{token}")
+    @GET
+    public Response verifyResetPassword(@PathParam("token") String token) {
+        if (AuthenticationRepo.getInstance().verifyResetPassword(token)) {
+
+        } else {
+
+        }
+        return null;
+    }
+
+    // @Path("reset/password/step/3") TODO
 
 }
 

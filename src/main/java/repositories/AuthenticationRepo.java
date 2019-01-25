@@ -15,6 +15,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,17 +31,21 @@ import java.util.concurrent.Executors;
  */
 public class AuthenticationRepo {
 
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
-    private EntityManager em = emf.createEntityManager();
-    private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private Validator validator = factory.getValidator();
-    private ErrorGenerator errorgen = new ErrorGenerator();
-    private ExecutorService executer = Executors.newFixedThreadPool(10);
-    private MailService mail = new MailService();
+    private EntityManager em;
+    private Validator validator;
+    private ErrorGenerator errorgen;
+    private MailService mail;
+    private ExecutorService executor = Executors.newFixedThreadPool(10);
 
     private static AuthenticationRepo instance = null;
 
     private AuthenticationRepo() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
+        this.em = emf.createEntityManager();
+        ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
+        this.validator = vf.getValidator();
+        this.errorgen = new ErrorGenerator();
+        this.mail = new MailService();
     }
 
     public static AuthenticationRepo getInstance() {
@@ -51,6 +56,7 @@ public class AuthenticationRepo {
 
     /**
      * Registers a new user and validates his credentials
+     *
      * @param username the username of the user
      * @param email    the email of the user
      * @param password the password of the user
@@ -106,7 +112,7 @@ public class AuthenticationRepo {
         em.getTransaction().commit();
 
         // multithreaded email sending
-        executer.execute(() -> {
+        executor.execute(() -> {
             System.out.println("Sending email confirmation.");
             mail.sendConfirmation(user, verificationToken);
             System.out.println("Email confirmation sent.");
@@ -118,10 +124,9 @@ public class AuthenticationRepo {
         return jsonString;
     }
 
-
-
     /**
      * Logs the user in if the username and password is correct
+     *
      * @param username the username of the user
      * @param password the password of the user
      * @return a Json containing either the user if the login was successful or an error code
@@ -155,6 +160,7 @@ public class AuthenticationRepo {
 
     /**
      * Verifies an user using the token that was send with the url inside the verification email.
+     *
      * @param token the verification token
      * @return a boolean that indicates if the verification was successful or not
      */
@@ -186,7 +192,6 @@ public class AuthenticationRepo {
         }
     }
 
-    // TODO: code reset Password
     public String resetPassword(String email) {
         // check if the email exists
         TypedQuery<Long> queryEmailCount = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
@@ -198,12 +203,43 @@ public class AuthenticationRepo {
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
         User user = queryGetUser.getResultList().get(0);
 
-        // VerificationToken verificationToken = new VerificationToken(user);
-        executer.execute(() -> {
+        // check if the user verified his email
+        if (!user.isEnabled()) {
+            return errorgen.generate(604, "resetPwd");
+        }
+
+        VerificationToken verificationToken = new VerificationToken(user);
+        executor.execute(() -> {
             System.out.println("Sending password reset email...");
-            mail.sendPasswordReset(user);
+            mail.sendPasswordReset(user, verificationToken);
             System.out.println("Sent password reset email...");
         });
-        return "unfinished";
+        // TODO: Return success
+        return "";
+    }
+
+    // TODO: code verfiy reset password
+    public boolean verifyResetPassword(String token) {
+        // check if the token exists
+        List<VerificationToken> tokenList
+                = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
+                .setParameter("token", token)
+                .getResultList();
+        if (tokenList.size() != 0) {
+            VerificationToken verifyToken = tokenList.get(0);
+
+            Date currentDate = new Date();
+            Date tokenDate = verifyToken.getExpiryDate();
+
+            if (tokenDate.compareTo(currentDate) >= 0) {
+                User user = verifyToken.getUser();
+
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }
