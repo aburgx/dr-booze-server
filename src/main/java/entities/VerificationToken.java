@@ -18,6 +18,7 @@ public class VerificationToken {
 
     private String token;
 
+    // TODO: Code expire check
     @Temporal(value = TemporalType.DATE)
     private Date expiryDate;
 

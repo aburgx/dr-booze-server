@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +36,7 @@ public class AuthenticationRepo {
     private Validator validator = factory.getValidator();
     private ErrorGenerator errorgen = new ErrorGenerator();
     private ExecutorService executer = Executors.newFixedThreadPool(10);
+    private MailService mail = new MailService();
 
     private static AuthenticationRepo instance = null;
 
@@ -45,10 +47,6 @@ public class AuthenticationRepo {
         if (instance == null)
             instance = new AuthenticationRepo();
         return instance;
-    }
-
-    public String test() {
-        return "Does nothing.";
     }
 
     /**
@@ -83,10 +81,10 @@ public class AuthenticationRepo {
             return jsonString;
         }
 
-        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.checkUniqueName", Long.class).setParameter("username", username);
+        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class).setParameter("username", username);
         long numberOfEntriesName = queryUniqueName.getSingleResult();
 
-        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.checkUniqueEmail", Long.class).setParameter("email", email);
+        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
         long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
         // check if the username or the email is already taken
@@ -110,7 +108,7 @@ public class AuthenticationRepo {
         // multithreaded email sending
         executer.execute(() -> {
             System.out.println("Sending email confirmation.");
-            new MailService(user, verificationToken).run();
+            mail.sendConfirmation(user, verificationToken);
             System.out.println("Email confirmation sent.");
         });
 
@@ -120,30 +118,7 @@ public class AuthenticationRepo {
         return jsonString;
     }
 
-    /**
-     * Verifies an user using the token that was send with the url inside the verification email.
-     * @param token the verification token
-     * @return a boolean that indicates if the verification was successful or not
-     */
-    public boolean verify(final String token) {
-        // check if the token exists
-        List<VerificationToken> tokenList
-                = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
-                .setParameter("token", token)
-                .getResultList();
-        if (tokenList.size() != 0) {
-            VerificationToken verificationToken = tokenList.get(0);
-            User user = verificationToken.getUser();
-            // set the user enabled and delete the token
-            em.getTransaction().begin();
-            user.setEnabled(true);
-            em.remove(verificationToken);
-            em.getTransaction().commit();
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 
     /**
      * Logs the user in if the username and password is correct
@@ -153,8 +128,9 @@ public class AuthenticationRepo {
      */
     public String login(final String username, final String password) {
         // check if the username exists in the database
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.getUser", User.class).setParameter("username", username);
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
+
         if (resultsGetUser.size() == 0) {
             return errorgen.generate(605, "login");
         }
@@ -177,4 +153,57 @@ public class AuthenticationRepo {
         return user.toJson();
     }
 
+    /**
+     * Verifies an user using the token that was send with the url inside the verification email.
+     * @param token the verification token
+     * @return a boolean that indicates if the verification was successful or not
+     */
+    public boolean verify(final String token) {
+        // check if the token exists
+        List<VerificationToken> tokenList
+                = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
+                .setParameter("token", token)
+                .getResultList();
+        if (tokenList.size() != 0) {
+            VerificationToken verifyToken = tokenList.get(0);
+
+            Date currentDate = new Date();
+            Date tokenDate = verifyToken.getExpiryDate();
+
+            if (tokenDate.compareTo(currentDate) >= 0) {
+                User user = verifyToken.getUser();
+                // set the user enabled and delete the token
+                em.getTransaction().begin();
+                user.setEnabled(true);
+                em.remove(verifyToken);
+                em.getTransaction().commit();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // TODO: code reset Password
+    public String resetPassword(String email) {
+        // check if the email exists
+        TypedQuery<Long> queryEmailCount = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
+        if (queryEmailCount.getSingleResult() == 0) {
+            return errorgen.generate(604, "resetPwd");
+        }
+
+        // get the associated user
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
+        User user = queryGetUser.getResultList().get(0);
+
+        // VerificationToken verificationToken = new VerificationToken(user);
+        executer.execute(() -> {
+            System.out.println("Sending password reset email...");
+            mail.sendPasswordReset(user);
+            System.out.println("Sent password reset email...");
+        });
+        return "unfinished";
+    }
 }

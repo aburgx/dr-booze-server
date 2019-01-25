@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    private static final String BASE_URI = "http://0.0.0.0:8080/rest";
+    public static final String BASE_URI = "http://localhost:8080/rest";
 
     public static void main(String[] args) throws IOException {
         // start the server
@@ -35,7 +35,7 @@ public class Main {
         ConsoleHandler ch = new ConsoleHandler();
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
-
+        
         // call AuthenticationRepo to start the entitymanager & the validator
         AuthenticationRepo.getInstance();
 

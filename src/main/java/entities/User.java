@@ -16,9 +16,10 @@ import java.security.SecureRandom;
 @Entity
 @Table(name = "Booze_User")
 @NamedQueries({
-        @NamedQuery(name = "User.getUser", query = "SELECT u FROM User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.checkUniqueName", query = "SELECT COUNT(u) FROM User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.checkUniqueEmail", query = "SELECT COUNT(u) FROM User u WHERE u.email = :email")
+        @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM User u WHERE u.email = :email"),
+        @NamedQuery(name = "User.count-username", query = "SELECT COUNT(u) FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM User u WHERE u.email = :email")
 })
 public class User {
 

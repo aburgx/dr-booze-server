@@ -2,6 +2,7 @@ package mail;
 
 import entities.User;
 import entities.VerificationToken;
+import services.Main;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -18,17 +19,12 @@ import static javax.mail.Message.RecipientType;
 /**
  * @author Alexander Burghuber
  */
-public class MailService implements Runnable {
+public class MailService {
 
     private String emailPassword;
     private Session session;
-    private User user;
-    private VerificationToken verificationToken;
 
-    public MailService(User user, VerificationToken verificationToken) {
-        this.user = user;
-        this.verificationToken = verificationToken;
-
+    public MailService() {
         // load the email password from the config file
         try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();
@@ -47,18 +43,18 @@ public class MailService implements Runnable {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
     }
 
-    @Override
-    public void run() {
+    public void sendConfirmation(User user, VerificationToken verificationToken) {
         try {
             // setup message
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
-            message.setSubject("Welcome to Dr Booze");
-            String mailBody = "<h1>Welcome to Dr Booze</h1><br>" +
-                    "<a href='http://192.168.137.1:8080/rest/booze/verify/" + verificationToken.getToken() + "'>Confirm your email</a>";
+            message.setSubject("Welcome to Dr. Booze");
+            String mailBody =
+                    "<h1>Welcome to Dr. Booze</h1><br>" +
+                            "<a href='" + Main.BASE_URI + "/booze/verify/" + verificationToken.getToken()
+                            + "'>Confirm your email</a>";
             message.setContent(mailBody, "text/html");
 
             // send mail
@@ -71,4 +67,18 @@ public class MailService implements Runnable {
             ex.printStackTrace();
         }
     }
+
+    // TODO: code password reset
+    public void sendPasswordReset(User user) {
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress((user.getEmail()))));
+            message.setSubject("Reset your password");
+            String mailBody = "<h1>Reset your Dr. Booze</h1><br>" +
+                    "<a href='http://" + Main.BASE_URI + "/rest/booze/resetPassword/";
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 }
