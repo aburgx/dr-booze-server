@@ -23,7 +23,7 @@ public class Main {
         final HttpServer server = startServer();
 
         /*
-        unneeded right now
+        unneeded as of now
         static content - in project directory "public" are the html-files : localhost:8080/index.html
         server.getServerConfiguration().addHttpHandler(new StaticHttpHandler("public"), "/");
         */
@@ -36,7 +36,7 @@ public class Main {
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
         
-        // call AuthenticationRepo to start the entitymanager & the validator
+        // call AuthenticationRepo to start the entitymanager & validator
         AuthenticationRepo.getInstance();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", BASE_URI));

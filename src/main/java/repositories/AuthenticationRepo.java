@@ -192,54 +192,5 @@ public class AuthenticationRepo {
         }
     }
 
-    public String resetPassword(String email) {
-        // check if the email exists
-        TypedQuery<Long> queryEmailCount = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
-        if (queryEmailCount.getSingleResult() == 0) {
-            return errorgen.generate(604, "resetPwd");
-        }
 
-        // get the associated user
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
-        User user = queryGetUser.getResultList().get(0);
-
-        // check if the user verified his email
-        if (!user.isEnabled()) {
-            return errorgen.generate(604, "resetPwd");
-        }
-
-        VerificationToken verificationToken = new VerificationToken(user);
-        executor.execute(() -> {
-            System.out.println("Sending password reset email...");
-            mail.sendPasswordReset(user, verificationToken);
-            System.out.println("Sent password reset email...");
-        });
-        // TODO: Return success
-        return "";
-    }
-
-    // TODO: code verfiy reset password
-    public boolean verifyResetPassword(String token) {
-        // check if the token exists
-        List<VerificationToken> tokenList
-                = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
-                .setParameter("token", token)
-                .getResultList();
-        if (tokenList.size() != 0) {
-            VerificationToken verifyToken = tokenList.get(0);
-
-            Date currentDate = new Date();
-            Date tokenDate = verifyToken.getExpiryDate();
-
-            if (tokenDate.compareTo(currentDate) >= 0) {
-                User user = verifyToken.getUser();
-
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 }

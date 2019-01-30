@@ -60,21 +60,6 @@ public class MailService {
         }
     }
 
-    // TODO: code password reset
-    public void sendPasswordReset(User user, VerificationToken verificationToken) {
-        try {
-            MimeMessage message = new MimeMessage(session);
-            message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress((user.getEmail()))));
-            message.setSubject("Reset your password");
-            String mailBody = "<h1>Reset your Dr. Booze Password</h1><br>" +
-                    "<a href='http://" + Main.BASE_URI + "/rest/booze/resetPwd/token/" + verificationToken.getToken() + "'>" +
-                    "Reset the password</a>";
-            transport(message, mailBody);
-        } catch (MessagingException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     private void transport(Message message, String mailBody) throws MessagingException {
         message.setContent(mailBody, "text/html");
 
