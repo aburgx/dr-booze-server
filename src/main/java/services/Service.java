@@ -1,7 +1,6 @@
 package services;
 
-import objects.LoginCredentials;
-import oracle.jdbc.proxy.annotation.Post;
+import objects.DataTransferObject;
 import repositories.AuthenticationRepo;
 
 import javax.ws.rs.*;
@@ -27,8 +26,27 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String register(final LoginCredentials credentials) {
-        return AuthenticationRepo.getInstance().register(credentials.getUsername(), credentials.getEmail(), credentials.getPassword());
+    public String register(final DataTransferObject dto) {
+        return AuthenticationRepo.getInstance().register(
+                dto.getUsername(),
+                dto.getEmail(),
+                dto.getPassword()
+        );
+    }
+
+    @Path("insertDetails")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String insertDetails(final DataTransferObject dto) {
+        return AuthenticationRepo.getInstance().insertDetails(
+                dto.getEmail(),
+                dto.getFirstName(),
+                dto.getLastName(),
+                dto.getGender(),
+                dto.getBirthday(),
+                dto.getHeight(),
+                dto.getWeight()
+        );
     }
 
     @Path("verify/{token}")
@@ -48,8 +66,8 @@ public class Service {
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public String login(final LoginCredentials credentials) {
-        return AuthenticationRepo.getInstance().login(credentials.getUsername(), credentials.getPassword());
+    public String login(final DataTransferObject dto) {
+        return AuthenticationRepo.getInstance().login(dto.getUsername(), dto.getPassword());
     }
 
 }

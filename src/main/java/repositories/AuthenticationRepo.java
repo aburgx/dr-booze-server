@@ -1,21 +1,19 @@
 package repositories;
 
+import entities.Person;
 import entities.User;
 import entities.VerificationToken;
+import mail.MailService;
 import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
-import mail.MailService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +27,7 @@ import java.util.concurrent.Executors;
 /**
  * @author Alexander Burghuber
  */
+@SuppressWarnings("Duplicates")
 public class AuthenticationRepo {
 
     private EntityManager em;
@@ -55,7 +54,7 @@ public class AuthenticationRepo {
     }
 
     /**
-     * Registers a new user and validates his credentials
+     * Registers a new user and validates his input
      *
      * @param username the username of the user
      * @param email    the email of the user
@@ -65,14 +64,12 @@ public class AuthenticationRepo {
     public String register(final String username, final String email, final String password) {
         User user = new User(username, email, password);
 
-        // validate the credentials
-        Set<ConstraintViolation<User>> constraintViolations = validator.validate(user);
-        if (constraintViolations.size() > 0) {
-
-            // collect all violations and put them into a json object
+        // validate the input
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (violations.size() > 0) {
             List<JSONObject> jsonList = new ArrayList<>();
 
-            constraintViolations.forEach(violation -> {
+            violations.forEach(violation -> {
                 JSONObject errorJson = new JSONObject();
                 errorJson.accumulate("error_code", violation.getMessage());
                 errorJson.accumulate("error_reason", violation.getPropertyPath());
@@ -120,6 +117,67 @@ public class AuthenticationRepo {
 
         // return user as json
         String jsonString = user.toJson();
+        System.out.println(jsonString);
+        return jsonString;
+    }
+
+    /**
+     * Inserts the details of an user as a person object
+     *
+     * @param email the email of the already existing user
+     * @param firstName the first name of the user
+     * @param lastName the last name of the user
+     * @param gender the gender of the user
+     * @param birthday the birthday of the user
+     * @param height the height of the user
+     * @param weight the weight of the user
+     * @return a Json String that includes either the user or all validation errors
+     */
+    public String insertDetails(final String email, final String firstName, final String lastName, final char gender,
+                                final Date birthday, final BigDecimal height, final BigDecimal weight) {
+        // check if gender is correct
+        if (gender != 'M' && gender != 'F') {
+            return errorgen.generate(608, "gender");
+        }
+
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
+        List<User> resultsGetUser = queryGetUser.getResultList();
+
+        // check if an user exists with this email
+        if (resultsGetUser.size() == 0) {
+            return errorgen.generate(607, "insertDetails");
+        }
+
+        User user = resultsGetUser.get(0);
+        Person person = new Person(user, firstName, lastName, gender, birthday, height, weight);
+
+        // validate the input
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
+        if (violations.size() > 0) {
+            List<JSONObject> jsonList = new ArrayList<>();
+
+            violations.forEach(violation -> {
+                JSONObject errorJson = new JSONObject();
+                errorJson.accumulate("error_code", violation.getMessage());
+                errorJson.accumulate("error_reason", violation.getPropertyPath());
+                jsonList.add(errorJson);
+            });
+
+            // return the violations
+            JSONObject json = new JSONObject();
+            json.put("error", jsonList);
+            String jsonString = json.toString();
+            System.out.println("Violations: " + jsonString);
+            return jsonString;
+        }
+
+        // persist the person
+        em.getTransaction().begin();
+        em.persist(person);
+        em.getTransaction().commit();
+
+        // return user as json
+        String jsonString = user.toString();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -191,6 +249,5 @@ public class AuthenticationRepo {
             return false;
         }
     }
-
 
 }

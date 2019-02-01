@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    public static final String BASE_URI = "http://localhost:8080/rest";
+    public static final String BASE_URI = "http://0.0.0.0:8080/rest";
 
     public static void main(String[] args) throws IOException {
         // start the server
