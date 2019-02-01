@@ -16,9 +16,8 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @NotNull
-    @Valid
+    @OneToOne(fetch = FetchType.LAZY)
+    @NotNull(message = "601")
     private User user;
 
     @Size(min = 1, max = 100)
@@ -27,28 +26,23 @@ public class Person {
     @Size(min = 1, max = 100)
     private String lastName;
 
-    @NotNull
+    @NotNull(message = "601")
     private char gender;
 
     @Temporal(value = TemporalType.DATE)
-    @NotNull
+    @NotNull(message = "601")
     private Date birthday;
 
-    @DecimalMin(value = "30")
-    @DecimalMax(value = "150")
-    @NotNull
-    private BigDecimal weight;
+    @NotNull(message = "601")
+    private double weight;
 
-    @DecimalMin(value = "150")
-    @DecimalMax(value = "230")
-    @NotNull
-    private BigDecimal height;
+    @NotNull(message = "601")
+    private double height;
 
     public Person() {
-
     }
 
-    public Person(User user, String firstName, String lastName, char gender, Date birthday, BigDecimal weight, BigDecimal height) {
+    public Person(User user, String firstName, String lastName, char gender, Date birthday, double weight, double height) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -102,19 +96,19 @@ public class Person {
         this.birthday = birthday;
     }
 
-    public BigDecimal getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(BigDecimal weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public BigDecimal getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(BigDecimal height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 }

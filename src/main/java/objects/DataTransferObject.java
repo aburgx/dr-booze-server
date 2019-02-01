@@ -1,6 +1,5 @@
 package objects;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class DataTransferObject {
@@ -12,8 +11,8 @@ public class DataTransferObject {
     private String lastName;
     private char gender;
     private Date birthday;
-    private BigDecimal height;
-    private BigDecimal weight;
+    private double height;
+    private double weight;
 
     public DataTransferObject() {
     }
@@ -29,7 +28,7 @@ public class DataTransferObject {
         this.password = password;
     }
 
-    public DataTransferObject(String email, String firstName, String lastName, char gender, Date birthday, BigDecimal height, BigDecimal weight) {
+    public DataTransferObject(String email, String firstName, String lastName, char gender, Date birthday, double height, double weight) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -95,19 +94,19 @@ public class DataTransferObject {
         this.birthday = birthday;
     }
 
-    public BigDecimal getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(BigDecimal height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 
-    public BigDecimal getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(BigDecimal weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 }

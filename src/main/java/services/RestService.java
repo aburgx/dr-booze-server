@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
  * @author Alexander Burghuber
  */
 @Path("booze")
-public class Service {
+public class RestService {
 
     @Path("message")
     @GET

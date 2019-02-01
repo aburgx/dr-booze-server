@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 /**
  * @author Alexander Burghuber
  */
-@SuppressWarnings("Duplicates")
 public class AuthenticationRepo {
 
     private EntityManager em;
@@ -59,7 +58,7 @@ public class AuthenticationRepo {
      * @param username the username of the user
      * @param email    the email of the user
      * @param password the password of the user
-     * @return a Json String that includes either the newly registered user or all validation errors
+     * @return a json String that includes either the newly registered user or all validation errors
      */
     public String register(final String username, final String email, final String password) {
         User user = new User(username, email, password);
@@ -110,7 +109,7 @@ public class AuthenticationRepo {
 
         // multithreaded email sending
         executor.execute(() -> {
-            System.out.println("Sending email confirmation.");
+            System.out.println("Sending email confirmation...");
             mail.sendConfirmation(user, verificationToken);
             System.out.println("Email confirmation sent.");
         });
@@ -124,20 +123,26 @@ public class AuthenticationRepo {
     /**
      * Inserts the details of an user as a person object
      *
-     * @param email the email of the already existing user
+     * @param email     the email of the already existing user
      * @param firstName the first name of the user
-     * @param lastName the last name of the user
-     * @param gender the gender of the user
-     * @param birthday the birthday of the user
-     * @param height the height of the user
-     * @param weight the weight of the user
-     * @return a Json String that includes either the user or all validation errors
+     * @param lastName  the last name of the user
+     * @param gender    the gender of the user
+     * @param birthday  the birthday of the user
+     * @param height    the height of the user
+     * @param weight    the weight of the user
+     * @return a json String that includes either the user or all validation errors
      */
     public String insertDetails(final String email, final String firstName, final String lastName, final char gender,
-                                final Date birthday, final BigDecimal height, final BigDecimal weight) {
-        // check if gender is correct
+                                final Date birthday, final double height, final double weight) {
+        System.out.println("height:" + height + " # weight: " + weight);
+
+        // check if the gender, height and weight is incorrect
         if (gender != 'M' && gender != 'F') {
             return errorgen.generate(608, "gender");
+        } else if (height < 150.0 || height > 230.0) {
+            return errorgen.generate(609, "height");
+        } else if (weight < 30 || weight > 200) {
+            return errorgen.generate(610, "weight");
         }
 
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
@@ -177,7 +182,7 @@ public class AuthenticationRepo {
         em.getTransaction().commit();
 
         // return user as json
-        String jsonString = user.toString();
+        String jsonString = user.toJson();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -187,7 +192,7 @@ public class AuthenticationRepo {
      *
      * @param username the username of the user
      * @param password the password of the user
-     * @return a Json containing either the user if the login was successful or an error code
+     * @return a json containing either the user if the login was successful or an error code
      */
     public String login(final String username, final String password) {
         // check if the username exists in the database
@@ -242,12 +247,9 @@ public class AuthenticationRepo {
                 em.remove(verifyToken);
                 em.getTransaction().commit();
                 return true;
-            } else {
-                return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
 }
