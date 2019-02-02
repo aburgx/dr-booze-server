@@ -13,6 +13,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -101,7 +102,7 @@ public class AuthenticationRepo {
         });
 
         // return user as json
-        String jsonString = user.toJson();
+        String jsonString = user.toJson().toString();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -151,8 +152,12 @@ public class AuthenticationRepo {
         em.persist(person);
         em.getTransaction().commit();
 
-        // return user as json
-        String jsonString = user.toJson();
+        // if the update was successful return the user and if the person has been set return also the person
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+        json.put("person", person.toJson());
+
+        String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -233,8 +238,12 @@ public class AuthenticationRepo {
         em.persist(person);
         em.getTransaction().commit();
 
-        // return user as json
-        String jsonString = user.toJson();
+        // if the update was successful return the user and if the person has been set return also the person
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+        json.put("person", person.toJson());
+
+        String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -268,9 +277,22 @@ public class AuthenticationRepo {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        // return the user if the login was successful
+
         System.out.println("Logged in: " + user.getUsername());
-        return user.toJson();
+
+        // if the login was successful return the user and if the person has been set return also the person
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+
+        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
+        List<Person> resultsGetPerson = queryGetPerson.getResultList();
+        if (resultsGetPerson.size() != 0) {
+            Person person = resultsGetPerson.get(0);
+            json.put("person", person.toJson());
+        }
+        String jsonString = json.toString();
+        System.out.println(jsonString);
+        return jsonString;
     }
 
     /**

@@ -1,5 +1,7 @@
 package entities;
 
+import org.json.JSONObject;
+
 import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -54,6 +56,17 @@ public class Person {
         this.birthday = birthday;
         this.weight = weight;
         this.height = height;
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("firstName", firstName);
+        json.put("lastName", lastName);
+        json.put("gender", gender);
+        json.put("birthday", birthday);
+        json.put("weight", weight);
+        json.put("height", height);
+        return json;
     }
 
     public long getId() {
@@ -115,4 +128,5 @@ public class Person {
     public void setHeight(double height) {
         this.height = height;
     }
+
 }

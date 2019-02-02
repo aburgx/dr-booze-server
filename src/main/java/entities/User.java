@@ -60,11 +60,11 @@ public class User {
         this.password = password;
     }
 
-    public String toJson() {
+    public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("email", email);
         json.put("username", username);
-        return json.toString();
+        return json;
     }
 
     @PrePersist
