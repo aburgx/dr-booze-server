@@ -9,7 +9,7 @@ public class DataTransferObject {
     private String password;
     private String firstName;
     private String lastName;
-    private char gender;
+    private String gender;
     private Date birthday;
     private double height;
     private double weight;
@@ -28,7 +28,7 @@ public class DataTransferObject {
         this.password = password;
     }
 
-    public DataTransferObject(String email, String firstName, String lastName, char gender,
+    public DataTransferObject(String email, String firstName, String lastName, String gender,
                               Date birthday, double height, double weight) {
         this.email = email;
         this.firstName = firstName;
@@ -40,7 +40,7 @@ public class DataTransferObject {
     }
 
     public DataTransferObject(String username, String email, String password, String firstName, String lastName,
-                              char gender, Date birthday, double height, double weight) {
+                              String gender, Date birthday, double height, double weight) {
         this.username = username.toLowerCase();
         this.email = email;
         this.password = password;
@@ -92,11 +92,11 @@ public class DataTransferObject {
         this.lastName = lastName;
     }
 
-    public char getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 

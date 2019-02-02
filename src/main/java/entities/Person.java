@@ -30,7 +30,8 @@ public class Person {
     private String lastName;
 
     @NotNull(message = "601")
-    private char gender;
+    @Size(min = 1, max = 1, message = "603")
+    private String gender;
 
     @Temporal(value = TemporalType.DATE)
     @NotNull(message = "601")
@@ -45,7 +46,7 @@ public class Person {
     public Person() {
     }
 
-    public Person(User user, String firstName, String lastName, char gender, Date birthday, double weight, double height) {
+    public Person(User user, String firstName, String lastName, String gender, Date birthday, double weight, double height) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -83,11 +84,11 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public char getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
