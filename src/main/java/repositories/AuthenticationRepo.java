@@ -134,15 +134,14 @@ public class AuthenticationRepo {
      */
     public String insertDetails(final String email, final String firstName, final String lastName, final char gender,
                                 final Date birthday, final double height, final double weight) {
-        System.out.println("height:" + height + " # weight: " + weight);
 
         // check if the gender, height and weight is incorrect
         if (gender != 'M' && gender != 'F') {
-            return errorgen.generate(608, "gender");
+            return errorgen.generate(604, "gender");
         } else if (height < 150.0 || height > 230.0) {
-            return errorgen.generate(609, "height");
+            return errorgen.generate(604, "height");
         } else if (weight < 30 || weight > 200) {
-            return errorgen.generate(610, "weight");
+            return errorgen.generate(604, "weight");
         }
 
         TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
@@ -150,7 +149,7 @@ public class AuthenticationRepo {
 
         // check if an user exists with this email
         if (resultsGetUser.size() == 0) {
-            return errorgen.generate(607, "insertDetails");
+            return errorgen.generate(607, "user");
         }
 
         User user = resultsGetUser.get(0);
@@ -190,10 +189,76 @@ public class AuthenticationRepo {
     // TODO: code updateDetails
     public String updateDetails(final String username, final String email, final String password, final String firstName,
                                 final String lastName, final char gender, final Date birthday, final double height, final double weight) {
-        if (username != null)
-            ;
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
+        List<User> resultsGetUser = queryGetUser.getResultList();
 
-        return "Unsupported";
+        // check if an user exists with this username
+        if (resultsGetUser.size() == 0) {
+            return errorgen.generate(607, "user");
+        }
+
+        User user = resultsGetUser.get(0);
+
+        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
+        Person person = queryGetPerson.getSingleResult();
+
+        // set the new value if the value is not null
+        if (email != null)
+            user.setEmail(email);
+        if (password != null)
+            user.setPassword(password);
+        if (firstName != null)
+            person.setFirstName(firstName);
+        if (lastName != null)
+            person.setLastName(lastName);
+        if (birthday != null)
+            person.setBirthday(birthday);
+        if (gender != ' ') {
+            if (gender != 'M' && gender != 'F')
+                return errorgen.generate(604, "gender");
+            person.setGender(gender);
+        }
+        if (height != 0) {
+            if (height < 150.0 || height > 230.0)
+                return errorgen.generate(604, "height");
+            person.setHeight(height);
+        }
+        if (weight != 0) {
+            if (weight < 30 || weight > 200)
+                return errorgen.generate(604, "weight");
+            person.setWeight(weight);
+        }
+
+        // validate the input
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
+        if (violations.size() > 0) {
+            List<JSONObject> jsonList = new ArrayList<>();
+
+            violations.forEach(violation -> {
+                JSONObject errorJson = new JSONObject();
+                errorJson.accumulate("error_code", violation.getMessage());
+                errorJson.accumulate("error_reason", violation.getPropertyPath());
+                jsonList.add(errorJson);
+            });
+
+            // return the violations
+            JSONObject json = new JSONObject();
+            json.put("error", jsonList);
+            String jsonString = json.toString();
+            System.out.println("Violations: " + jsonString);
+            return jsonString;
+        }
+
+        // persist the updated user & person
+        em.getTransaction().begin();
+        em.persist(user);
+        em.persist(person);
+        em.getTransaction().commit();
+
+        // return user as json
+        String jsonString = user.toJson();
+        System.out.println(jsonString);
+        return jsonString;
     }
 
     /**
@@ -260,6 +325,5 @@ public class AuthenticationRepo {
         }
         return false;
     }
-
 
 }

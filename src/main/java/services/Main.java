@@ -5,6 +5,10 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import repositories.AuthenticationRepo;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.ConsoleHandler;

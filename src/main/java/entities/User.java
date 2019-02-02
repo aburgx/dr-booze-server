@@ -42,7 +42,7 @@ public class User {
 
     @Transient
     @NotNull(message = "601")
-    @Pattern(message = "605", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
+    @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
     @Size(min = 8, max = 25, message = "603")
     private String password;
 
@@ -113,6 +113,10 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean isEnabled() {

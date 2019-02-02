@@ -10,6 +10,9 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "Booze_Person")
+@NamedQueries({
+        @NamedQuery(name = "Person.get-with-user", query = "SELECT p FROM Person p WHERE p.user = :user")
+})
 public class Person {
 
     @Id
@@ -20,10 +23,10 @@ public class Person {
     @NotNull(message = "601")
     private User user;
 
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 100, message = "603")
     private String firstName;
 
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 100, message = "603")
     private String lastName;
 
     @NotNull(message = "601")
