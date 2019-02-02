@@ -18,7 +18,6 @@ public class VerificationToken {
 
     private String token;
 
-    // TODO: Code expire check
     @Temporal(value = TemporalType.DATE)
     private Date expiryDate;
 
@@ -34,6 +33,10 @@ public class VerificationToken {
         calendar.setTime(new Date());
         calendar.add(Calendar.DAY_OF_YEAR, 1);
         this.expiryDate = calendar.getTime();
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getToken() {

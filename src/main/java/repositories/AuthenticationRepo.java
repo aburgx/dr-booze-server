@@ -187,6 +187,15 @@ public class AuthenticationRepo {
         return jsonString;
     }
 
+    // TODO: code updateDetails
+    public String updateDetails(final String username, final String email, final String password, final String firstName,
+                                final String lastName, final char gender, final Date birthday, final double height, final double weight) {
+        if (username != null)
+            ;
+
+        return "Unsupported";
+    }
+
     /**
      * Logs the user in if the username and password is correct
      *
@@ -251,5 +260,6 @@ public class AuthenticationRepo {
         }
         return false;
     }
+
 
 }

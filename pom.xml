@@ -129,7 +129,7 @@
         </dependency>
         -->
 
-        <!-- for Json parsing -->
+        <!-- for json parsing -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
@@ -137,7 +137,7 @@
             <type>jar</type>
         </dependency>
 
-        <!-- for Json parsing -->
+        <!-- for json parsing -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>

@@ -28,8 +28,22 @@ public class DataTransferObject {
         this.password = password;
     }
 
-    public DataTransferObject(String email, String firstName, String lastName, char gender, Date birthday, double height, double weight) {
+    public DataTransferObject(String email, String firstName, String lastName, char gender,
+                              Date birthday, double height, double weight) {
         this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.birthday = birthday;
+        this.height = height;
+        this.weight = weight;
+    }
+
+    public DataTransferObject(String username, String email, String password, String firstName, String lastName,
+                              char gender, Date birthday, double height, double weight) {
+        this.username = username.toLowerCase();
+        this.email = email;
+        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
