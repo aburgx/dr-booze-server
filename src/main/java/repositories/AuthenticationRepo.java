@@ -102,7 +102,9 @@ public class AuthenticationRepo {
         });
 
         // return user as json
-        String jsonString = user.toJson().toString();
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+        String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
     }
@@ -207,7 +209,7 @@ public class AuthenticationRepo {
         if (birthday != null)
             person.setBirthday(birthday);
         if (gender != null) {
-            if (!gender.equals("M") && !gender.equals("F"))
+            if (!gender.equals("m") && !gender.equals("f"))
                 return errorgen.generate(604, "gender");
             person.setGender(gender);
         }

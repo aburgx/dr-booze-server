@@ -62,8 +62,8 @@ public class User {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("email", email);
         json.put("username", username);
+        json.put("email", email);
         return json;
     }
 

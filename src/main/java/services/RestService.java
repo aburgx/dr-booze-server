@@ -37,6 +37,7 @@ public class RestService {
     @Path("insertDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public String insertDetails(DataTransferObject dto) {
         return AuthenticationRepo.getInstance().insertDetails(
                 dto.getEmail(),
@@ -52,6 +53,7 @@ public class RestService {
     @Path("updateDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public String updateDetails(DataTransferObject dto) {
         return AuthenticationRepo.getInstance().updateDetails(
                 dto.getUsername(),
@@ -86,6 +88,7 @@ public class RestService {
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public String login(DataTransferObject dto) {
         return AuthenticationRepo.getInstance().login(dto.getUsername(), dto.getPassword());
     }
