@@ -33,7 +33,7 @@ public class DataTransferObject {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.gender = gender;
+        this.gender = gender.toLowerCase();
         this.birthday = birthday;
         this.height = height;
         this.weight = weight;
@@ -46,7 +46,7 @@ public class DataTransferObject {
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.gender = gender;
+        this.gender = gender.toLowerCase();
         this.birthday = birthday;
         this.height = height;
         this.weight = weight;
@@ -57,7 +57,7 @@ public class DataTransferObject {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = username.toLowerCase();
     }
 
     public String getEmail() {
@@ -97,7 +97,7 @@ public class DataTransferObject {
     }
 
     public void setGender(String gender) {
-        this.gender = gender;
+        this.gender = gender.toLowerCase();
     }
 
     public Date getBirthday() {

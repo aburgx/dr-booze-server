@@ -68,7 +68,7 @@ public class User {
     }
 
     @PrePersist
-    public void hashPassword() {
+    private void hashPassword() {
         if (this.passwordHash == null) {
             // generate the salt
             SecureRandom random = new SecureRandom();

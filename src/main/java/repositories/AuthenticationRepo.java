@@ -123,7 +123,7 @@ public class AuthenticationRepo {
                                 final Date birthday, final double height, final double weight) {
 
         // check if the gender, height and weight is incorrect
-        if (!gender.equals("M") && !gender.equals("F")) {
+        if (!gender.equals("m") && !gender.equals("f")) {
             return errorgen.generate(604, "gender");
         } else if (height < 150.0 || height > 230.0) {
             return errorgen.generate(604, "height");
