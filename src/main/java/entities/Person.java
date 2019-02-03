@@ -25,10 +25,10 @@ public class Person {
     @NotNull(message = "601")
     private User user;
 
-    @Size(min = 1, max = 100, message = "603")
+    @Size(max = 100, message = "603")
     private String firstName;
 
-    @Size(min = 1, max = 100, message = "603")
+    @Size(max = 100, message = "603")
     private String lastName;
 
     @NotNull(message = "601")
