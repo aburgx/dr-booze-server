@@ -18,12 +18,12 @@ public class DataTransferObject {
     }
 
     public DataTransferObject(String username, String password) {
-        this.username = username.toLowerCase();
+        this.username = username;
         this.password = password;
     }
 
     public DataTransferObject(String username, String email, String password) {
-        this.username = username.toLowerCase();
+        this.username = username;
         this.email = email;
         this.password = password;
     }
@@ -41,7 +41,7 @@ public class DataTransferObject {
 
     public DataTransferObject(String username, String email, String password, String firstName, String lastName,
                               String gender, Date birthday, double height, double weight) {
-        this.username = username.toLowerCase();
+        this.username = username;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -57,7 +57,7 @@ public class DataTransferObject {
     }
 
     public void setUsername(String username) {
-        this.username = username.toLowerCase();
+        this.username = username;
     }
 
     public String getEmail() {
