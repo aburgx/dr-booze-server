@@ -71,10 +71,12 @@ public class AuthenticationRepo {
         if (resultUser != null)
             return resultUser;
 
-        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class).setParameter("username", username);
+        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class)
+                .setParameter("username", username);
         long numberOfEntriesName = queryUniqueName.getSingleResult();
 
-        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
+        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class)
+                .setParameter("email", email);
         long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
         // check if the username or the email is already taken
@@ -87,6 +89,7 @@ public class AuthenticationRepo {
 
         // setup the verification token of the user
         VerificationToken verificationToken = new VerificationToken(user);
+
         System.out.println("Setup token: " + verificationToken.getToken() + " Expire: " + verificationToken.getExpiryDate());
 
         // persist the new user
@@ -134,7 +137,8 @@ public class AuthenticationRepo {
             return errorgen.generate(604, "weight");
         }
 
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class)
+                .setParameter("email", email);
         List<User> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this email
@@ -186,7 +190,8 @@ public class AuthenticationRepo {
                 " firstName: " + firstName + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday +
                 " height: " + height + " weight: " + weight);
 
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class)
+                .setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this username
@@ -196,7 +201,8 @@ public class AuthenticationRepo {
 
         User user = resultsGetUser.get(0);
 
-        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
+        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class)
+                .setParameter("user", user);
         List<Person> resultGetPerson = queryGetPerson.getResultList();
 
         // check if the person exists
@@ -268,7 +274,8 @@ public class AuthenticationRepo {
      */
     public String login(final String username, final String password) {
         // check if the username exists in the database
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
+        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class)
+                .setParameter("username", username);
         List<User> resultsGetUser = queryGetUser.getResultList();
 
         if (resultsGetUser.size() == 0) {
@@ -282,6 +289,7 @@ public class AuthenticationRepo {
             md.update(Hex.decode(user.getSalt()));
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
+            // check if the entered password has the same hash as the password inside database
             if (!new String(Hex.encode(hash)).equals(user.getPasswordHash())) {
                 return errorgen.generate(605, "login");
             }
@@ -295,7 +303,8 @@ public class AuthenticationRepo {
         JSONObject json = new JSONObject();
         json.put("user", user.toJson());
 
-        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
+        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class)
+                .setParameter("user", user);
         List<Person> resultsGetPerson = queryGetPerson.getResultList();
         if (resultsGetPerson.size() != 0) {
             Person person = resultsGetPerson.get(0);
