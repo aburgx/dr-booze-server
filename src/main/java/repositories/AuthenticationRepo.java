@@ -8,13 +8,14 @@ import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -180,6 +181,7 @@ public class AuthenticationRepo {
      */
     public String updateDetails(final String username, final String email, final String password, final String firstName,
                                 final String lastName, final String gender, final Date birthday, final double height, final double weight) {
+
         System.out.println("username: " + username + " email: " + email + " password: " + password +
                 " firstName: " + firstName + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday +
                 " height: " + height + " weight: " + weight);
@@ -195,7 +197,14 @@ public class AuthenticationRepo {
         User user = resultsGetUser.get(0);
 
         TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
-        Person person = queryGetPerson.getSingleResult();
+        List<Person> resultGetPerson = queryGetPerson.getResultList();
+
+        // check if the person exists
+        if (resultGetPerson.size() == 0) {
+            return errorgen.generate(607, "person");
+        }
+
+        Person person = resultGetPerson.get(0);
 
         // set the new value if the value is not null
         if (email != null)

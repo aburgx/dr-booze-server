@@ -15,6 +15,9 @@ import java.net.URISyntaxException;
 @Path("booze")
 public class RestService {
 
+    /**
+     * @return a simple message for testing purposes
+     */
     @Path("message")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -22,6 +25,12 @@ public class RestService {
         return "Hello REST Service powered by Java SE.";
     }
 
+    /**
+     * Registers a new user
+     *
+     * @param dto the DataTransferObject
+     * @return a json that includes either the newly registered user or all validation errors
+     */
     @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -34,6 +43,12 @@ public class RestService {
         );
     }
 
+    /**
+     * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
+     *
+     * @param dto the DataTransferObject
+     * @return a json that includes either the user and person object or an error
+     */
     @Path("insertDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -50,6 +65,12 @@ public class RestService {
         );
     }
 
+    /**
+     * Updates the details of a person
+     *
+     * @param dto the DataTransferObject
+     * @return a json that includes either the user and person object or an error
+     */
     @Path("updateDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -68,6 +89,12 @@ public class RestService {
         );
     }
 
+    /**
+     * Verifies the email of an user with an unique token that was sent with the email confirmation
+     *
+     * @param token the unique token
+     * @return a Response that redirects the user
+     */
     @Path("verify/{token}")
     @GET
     public Response verify(@PathParam("token") String token) {
@@ -85,6 +112,12 @@ public class RestService {
         return Response.temporaryRedirect(location).build();
     }
 
+    /**
+     * Logs an user in
+     *
+     * @param dto the DataTransferObject
+     * @return a json that includes either the user and/or the person or an error
+     */
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
