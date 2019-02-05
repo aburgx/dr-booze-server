@@ -40,22 +40,22 @@ public class Person {
     private Date birthday;
 
     @NotNull(message = "601")
-    private double weight;
+    private double height;
 
     @NotNull(message = "601")
-    private double height;
+    private double weight;
 
     public Person() {
     }
 
-    public Person(User user, String firstName, String lastName, String gender, Date birthday, double weight, double height) {
+    public Person(User user, String firstName, String lastName, String gender, Date birthday, double height, double weight) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.birthday = birthday;
-        this.weight = weight;
         this.height = height;
+        this.weight = weight;
     }
 
     public JSONObject toJson() {
@@ -113,20 +113,20 @@ public class Person {
         this.birthday = birthday;
     }
 
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
     public double getHeight() {
         return height;
     }
 
     public void setHeight(double height) {
         this.height = height;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
 }
