@@ -3,9 +3,8 @@ package entities;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 /*
     TODO: Regex for firstName and lastName
@@ -13,9 +12,9 @@ import java.util.Date;
 @Entity
 @Table(name = "Booze_Person")
 @NamedQueries({
-        @NamedQuery(name = "Person.get-with-user", query = "SELECT p FROM Person p WHERE p.user = :user")
+        @NamedQuery(name = "Person.get-with-user", query = "SELECT p FROM PersonBO p WHERE p.user = :user")
 })
-public class Person {
+public class PersonBO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +22,7 @@ public class Person {
 
     @OneToOne(fetch = FetchType.LAZY)
     @NotNull(message = "601")
-    private User user;
+    private UserBO user;
 
     @Size(max = 100, message = "603")
     private String firstName;
@@ -45,10 +44,10 @@ public class Person {
     @NotNull(message = "601")
     private double weight;
 
-    public Person() {
+    public PersonBO() {
     }
 
-    public Person(User user, String firstName, String lastName, String gender, Date birthday, double height, double weight) {
+    public PersonBO(UserBO user, String firstName, String lastName, String gender, Date birthday, double height, double weight) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -73,11 +72,11 @@ public class Person {
         return id;
     }
 
-    public User getUser() {
+    public UserBO getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserBO user) {
         this.user = user;
     }
 

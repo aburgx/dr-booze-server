@@ -1,8 +1,8 @@
-package objects;
+package transferObjects;
 
 import java.util.Date;
 
-public class DataTransferObject {
+public class PersonVO {
 
     private String username;
     private String email;
@@ -14,42 +14,8 @@ public class DataTransferObject {
     private double height;
     private double weight;
 
-    public DataTransferObject() {
-    }
+    public PersonVO() {
 
-    public DataTransferObject(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public DataTransferObject(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
-
-    public DataTransferObject(String email, String firstName, String lastName, String gender,
-                              Date birthday, double height, double weight) {
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.gender = gender.toLowerCase();
-        this.birthday = birthday;
-        this.height = height;
-        this.weight = weight;
-    }
-
-    public DataTransferObject(String username, String email, String password, String firstName, String lastName,
-                              String gender, Date birthday, double height, double weight) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.gender = gender.toLowerCase();
-        this.birthday = birthday;
-        this.height = height;
-        this.weight = weight;
     }
 
     public String getUsername() {

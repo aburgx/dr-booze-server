@@ -1,6 +1,7 @@
 package services;
 
-import objects.DataTransferObject;
+import transferObjects.PersonVO;
+import transferObjects.UserVO;
 import repositories.AuthenticationRepo;
 
 import javax.ws.rs.*;
@@ -16,76 +17,80 @@ import java.net.URISyntaxException;
 public class RestService {
 
     /**
-     * @return a simple message for testing purposes
-     */
-    @Path("message")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String message() {
-        return "Hello REST Service powered by Java SE.";
-    }
-
-    /**
      * Registers a new user
      *
-     * @param dto the DataTransferObject
+     * @param user the Transfer Object of the User entity
      * @return a json that includes either the newly registered user or all validation errors
      */
     @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String register(DataTransferObject dto) {
+    public String register(UserVO user) {
         return AuthenticationRepo.getInstance().register(
-                dto.getUsername(),
-                dto.getEmail(),
-                dto.getPassword()
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword()
         );
+    }
+
+    /**
+     * Logs an user in
+     *
+     * @param user the Transfer Object of the User entity
+     * @return a json that includes either the user and/or the person or an error
+     */
+    @Path("login")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String login(UserVO user) {
+        return AuthenticationRepo.getInstance().login(user.getUsername(), user.getPassword());
     }
 
     /**
      * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
      *
-     * @param dto the DataTransferObject
+     * @param person the Transfer Object of the Person entity
      * @return a json that includes either the user and person object or an error
      */
     @Path("insertDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String insertDetails(DataTransferObject dto) {
+    public String insertDetails(PersonVO person) {
         return AuthenticationRepo.getInstance().insertDetails(
-                dto.getEmail(),
-                dto.getFirstName(),
-                dto.getLastName(),
-                dto.getGender(),
-                dto.getBirthday(),
-                dto.getHeight(),
-                dto.getWeight()
+                person.getEmail(),
+                person.getFirstName(),
+                person.getLastName(),
+                person.getGender(),
+                person.getBirthday(),
+                person.getHeight(),
+                person.getWeight()
         );
     }
 
     /**
      * Updates the details of a person
      *
-     * @param dto the DataTransferObject
+     * @param person the Transfer Object of the Person entity
      * @return a json that includes either the user and person object or an error
      */
     @Path("updateDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String updateDetails(DataTransferObject dto) {
+    public String updateDetails(PersonVO person) {
         return AuthenticationRepo.getInstance().updateDetails(
-                dto.getUsername(),
-                dto.getEmail(),
-                dto.getPassword(),
-                dto.getFirstName(),
-                dto.getLastName(),
-                dto.getGender(),
-                dto.getBirthday(),
-                dto.getHeight(),
-                dto.getWeight()
+                person.getUsername(),
+                person.getEmail(),
+                person.getPassword(),
+                person.getFirstName(),
+                person.getLastName(),
+                person.getGender(),
+                person.getBirthday(),
+                person.getHeight(),
+                person.getWeight()
         );
     }
 
@@ -110,20 +115,6 @@ public class RestService {
         }
         System.out.println(location);
         return Response.temporaryRedirect(location).build();
-    }
-
-    /**
-     * Logs an user in
-     *
-     * @param dto the DataTransferObject
-     * @return a json that includes either the user and/or the person or an error
-     */
-    @Path("login")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public String login(DataTransferObject dto) {
-        return AuthenticationRepo.getInstance().login(dto.getUsername(), dto.getPassword());
     }
 
 }

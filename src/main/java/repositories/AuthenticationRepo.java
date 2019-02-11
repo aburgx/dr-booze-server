@@ -1,7 +1,7 @@
 package repositories;
 
-import entities.Person;
-import entities.User;
+import entities.PersonBO;
+import entities.UserBO;
 import entities.VerificationToken;
 import mail.MailService;
 import objects.ErrorGenerator;
@@ -64,7 +64,7 @@ public class AuthenticationRepo {
      * @return a json String that includes either the newly registered user or all validation errors
      */
     public String register(final String username, final String email, final String password) {
-        User user = new User(username, email, password);
+        UserBO user = new UserBO(username, email, password);
 
         // validate the user
         String resultUser = validateUser(user);
@@ -134,16 +134,16 @@ public class AuthenticationRepo {
             return errorgen.generate(604, "weight");
         }
 
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-email", User.class).setParameter("email", email);
-        List<User> resultsGetUser = queryGetUser.getResultList();
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class).setParameter("email", email);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this email
         if (resultsGetUser.size() == 0) {
             return errorgen.generate(607, "user");
         }
 
-        User user = resultsGetUser.get(0);
-        Person person = new Person(user, firstName, lastName, gender, birthday, height, weight);
+        UserBO user = resultsGetUser.get(0);
+        PersonBO person = new PersonBO(user, firstName, lastName, gender, birthday, height, weight);
 
         // validate the person
         String resultPerson = validatePerson(person);
@@ -186,25 +186,25 @@ public class AuthenticationRepo {
                 " firstName: " + firstName + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday +
                 " height: " + height + " weight: " + weight);
 
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
-        List<User> resultsGetUser = queryGetUser.getResultList();
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class).setParameter("username", username);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this username
         if (resultsGetUser.size() == 0) {
             return errorgen.generate(607, "user");
         }
 
-        User user = resultsGetUser.get(0);
+        UserBO user = resultsGetUser.get(0);
 
-        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
-        List<Person> resultGetPerson = queryGetPerson.getResultList();
+        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class).setParameter("user", user);
+        List<PersonBO> resultGetPerson = queryGetPerson.getResultList();
 
         // check if the person exists
         if (resultGetPerson.size() == 0) {
             return errorgen.generate(607, "person");
         }
 
-        Person person = resultGetPerson.get(0);
+        PersonBO person = resultGetPerson.get(0);
 
         // set the new value if the value is not null
         if (email != null)
@@ -268,15 +268,15 @@ public class AuthenticationRepo {
      */
     public String login(final String username, final String password) {
         // check if the username exists in the database
-        TypedQuery<User> queryGetUser = em.createNamedQuery("User.get-with-username", User.class).setParameter("username", username);
-        List<User> resultsGetUser = queryGetUser.getResultList();
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class).setParameter("username", username);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         if (resultsGetUser.size() == 0) {
             return errorgen.generate(605, "login");
         }
 
         // check if the password is correct
-        User user = resultsGetUser.get(0);
+        UserBO user = resultsGetUser.get(0);
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(Hex.decode(user.getSalt()));
@@ -295,10 +295,10 @@ public class AuthenticationRepo {
         JSONObject json = new JSONObject();
         json.put("user", user.toJson());
 
-        TypedQuery<Person> queryGetPerson = em.createNamedQuery("Person.get-with-user", Person.class).setParameter("user", user);
-        List<Person> resultsGetPerson = queryGetPerson.getResultList();
+        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class).setParameter("user", user);
+        List<PersonBO> resultsGetPerson = queryGetPerson.getResultList();
         if (resultsGetPerson.size() != 0) {
-            Person person = resultsGetPerson.get(0);
+            PersonBO person = resultsGetPerson.get(0);
             json.put("person", person.toJson());
         }
         String jsonString = json.toString();
@@ -325,7 +325,7 @@ public class AuthenticationRepo {
             Date tokenDate = verifyToken.getExpiryDate();
 
             if (tokenDate.compareTo(currentDate) >= 0) {
-                User user = verifyToken.getUser();
+                UserBO user = verifyToken.getUser();
                 // set the user enabled and delete the token
                 em.getTransaction().begin();
                 user.setEnabled(true);
@@ -337,8 +337,8 @@ public class AuthenticationRepo {
         return false;
     }
 
-    private String validateUser(User user) {
-        Set<ConstraintViolation<User>> userViolations = validator.validate(user);
+    private String validateUser(UserBO user) {
+        Set<ConstraintViolation<UserBO>> userViolations = validator.validate(user);
         if (userViolations.size() > 0) {
             List<JSONObject> jsonList = new ArrayList<>();
 
@@ -359,8 +359,8 @@ public class AuthenticationRepo {
         return null;
     }
 
-    private String validatePerson(Person person) {
-        Set<ConstraintViolation<Person>> personViolations = validator.validate(person);
+    private String validatePerson(PersonBO person) {
+        Set<ConstraintViolation<PersonBO>> personViolations = validator.validate(person);
         if (personViolations.size() > 0) {
             List<JSONObject> jsonList = new ArrayList<>();
 

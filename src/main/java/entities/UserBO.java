@@ -16,12 +16,12 @@ import java.security.SecureRandom;
 @Entity
 @Table(name = "Booze_User")
 @NamedQueries({
-        @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM User u WHERE u.email = :email"),
-        @NamedQuery(name = "User.count-username", query = "SELECT COUNT(u) FROM User u WHERE u.username = :username"),
-        @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM User u WHERE u.email = :email")
+        @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM UserBO u WHERE u.username = :username"),
+        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM UserBO u WHERE u.email = :email"),
+        @NamedQuery(name = "User.count-username", query = "SELECT COUNT(u) FROM UserBO u WHERE u.username = :username"),
+        @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM UserBO u WHERE u.email = :email")
 })
-public class User {
+public class UserBO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,10 +51,10 @@ public class User {
 
     private boolean enabled = false;
 
-    public User() {
+    public UserBO() {
     }
 
-    public User(String username, String email, String password) {
+    public UserBO(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;

@@ -1,6 +1,6 @@
 package mail;
 
-import entities.User;
+import entities.UserBO;
 import entities.VerificationToken;
 import services.Main;
 
@@ -45,7 +45,7 @@ public class MailService {
         }
     }
 
-    public void sendConfirmation(User user, VerificationToken verificationToken) {
+    public void sendConfirmation(UserBO user, VerificationToken verificationToken) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
