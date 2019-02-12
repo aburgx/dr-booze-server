@@ -191,13 +191,13 @@ public class Repository {
 
         PersonBO person = user.getPerson();
 
+        JSONObject json = new JSONObject();
         if (person == null) {
-            JSONObject json = new JSONObject();
             json.put("person", JSONObject.NULL);
-            return json.toString();
+        } else {
+            json.put("person", person.toJson());
         }
-
-        String jsonString = person.toJson().toString();
+        String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
     }
