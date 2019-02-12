@@ -13,8 +13,8 @@ public class VerificationToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private User user;
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "verificationToken")
+    private UserBO user;
 
     private String token;
 
@@ -24,7 +24,7 @@ public class VerificationToken {
     public VerificationToken() {
     }
 
-    public VerificationToken(User user) {
+    public VerificationToken(UserBO user) {
         this.user = user;
         // generate the unique token
         this.token = UUID.randomUUID().toString();
@@ -43,7 +43,7 @@ public class VerificationToken {
         return token;
     }
 
-    public User getUser() {
+    public UserBO getUser() {
         return user;
     }
 

@@ -1,8 +1,8 @@
 package mail;
 
-import entities.User;
+import entities.UserBO;
 import entities.VerificationToken;
-import services.Main;
+import main.Main;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -20,12 +20,12 @@ import static javax.mail.Message.RecipientType;
 /**
  * @author Alexander Burghuber
  */
-public class MailService {
+public class Mail {
 
     private String emailPassword;
     private Session session;
 
-    public MailService() {
+    public Mail() {
         // load the email password from the config file
         try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();
@@ -45,14 +45,14 @@ public class MailService {
         }
     }
 
-    public void sendConfirmation(User user, VerificationToken verificationToken) {
+    public void sendConfirmation(UserBO user, VerificationToken verificationToken) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
             message.setSubject("Welcome to Dr. Booze");
             String mailBody =
                     "<h1>Welcome to Dr. Booze</h1><br>" +
-                            "<a href='" + Main.BASE_URI + "/booze/verify/" + verificationToken.getToken()
+                            "<a href='" + Main.BASE_URI + "/auth/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
             transport(message, mailBody);
         } catch (MessagingException ex) {

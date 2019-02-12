@@ -1,14 +1,9 @@
-package services;
+package main;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import repositories.AuthenticationRepo;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.ConsoleHandler;
@@ -39,9 +34,6 @@ public class Main {
         ConsoleHandler ch = new ConsoleHandler();
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
-        
-        // call AuthenticationRepo to start the entitymanager & validator
-        AuthenticationRepo.getInstance();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", BASE_URI));
         System.in.read();
