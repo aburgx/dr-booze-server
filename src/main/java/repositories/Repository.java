@@ -299,23 +299,12 @@ public class Repository {
             e.printStackTrace();
         }
 
-        System.out.println("Logged in: " + user.getUsername());
-
-        // if the login was successful return the user and if the person has been set return also the person
-        JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
-
-        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
-                .setParameter("user", user);
-        List<PersonBO> resultsGetPerson = queryGetPerson.getResultList();
-        if (resultsGetPerson.size() != 0) {
-            PersonBO person = resultsGetPerson.get(0);
-            json.put("person", person.toJson());
-        }
-
         String jwtToken = jwtBuilder.create(user.getUsername());
-        System.out.println("Jwt token " + user.getUsername() + " : " + jwtToken);
-        return jwtBuilder.create(user.getUsername());
+        JSONObject json = new JSONObject();
+        json.put("token", jwtToken);
+
+        System.out.println("Logged in: " + user.getUsername() + " with token: " + jwtToken);
+        return json.toString();
     }
 
     /**

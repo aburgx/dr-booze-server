@@ -42,7 +42,7 @@ public class AuthenticationService {
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
     public String login(UserVO user) {
         return Repository.getInstance().login(user.getUsername(), user.getPassword());
     }
