@@ -1,4 +1,4 @@
-package objects;
+package helper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class JwtBuilder {
+public class JwtHelper {
 
     private String key = null;
 
-    public JwtBuilder() {
+    public JwtHelper() {
         // load the jwt key from the config file
         try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();

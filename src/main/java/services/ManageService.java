@@ -31,9 +31,10 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String insertDetails(PersonVO person) {
+    public String insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
+        String[] auth = authHeader.split("\\s");
         return Repository.getInstance().insertDetails(
-                person.getEmail(),
+                auth[1],
                 person.getFirstName(),
                 person.getLastName(),
                 person.getGender(),
@@ -53,10 +54,10 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String updateDetails(PersonVO person) {
+    public String updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
+        String[] auth = authHeader.split("\\s");
         return Repository.getInstance().updateDetails(
-                person.getUsername(),
-                person.getEmail(),
+                auth[1],
                 person.getPassword(),
                 person.getFirstName(),
                 person.getLastName(),

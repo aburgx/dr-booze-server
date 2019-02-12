@@ -13,7 +13,7 @@ public class VerificationToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "verificationToken")
     private UserBO user;
 
     private String token;

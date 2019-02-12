@@ -1,6 +1,6 @@
 package filters;
 
-import objects.JwtBuilder;
+import helper.JwtHelper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -17,11 +17,11 @@ public class JwtFilter implements ContainerRequestFilter {
         // Checks if the JWT token is valid when the url path includes the ManageService
         if (!rc.getUriInfo().getPath().contains("manage") || rc.getMethod().equals("OPTIONS"))
             return;
-        JwtBuilder jwtBuilder = new JwtBuilder();
+        JwtHelper jwtHelper = new JwtHelper();
         try {
             String[] auth = rc.getHeaderString(HttpHeaders.AUTHORIZATION)
                     .split("\\s");
-            jwtBuilder.checkSubject(auth[1]);
+            jwtHelper.checkSubject(auth[1]);
         } catch (Exception ex) {
             System.out.println("Unauthorized activity has been detected");
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);

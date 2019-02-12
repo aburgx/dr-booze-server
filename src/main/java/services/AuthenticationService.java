@@ -50,18 +50,17 @@ public class AuthenticationService {
     /**
      * Verifies the email of an user with an unique token that was sent with the email confirmation
      *
-     * @param token the unique token
+     * @param emailToken the unique token
      * @return a Response that redirects the user
      */
     @Path("verify/{token}")
     @GET
-    public Response verify(@PathParam("token") String token) {
+    public Response verify(@PathParam("token") String emailToken) {
         URI location = null;
         try {
             // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
             location = new URI("http://localhost:4200/login?token="
-                    + Repository.getInstance()
-                    .verify(token));
+                    + Repository.getInstance().verify(emailToken));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

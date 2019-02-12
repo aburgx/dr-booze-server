@@ -3,27 +3,22 @@ package repositories;
 import entities.PersonBO;
 import entities.UserBO;
 import entities.VerificationToken;
+import helper.EntityManagerFactoryHelper;
+import helper.JwtHelper;
+import helper.ValidatorHelper;
 import mail.Mail;
 import objects.ErrorGenerator;
-import objects.JwtBuilder;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,21 +29,20 @@ import java.util.concurrent.Executors;
 public class Repository {
 
     private EntityManager em;
-    private Validator validator;
     private ErrorGenerator errorgen;
-    private JwtBuilder jwtBuilder;
+    private ValidatorHelper validator;
+    private JwtHelper jwtHelper;
     private Mail mail;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
     private static Repository instance = null;
 
     private Repository() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
+        EntityManagerFactory emf = EntityManagerFactoryHelper.getFactory();
         this.em = emf.createEntityManager();
-        ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
-        this.validator = vf.getValidator();
+        this.validator = new ValidatorHelper();
         this.errorgen = new ErrorGenerator();
-        this.jwtBuilder = new JwtBuilder();
+        this.jwtHelper = new JwtHelper();
         this.mail = new Mail();
     }
 
@@ -70,7 +64,7 @@ public class Repository {
         UserBO user = new UserBO(username, email, password);
 
         // validate the user
-        String resultUser = validateUser(user);
+        String resultUser = validator.validateUser(user);
         if (resultUser != null)
             return resultUser;
 
@@ -117,158 +111,6 @@ public class Repository {
     }
 
     /**
-     * Inserts the details of an user as a person object
-     *
-     * @param email     the email of the already existing user
-     * @param firstName the first name of the user
-     * @param lastName  the last name of the user
-     * @param gender    the gender of the user
-     * @param birthday  the birthday of the user
-     * @param height    the height of the user
-     * @param weight    the weight of the user
-     * @return a json String that includes either the user or all validation errors
-     */
-    public String insertDetails(final String email, final String firstName, final String lastName, final String gender,
-                                final Date birthday, final double height, final double weight) {
-
-        // check if the gender, height and weight is incorrect
-        if (!gender.equals("m") && !gender.equals("f")) {
-            return errorgen.generate(604, "gender");
-        } else if (height < 150.0 || height > 230.0) {
-            return errorgen.generate(604, "height");
-        } else if (weight < 30 || weight > 200) {
-            return errorgen.generate(604, "weight");
-        }
-
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
-                .setParameter("email", email);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
-
-        // check if an user exists with this email
-        if (resultsGetUser.size() == 0) {
-            return errorgen.generate(607, "user");
-        }
-
-        UserBO user = resultsGetUser.get(0);
-        PersonBO person = new PersonBO(user, firstName, lastName, gender, birthday, height, weight);
-
-        // validate the person
-        String resultPerson = validatePerson(person);
-        if (resultPerson != null)
-            return resultPerson;
-
-        // persist the person
-        em.getTransaction().begin();
-        em.persist(person);
-        em.getTransaction().commit();
-
-        // if the update was successful return the user and if the person has been set return also the person
-        JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
-        json.put("person", person.toJson());
-
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
-    }
-
-    /**
-     * Updates the details of an user
-     *
-     * @param username  the username of the user
-     * @param email     the new email of the user
-     * @param password  the new password of the user
-     * @param firstName the new firstName of the user
-     * @param lastName  the new lastName of the user
-     * @param gender    the new gender of the user
-     * @param birthday  the new birthday of the user
-     * @param height    the new height of the user
-     * @param weight    the new weight of the user
-     * @return a json String that includes either the user or all validation errors
-     */
-    public String updateDetails(final String username, final String email, final String password, final String firstName,
-                                final String lastName, final String gender, final Date birthday, final double height, final double weight) {
-
-        System.out.println("username: " + username + " email: " + email + " password: " + password +
-                " firstName: " + firstName + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday +
-                " height: " + height + " weight: " + weight);
-
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
-                .setParameter("username", username);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
-
-        // check if an user exists with this username
-        if (resultsGetUser.size() == 0) {
-            return errorgen.generate(607, "user");
-        }
-
-        UserBO user = resultsGetUser.get(0);
-
-        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
-                .setParameter("user", user);
-        List<PersonBO> resultGetPerson = queryGetPerson.getResultList();
-
-        // check if the person exists
-        if (resultGetPerson.size() == 0) {
-            return errorgen.generate(607, "person");
-        }
-
-        PersonBO person = resultGetPerson.get(0);
-
-        // set the new value if the value is not null
-        if (email != null)
-            user.setEmail(email);
-        if (password != null)
-            user.setPassword(password);
-        if (firstName != null)
-            person.setFirstName(firstName);
-        if (lastName != null)
-            person.setLastName(lastName);
-        if (birthday != null)
-            person.setBirthday(birthday);
-        if (gender != null) {
-            if (!gender.equals("m") && !gender.equals("f"))
-                return errorgen.generate(604, "gender");
-            person.setGender(gender);
-        }
-        if (height != 0) {
-            if (height < 150.0 || height > 230.0)
-                return errorgen.generate(604, "height");
-            person.setHeight(height);
-        }
-        if (weight != 0) {
-            if (weight < 30 || weight > 200)
-                return errorgen.generate(604, "weight");
-            person.setWeight(weight);
-        }
-
-        // validate the user
-        String resultUser = validateUser(user);
-        if (resultUser != null)
-            return resultUser;
-
-        // validate the person
-        String resultPerson = validatePerson(person);
-        if (resultPerson != null)
-            return resultPerson;
-
-        // persist the updated user & person
-        em.getTransaction().begin();
-        em.persist(user);
-        em.persist(person);
-        em.getTransaction().commit();
-
-        // if the update was successful return the user and if the person has been set return also the person
-        JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
-        json.put("person", person.toJson());
-
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
-    }
-
-    /**
      * Logs the user in if the username and password is correct
      *
      * @param username the username of the user
@@ -299,7 +141,7 @@ public class Repository {
             e.printStackTrace();
         }
 
-        String jwtToken = jwtBuilder.create(user.getUsername());
+        String jwtToken = jwtHelper.create(user.getUsername());
         JSONObject json = new JSONObject();
         json.put("token", jwtToken);
 
@@ -310,14 +152,14 @@ public class Repository {
     /**
      * Verifies an user using the token that was send with the url inside the verification email.
      *
-     * @param token the verification token
+     * @param emailToken the verification token
      * @return a boolean that indicates if the verification was successful or not
      */
-    public boolean verify(final String token) {
+    public boolean verify(final String emailToken) {
         // check if the token exists
         List<VerificationToken> tokenList
                 = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class)
-                .setParameter("token", token)
+                .setParameter("token", emailToken)
                 .getResultList();
         if (tokenList.size() != 0) {
             VerificationToken verifyToken = tokenList.get(0);
@@ -338,80 +180,174 @@ public class Repository {
         return false;
     }
 
-    public String getPerson(final String jwtToken) {
-        // get the username from the jwtToken
-        String username = jwtBuilder.checkSubject(jwtToken);
-
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
-                .setParameter("username", username);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
-
-        // check if the user exists
-        if (resultsGetUser.size() == 0) {
+    /**
+     * @param jwt the json web token
+     * @return a json string that includes the person
+     */
+    public String getPerson(final String jwt) {
+        UserBO user = getUserFromJwt(jwt);
+        if (user == null)
             return errorgen.generate(607, "user");
+
+        PersonBO person = user.getPerson();
+
+        if (person == null) {
+            JSONObject json = new JSONObject();
+            json.put("person", JSONObject.NULL);
+            return json.toString();
         }
-
-        UserBO user = resultsGetUser.get(0);
-
-        // get the person from the user
-        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
-                .setParameter("user", user);
-        List<PersonBO> resultGetPerson = queryGetPerson.getResultList();
-
-        // check if the person exists
-        if (resultGetPerson.size() == 0) {
-            return errorgen.generate(607, "person");
-        }
-
-        PersonBO person = resultGetPerson.get(0);
 
         String jsonString = person.toJson().toString();
         System.out.println(jsonString);
         return jsonString;
     }
 
-    private String validateUser(UserBO user) {
-        Set<ConstraintViolation<UserBO>> userViolations = validator.validate(user);
-        if (userViolations.size() > 0) {
-            List<JSONObject> jsonList = new ArrayList<>();
-
-            userViolations.forEach(violation -> {
-                JSONObject errorJson = new JSONObject();
-                errorJson.accumulate("error_code", violation.getMessage());
-                errorJson.accumulate("error_reason", violation.getPropertyPath());
-                jsonList.add(errorJson);
-            });
-
-            // return the violations
-            JSONObject json = new JSONObject();
-            json.put("error", jsonList);
-            String jsonString = json.toString();
-            System.out.println("Violations: " + jsonString);
-            return jsonString;
+    /**
+     * Inserts the details of an user as a person object
+     *
+     * @param jwt       the json web token
+     * @param firstName the first name of the user
+     * @param lastName  the last name of the user
+     * @param gender    the gender of the user
+     * @param birthday  the birthday of the user
+     * @param height    the height of the user
+     * @param weight    the weight of the user
+     * @return a json String that includes either the user or all validation errors
+     */
+    public String insertDetails(final String jwt, final String firstName, final String lastName, final String gender,
+                                final Date birthday, final double height, final double weight) {
+        // check if the gender, height and weight is incorrect
+        if (!gender.equals("m") && !gender.equals("f")) {
+            return errorgen.generate(604, "gender");
+        } else if (height < 150.0 || height > 230.0) {
+            return errorgen.generate(604, "height");
+        } else if (weight < 30 || weight > 200) {
+            return errorgen.generate(604, "weight");
         }
-        return null;
+
+        UserBO user = getUserFromJwt(jwt);
+        if (user == null)
+            return errorgen.generate(607, "user");
+
+        PersonBO person = new PersonBO(user, firstName, lastName, gender, birthday, height, weight);
+        user.setPerson(person);
+
+        // validate the person
+        String resultPerson = validator.validatePerson(person);
+        if (resultPerson != null)
+            return resultPerson;
+
+        System.out.println(person.toString());
+        System.out.println(person.getUser().toString());
+
+        // persist the updated user & person
+        em.getTransaction().begin();
+        em.persist(person);
+        em.getTransaction().commit();
+
+        // return the user and person
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+        json.put("person", person.toJson());
+
+        String jsonString = json.toString();
+        System.out.println(jsonString);
+        return jsonString;
     }
 
-    private String validatePerson(PersonBO person) {
-        Set<ConstraintViolation<PersonBO>> personViolations = validator.validate(person);
-        if (personViolations.size() > 0) {
-            List<JSONObject> jsonList = new ArrayList<>();
+    /**
+     * Updates the details of an user
+     *
+     * @param jwt       the json web token
+     * @param password  the new password of the user
+     * @param firstName the new firstName of the user
+     * @param lastName  the new lastName of the user
+     * @param gender    the new gender of the user
+     * @param birthday  the new birthday of the user
+     * @param height    the new height of the user
+     * @param weight    the new weight of the user
+     * @return a json String that includes either the user or all validation errors
+     */
+    public String updateDetails(final String jwt, final String password, final String firstName,
+                                final String lastName, final String gender, final Date birthday,
+                                final double height, final double weight) {
 
-            personViolations.forEach(violation -> {
-                JSONObject errorJson = new JSONObject();
-                errorJson.accumulate("error_code", violation.getMessage());
-                errorJson.accumulate("error_reason", violation.getPropertyPath());
-                jsonList.add(errorJson);
-            });
+        System.out.println("jwt: " + jwt + " password: " + password + " firstName: " + firstName
+                + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday
+                + " height: " + height + " weight: " + weight);
 
-            // return the violations
-            JSONObject json = new JSONObject();
-            json.put("error", jsonList);
-            String jsonString = json.toString();
-            System.out.println("Violations: " + jsonString);
-            return jsonString;
+        UserBO user = getUserFromJwt(jwt);
+        if (user == null)
+            return errorgen.generate(607, "user");
+
+        PersonBO person = user.getPerson();
+        if (person == null)
+            return errorgen.generate(607, "person");
+
+        // set the new value if the value is not null
+        if (password != null)
+            user.setPassword(password);
+        if (firstName != null)
+            person.setFirstName(firstName);
+        if (lastName != null)
+            person.setLastName(lastName);
+        if (birthday != null)
+            person.setBirthday(birthday);
+        if (gender != null) {
+            if (!gender.equals("m") && !gender.equals("f"))
+                return errorgen.generate(604, "gender");
+            person.setGender(gender);
         }
-        return null;
+        if (height != 0) {
+            if (height < 150.0 || height > 230.0)
+                return errorgen.generate(604, "height");
+            person.setHeight(height);
+        }
+        if (weight != 0) {
+            if (weight < 30 || weight > 200)
+                return errorgen.generate(604, "weight");
+            person.setWeight(weight);
+        }
+
+        // validate the user
+        String resultUser = validator.validateUser(user);
+        if (resultUser != null)
+            return resultUser;
+
+        // validate the person
+        String resultPerson = validator.validatePerson(person);
+        if (resultPerson != null)
+            return resultPerson;
+
+        System.out.println(person.toJson().toString());
+
+        // persist the updated user & person
+        em.getTransaction().begin();
+        em.persist(user);
+        em.getTransaction().commit();
+
+        // return the user and person
+        JSONObject json = new JSONObject();
+        json.put("user", user.toJson());
+        json.put("person", person.toJson());
+
+        String jsonString = json.toString();
+        System.out.println(jsonString);
+        return jsonString;
+    }
+
+    private UserBO getUserFromJwt(String jwt) {
+        String username = jwtHelper.checkSubject(jwt);
+
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+
+        // check if user exists
+        if (resultsGetUser.size() == 0) {
+            return null;
+        }
+        return resultsGetUser.get(0);
     }
 
 }

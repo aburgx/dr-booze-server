@@ -15,7 +15,7 @@ public class HttpResponseFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         responseContext.getHeaders().putSingle("Access-Control-Allow-Origin", "*");
         responseContext.getHeaders().putSingle("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
-        responseContext.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type");
+        responseContext.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
 
 }

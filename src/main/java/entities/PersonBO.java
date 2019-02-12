@@ -21,7 +21,7 @@ public class PersonBO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.PERSIST)
     @NotNull(message = "601")
     private UserBO user;
 
