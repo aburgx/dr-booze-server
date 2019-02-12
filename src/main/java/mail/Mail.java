@@ -52,7 +52,7 @@ public class Mail {
             message.setSubject("Welcome to Dr. Booze");
             String mailBody =
                     "<h1>Welcome to Dr. Booze</h1><br>" +
-                            "<a href='" + Main.BASE_URI + "/booze/verify/" + verificationToken.getToken()
+                            "<a href='" + Main.BASE_URI + "/auth/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
             transport(message, mailBody);
         } catch (MessagingException ex) {

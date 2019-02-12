@@ -65,7 +65,7 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/ojdbc7.jar</systemPath>
         </dependency>
-		
+
 		<dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>

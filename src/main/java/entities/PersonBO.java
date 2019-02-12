@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
+
 /*
     TODO: Regex for firstName and lastName
  */
@@ -62,7 +63,7 @@ public class PersonBO {
         json.put("firstName", firstName);
         json.put("lastName", lastName);
         json.put("gender", gender);
-        json.put("birthday", birthday);
+        json.put("birthday", birthday.getTime());
         json.put("weight", weight);
         json.put("height", height);
         return json;
