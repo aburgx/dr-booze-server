@@ -2,7 +2,7 @@ package mail;
 
 import entities.UserBO;
 import entities.VerificationToken;
-import services.Main;
+import main.Main;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;

@@ -5,6 +5,7 @@ import entities.UserBO;
 import entities.VerificationToken;
 import mail.MailService;
 import objects.ErrorGenerator;
+import objects.JwtBuilder;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
@@ -35,6 +36,7 @@ public class AuthenticationRepo {
     private EntityManager em;
     private Validator validator;
     private ErrorGenerator errorgen;
+    private JwtBuilder jwtBuilder;
     private MailService mail;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -46,6 +48,7 @@ public class AuthenticationRepo {
         ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
         this.validator = vf.getValidator();
         this.errorgen = new ErrorGenerator();
+        this.jwtBuilder = new JwtBuilder();
         this.mail = new MailService();
     }
 
@@ -71,10 +74,12 @@ public class AuthenticationRepo {
         if (resultUser != null)
             return resultUser;
 
-        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class).setParameter("username", username);
+        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class)
+                .setParameter("username", username);
         long numberOfEntriesName = queryUniqueName.getSingleResult();
 
-        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class).setParameter("email", email);
+        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class)
+                .setParameter("email", email);
         long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
         // check if the username or the email is already taken
@@ -87,7 +92,8 @@ public class AuthenticationRepo {
 
         // setup the verification token of the user
         VerificationToken verificationToken = new VerificationToken(user);
-        System.out.println("Setup token: " + verificationToken.getToken() + " Expire: " + verificationToken.getExpiryDate());
+        System.out.println("Setup token: " + verificationToken.getToken()
+                + " Expire: " + verificationToken.getExpiryDate());
 
         // persist the new user
         em.getTransaction().begin();
@@ -134,7 +140,8 @@ public class AuthenticationRepo {
             return errorgen.generate(604, "weight");
         }
 
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class).setParameter("email", email);
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
+                .setParameter("email", email);
         List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this email
@@ -186,7 +193,8 @@ public class AuthenticationRepo {
                 " firstName: " + firstName + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday +
                 " height: " + height + " weight: " + weight);
 
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class).setParameter("username", username);
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username);
         List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         // check if an user exists with this username
@@ -196,7 +204,8 @@ public class AuthenticationRepo {
 
         UserBO user = resultsGetUser.get(0);
 
-        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class).setParameter("user", user);
+        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
+                .setParameter("user", user);
         List<PersonBO> resultGetPerson = queryGetPerson.getResultList();
 
         // check if the person exists
@@ -268,7 +277,8 @@ public class AuthenticationRepo {
      */
     public String login(final String username, final String password) {
         // check if the username exists in the database
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class).setParameter("username", username);
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username);
         List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         if (resultsGetUser.size() == 0) {
@@ -295,15 +305,21 @@ public class AuthenticationRepo {
         JSONObject json = new JSONObject();
         json.put("user", user.toJson());
 
-        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class).setParameter("user", user);
+        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
+                .setParameter("user", user);
         List<PersonBO> resultsGetPerson = queryGetPerson.getResultList();
         if (resultsGetPerson.size() != 0) {
             PersonBO person = resultsGetPerson.get(0);
             json.put("person", person.toJson());
         }
+        /*
         String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
+        */
+        String jwtToken = jwtBuilder.create(user.getUsername());
+        System.out.println("Jwt token " + user.getUsername() + " : " + jwtToken);
+        return jwtBuilder.create(user.getUsername());
     }
 
     /**

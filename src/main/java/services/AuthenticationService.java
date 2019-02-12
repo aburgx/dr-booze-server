@@ -1,8 +1,7 @@
 package services;
 
-import transferObjects.PersonVO;
-import transferObjects.UserVO;
 import repositories.AuthenticationRepo;
+import transferObjects.UserVO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -13,8 +12,8 @@ import java.net.URISyntaxException;
 /**
  * @author Alexander Burghuber
  */
-@Path("booze")
-public class RestService {
+@Path("auth")
+public class AuthenticationService {
 
     /**
      * Registers a new user
@@ -43,55 +42,9 @@ public class RestService {
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public String login(UserVO user) {
         return AuthenticationRepo.getInstance().login(user.getUsername(), user.getPassword());
-    }
-
-    /**
-     * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
-     *
-     * @param person the Transfer Object of the Person entity
-     * @return a json that includes either the user and person object or an error
-     */
-    @Path("insertDetails")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public String insertDetails(PersonVO person) {
-        return AuthenticationRepo.getInstance().insertDetails(
-                person.getEmail(),
-                person.getFirstName(),
-                person.getLastName(),
-                person.getGender(),
-                person.getBirthday(),
-                person.getHeight(),
-                person.getWeight()
-        );
-    }
-
-    /**
-     * Updates the details of a person
-     *
-     * @param person the Transfer Object of the Person entity
-     * @return a json that includes either the user and person object or an error
-     */
-    @Path("updateDetails")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public String updateDetails(PersonVO person) {
-        return AuthenticationRepo.getInstance().updateDetails(
-                person.getUsername(),
-                person.getEmail(),
-                person.getPassword(),
-                person.getFirstName(),
-                person.getLastName(),
-                person.getGender(),
-                person.getBirthday(),
-                person.getHeight(),
-                person.getWeight()
-        );
     }
 
     /**
@@ -108,14 +61,11 @@ public class RestService {
             // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
             location = new URI("http://localhost:4200/login?token="
                     + AuthenticationRepo.getInstance()
-                    .verify(token)
-            );
+                    .verify(token));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         System.out.println(location);
         return Response.temporaryRedirect(location).build();
     }
-
 }
-

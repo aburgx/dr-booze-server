@@ -2,6 +2,7 @@ package objects;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 
 public class JwtBuilder {
 
@@ -9,16 +10,20 @@ public class JwtBuilder {
 
     public String create(String subject) {
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.HS256, key)
                 .setSubject(subject)
+                .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
     public String checkSubject(String token) {
-        return Jwts.parser()
-                .setSigningKey(key)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(key)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (SignatureException ex) {
+            return null;
+        }
     }
 }
