@@ -4,6 +4,7 @@ import repositories.Repository;
 import transferObjects.PersonVO;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -15,8 +16,9 @@ public class ManageService {
     @Path("getPerson")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getPerson() {
-        return Repository.getInstance().getPerson();
+    public String getPerson(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+        String[] auth = authHeader.split("\\s");
+        return Repository.getInstance().getPerson(auth[1]);
     }
 
     /**

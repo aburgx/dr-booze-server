@@ -312,11 +312,7 @@ public class Repository {
             PersonBO person = resultsGetPerson.get(0);
             json.put("person", person.toJson());
         }
-        /*
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
-        */
+
         String jwtToken = jwtBuilder.create(user.getUsername());
         System.out.println("Jwt token " + user.getUsername() + " : " + jwtToken);
         return jwtBuilder.create(user.getUsername());
@@ -353,8 +349,36 @@ public class Repository {
         return false;
     }
 
-    public String getPerson() {
-        return null;
+    public String getPerson(final String jwtToken) {
+        // get the username from the jwtToken
+        String username = jwtBuilder.checkSubject(jwtToken);
+
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+
+        // check if the user exists
+        if (resultsGetUser.size() == 0) {
+            return errorgen.generate(607, "user");
+        }
+
+        UserBO user = resultsGetUser.get(0);
+
+        // get the person from the user
+        TypedQuery<PersonBO> queryGetPerson = em.createNamedQuery("Person.get-with-user", PersonBO.class)
+                .setParameter("user", user);
+        List<PersonBO> resultGetPerson = queryGetPerson.getResultList();
+
+        // check if the person exists
+        if (resultGetPerson.size() == 0) {
+            return errorgen.generate(607, "person");
+        }
+
+        PersonBO person = resultGetPerson.get(0);
+
+        String jsonString = person.toJson().toString();
+        System.out.println(jsonString);
+        return jsonString;
     }
 
     private String validateUser(UserBO user) {
