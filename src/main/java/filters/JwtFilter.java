@@ -5,6 +5,7 @@ import objects.JwtBuilder;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
@@ -18,13 +19,14 @@ public class JwtFilter implements ContainerRequestFilter {
             return;
         JwtBuilder jwtBuilder = new JwtBuilder();
         try {
-            String[] auth = rc.getHeaderString("Authorization")
+            String[] auth = rc.getHeaderString(HttpHeaders.AUTHORIZATION)
                     .split("\\s");
             jwtBuilder.checkSubject(auth[1]);
         } catch (Exception ex) {
             System.out.println("Unauthorized activity has been detected");
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
+
     }
 
 }

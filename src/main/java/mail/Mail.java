@@ -20,12 +20,12 @@ import static javax.mail.Message.RecipientType;
 /**
  * @author Alexander Burghuber
  */
-public class MailService {
+public class Mail {
 
     private String emailPassword;
     private Session session;
 
-    public MailService() {
+    public Mail() {
         // load the email password from the config file
         try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
             Properties prop = new Properties();

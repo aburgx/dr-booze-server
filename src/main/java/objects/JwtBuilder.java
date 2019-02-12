@@ -4,9 +4,25 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class JwtBuilder {
 
-    private String key = "secret-booze";
+    private String key = null;
+
+    public JwtBuilder() {
+        // load the jwt key from the config file
+        try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            key = prop.getProperty("jwt_key");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public String create(String subject) {
         return Jwts.builder()

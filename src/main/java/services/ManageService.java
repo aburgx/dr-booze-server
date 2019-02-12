@@ -1,12 +1,9 @@
 package services;
 
-import repositories.AuthenticationRepo;
+import repositories.Repository;
 import transferObjects.PersonVO;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -14,6 +11,13 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("manage")
 public class ManageService {
+
+    @Path("getPerson")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getPerson() {
+        return Repository.getInstance().getPerson();
+    }
 
     /**
      * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
@@ -26,7 +30,7 @@ public class ManageService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String insertDetails(PersonVO person) {
-        return AuthenticationRepo.getInstance().insertDetails(
+        return Repository.getInstance().insertDetails(
                 person.getEmail(),
                 person.getFirstName(),
                 person.getLastName(),
@@ -48,7 +52,7 @@ public class ManageService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String updateDetails(PersonVO person) {
-        return AuthenticationRepo.getInstance().updateDetails(
+        return Repository.getInstance().updateDetails(
                 person.getUsername(),
                 person.getEmail(),
                 person.getPassword(),

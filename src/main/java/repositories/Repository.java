@@ -3,7 +3,7 @@ package repositories;
 import entities.PersonBO;
 import entities.UserBO;
 import entities.VerificationToken;
-import mail.MailService;
+import mail.Mail;
 import objects.ErrorGenerator;
 import objects.JwtBuilder;
 import org.bouncycastle.util.encoders.Hex;
@@ -31,30 +31,30 @@ import java.util.concurrent.Executors;
  * @author Alexander Burghuber
  */
 @SuppressWarnings("Duplicates")
-public class AuthenticationRepo {
+public class Repository {
 
     private EntityManager em;
     private Validator validator;
     private ErrorGenerator errorgen;
     private JwtBuilder jwtBuilder;
-    private MailService mail;
+    private Mail mail;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
-    private static AuthenticationRepo instance = null;
+    private static Repository instance = null;
 
-    private AuthenticationRepo() {
+    private Repository() {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
         this.em = emf.createEntityManager();
         ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
         this.validator = vf.getValidator();
         this.errorgen = new ErrorGenerator();
         this.jwtBuilder = new JwtBuilder();
-        this.mail = new MailService();
+        this.mail = new Mail();
     }
 
-    public static AuthenticationRepo getInstance() {
+    public static Repository getInstance() {
         if (instance == null)
-            instance = new AuthenticationRepo();
+            instance = new Repository();
         return instance;
     }
 
@@ -351,6 +351,10 @@ public class AuthenticationRepo {
             }
         }
         return false;
+    }
+
+    public String getPerson() {
+        return null;
     }
 
     private String validateUser(UserBO user) {

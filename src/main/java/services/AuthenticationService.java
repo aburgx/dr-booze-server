@@ -1,6 +1,6 @@
 package services;
 
-import repositories.AuthenticationRepo;
+import repositories.Repository;
 import transferObjects.UserVO;
 
 import javax.ws.rs.*;
@@ -26,7 +26,7 @@ public class AuthenticationService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String register(UserVO user) {
-        return AuthenticationRepo.getInstance().register(
+        return Repository.getInstance().register(
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword()
@@ -37,14 +37,14 @@ public class AuthenticationService {
      * Logs an user in
      *
      * @param user the Transfer Object of the User entity
-     * @return a json that includes either the user and/or the person or an error
+     * @return a json that includes either the jwt token or an error
      */
     @Path("login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
     public String login(UserVO user) {
-        return AuthenticationRepo.getInstance().login(user.getUsername(), user.getPassword());
+        return Repository.getInstance().login(user.getUsername(), user.getPassword());
     }
 
     /**
@@ -60,7 +60,7 @@ public class AuthenticationService {
         try {
             // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
             location = new URI("http://localhost:4200/login?token="
-                    + AuthenticationRepo.getInstance()
+                    + Repository.getInstance()
                     .verify(token));
         } catch (URISyntaxException e) {
             e.printStackTrace();
