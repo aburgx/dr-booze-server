@@ -37,7 +37,7 @@ public class AuthenticationService {
      * Logs an user in
      *
      * @param user the Transfer Object of the User entity
-     * @return a json that includes either the jwt token or an error
+     * @return a json that includes either the jwt or an error
      */
     @Path("login")
     @POST
@@ -67,4 +67,5 @@ public class AuthenticationService {
         System.out.println(location);
         return Response.temporaryRedirect(location).build();
     }
+
 }

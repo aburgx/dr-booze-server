@@ -13,6 +13,10 @@ import javax.ws.rs.core.MediaType;
 @Path("manage")
 public class ManageService {
 
+    /**
+     * @param authHeader the HTTP-Header that includes an Authorization with the jwt
+     * @return the person of an user or an error
+     */
     @Path("getPerson")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
