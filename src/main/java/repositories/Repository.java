@@ -1,6 +1,7 @@
 package repositories;
 
 import entities.*;
+import enums.DrinkType;
 import helper.EntityManagerFactoryHelper;
 import helper.JwtHelper;
 import helper.ValidatorHelper;
@@ -14,6 +15,8 @@ import org.json.JSONTokener;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -339,34 +342,72 @@ public class Repository {
     public String getBeer() {
         TypedQuery<Beer> query = em.createQuery("SELECT b FROM Beer b", Beer.class);
         List<Beer> resultList = query.getResultList();
-        JSONObject outerJson = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
         for (Beer beer : resultList) {
             JSONObject beerJson = new JSONObject();
             beerJson.put("id", beer.getId());
             beerJson.put("name", beer.getName());
             beerJson.put("percentage", beer.getPercentage());
             beerJson.put("amount", beer.getAmount());
-            outerJson.accumulate("beers", beerJson);
+            jsonArray.put(beerJson);
         }
-        return outerJson.toString();
+        return jsonArray.toString();
     }
 
     public String getWine() {
         TypedQuery<Wine> query = em.createQuery("SELECT w FROM Wine w", Wine.class);
         List<Wine> resultList = query.getResultList();
-        JSONObject outerJson = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
         for (Wine wine : resultList) {
-            JSONObject wineJson = new JSONObject();
-            wineJson.put("id", wine.getId());
-            wineJson.put("name", wine.getName());
-            wineJson.put("percentage", wine.getPercentage());
-            wineJson.put("amount", wine.getAmount());
-            outerJson.accumulate("wine", wineJson);
+            JSONObject beerJson = new JSONObject();
+            beerJson.put("id", wine.getId());
+            beerJson.put("name", wine.getName());
+            beerJson.put("percentage", wine.getPercentage());
+            beerJson.put("amount", wine.getAmount());
+            jsonArray.put(beerJson);
         }
-        return outerJson.toString();
+        return jsonArray.toString();
+    }
+    public Response addDrink(final String jwt, final long id, final DrinkType type, final int unixTime) {
+        UserBO user = getUserFromJwt(jwt);
+        System.out.println(type + ", Date" + new Date(unixTime));
+        switch (type) {
+            case BEER:
+                Beer beer = em.find(Beer.class, id);
+                DrinkBO beerDrink = new DrinkBO(
+                        user,
+                        type,
+                        new Date(unixTime),
+                        beer.getName(),
+                        beer.getPercentage(),
+                        beer.getAmount()
+                );
+                em.getTransaction().begin();
+                em.persist(beerDrink);
+                em.getTransaction().commit();
+                break;
+            case WINE:
+                Wine wine = em.find(Wine.class, id);
+                DrinkBO wineDrink = new DrinkBO(
+                        user,
+                        type,
+                        new Date(unixTime),
+                        wine.getName(),
+                        wine.getPercentage(),
+                        wine.getAmount()
+                );
+                em.getTransaction().begin();
+                em.persist(wineDrink);
+                em.getTransaction().commit();
+                break;
+            default:
+                throw new WebApplicationException();
+        }
+
+        return Response.status(Response.Status.OK).build();
     }
 
-    private UserBO getUserFromJwt(String jwt) {
+    private UserBO getUserFromJwt(final String jwt) {
         String username = jwtHelper.checkSubject(jwt);
 
         TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)

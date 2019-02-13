@@ -7,9 +7,9 @@
         <class>entities.UserBO</class>
         <class>entities.VerificationToken</class>
         <class>entities.PersonBO</class>
-        <class>entities.Alcohol</class>
         <class>entities.Beer</class>
         <class>entities.Wine</class>
+        <class>entities.DrinkBO</class>
         <validation-mode>AUTO</validation-mode>
         <properties>
             <property name="javax.persistence.jdbc.url"
@@ -18,7 +18,7 @@
             <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
             <property name="javax.persistence.jdbc.password" value="${jdbc_password}"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="eclipselink.logging.level" value="OFF"/>
+            <property name="eclipselink.logging.level.sql" value="ALL"/>
         </properties>
     </persistence-unit>
 </persistence>

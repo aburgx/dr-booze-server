@@ -6,7 +6,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "Booze_Wine")
-public class Wine {
+public class Wine  {
 
     @Id
     private long id;
@@ -16,7 +16,6 @@ public class Wine {
     private int amount;
 
     public Wine() {
-
     }
 
     public Wine(long id, String name, double percentage, int amount) {

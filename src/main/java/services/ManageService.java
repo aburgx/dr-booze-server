@@ -1,11 +1,13 @@
 package services;
 
 import repositories.Repository;
+import transferObjects.DrinkVO;
 import transferObjects.PersonVO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Alexander Burghuber
@@ -69,6 +71,19 @@ public class ManageService {
                 person.getBirthday(),
                 person.getHeight(),
                 person.getWeight()
+        );
+    }
+
+    @Path("addDrink")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, DrinkVO drink) {
+        String[] auth = authHeader.split("\\s");
+        return Repository.getInstance().addDrink(
+                auth[1],
+                drink.getId(),
+                drink.getType(),
+                drink.getUnixTime()
         );
     }
 

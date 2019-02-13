@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Booze_User")
@@ -32,6 +34,9 @@ public class UserBO {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private PersonBO person;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<DrinkBO> drinks;
 
     @NotNull(message = "601")
     @Size(min = 4, max = 25, message = "603")
@@ -58,9 +63,11 @@ public class UserBO {
     private boolean enabled = false;
 
     public UserBO() {
+        this.drinks = new ArrayList<>();
     }
 
     public UserBO(String username, String email, String password) {
+        this();
         this.username = username;
         this.email = email;
         this.password = password;
@@ -167,5 +174,13 @@ public class UserBO {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<DrinkBO> getDrinks() {
+        return drinks;
+    }
+
+    public void setDrinks(List<DrinkBO> drinks) {
+        this.drinks = drinks;
     }
 }
