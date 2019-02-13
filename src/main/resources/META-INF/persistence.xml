@@ -7,6 +7,9 @@
         <class>entities.UserBO</class>
         <class>entities.VerificationToken</class>
         <class>entities.PersonBO</class>
+        <class>entities.Alcohol</class>
+        <class>entities.Beer</class>
+        <class>entities.Wine</class>
         <validation-mode>AUTO</validation-mode>
         <properties>
             <property name="javax.persistence.jdbc.url"

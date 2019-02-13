@@ -1,14 +1,14 @@
 [
   {
-    "id": 0,
+    "id": 1,
     "name": "Riesling Smaragd Singerriedel",
     "percentage": 14,
-    "liter": 0.75
+    "amount": 750
   },
   {
-    "id": 1,
+    "id": 2,
     "name": "Grüner Veltliner Kalmücke",
     "percentage": 12.5,
-    "liter": 0.75
+    "amount": 750
   }
 ]

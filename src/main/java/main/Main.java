@@ -3,6 +3,7 @@ package main;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import repositories.Repository;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,7 +37,7 @@ public class Main {
         l.addHandler(ch);
 
         // load alcohol into the database
-        // Repository.getInstance().loadAlcohol();
+        Repository.getInstance().loadAlcohol();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", BASE_URI));
         System.in.read();

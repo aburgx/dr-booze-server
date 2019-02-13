@@ -1,20 +1,21 @@
 package repositories;
 
-import entities.PersonBO;
-import entities.UserBO;
-import entities.VerificationToken;
+import entities.*;
 import helper.EntityManagerFactoryHelper;
 import helper.JwtHelper;
 import helper.ValidatorHelper;
 import mail.Mail;
 import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -335,6 +336,36 @@ public class Repository {
         return jsonString;
     }
 
+    public String getBeer() {
+        TypedQuery<Beer> query = em.createQuery("SELECT b FROM Beer b", Beer.class);
+        List<Beer> resultList = query.getResultList();
+        JSONObject outerJson = new JSONObject();
+        for (Beer beer : resultList) {
+            JSONObject beerJson = new JSONObject();
+            beerJson.put("id", beer.getId());
+            beerJson.put("name", beer.getName());
+            beerJson.put("percentage", beer.getPercentage());
+            beerJson.put("amount", beer.getAmount());
+            outerJson.accumulate("beers", beerJson);
+        }
+        return outerJson.toString();
+    }
+
+    public String getWine() {
+        TypedQuery<Wine> query = em.createQuery("SELECT w FROM Wine w", Wine.class);
+        List<Wine> resultList = query.getResultList();
+        JSONObject outerJson = new JSONObject();
+        for (Wine wine : resultList) {
+            JSONObject wineJson = new JSONObject();
+            wineJson.put("id", wine.getId());
+            wineJson.put("name", wine.getName());
+            wineJson.put("percentage", wine.getPercentage());
+            wineJson.put("amount", wine.getAmount());
+            outerJson.accumulate("wine", wineJson);
+        }
+        return outerJson.toString();
+    }
+
     private UserBO getUserFromJwt(String jwt) {
         String username = jwtHelper.checkSubject(jwt);
 
@@ -350,12 +381,39 @@ public class Repository {
     }
 
     public void loadAlcohol() throws IOException {
-        //JSONParser parser = new JSONParser();
+        String jsonFolder = "src/main/resources/alcohol/";
 
-        //Object obj = parser.parse();
-        List<String> lines = Files.readAllLines(Paths.get("src/main/resources/alcohol/beers.json"));
-        JSONObject json = new JSONObject(lines.toString());
-        System.out.println(json.toString());
+        // Read beer.json
+        InputStream inputStream = Files.newInputStream(Paths.get(jsonFolder + "beers.json"));
+        JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
+        for (int i = 0; i < jsonArray.length(); ++i) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            Beer beer = new Beer(
+                    json.getLong("id"),
+                    json.getString("name"),
+                    json.getDouble("percentage"),
+                    json.getInt("amount")
+            );
+            em.getTransaction().begin();
+            em.persist(beer);
+            em.getTransaction().commit();
+        }
+
+        // Read wine.json
+        inputStream = Files.newInputStream(Paths.get(jsonFolder + "wine.json"));
+        jsonArray = new JSONArray(new JSONTokener(inputStream));
+        for (int i = 0; i < jsonArray.length(); ++i) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            Wine wine = new Wine(
+                    json.getLong("id"),
+                    json.getString("name"),
+                    json.getDouble("percentage"),
+                    json.getInt("amount")
+            );
+            em.getTransaction().begin();
+            em.persist(wine);
+            em.getTransaction().commit();
+        }
     }
 
 }

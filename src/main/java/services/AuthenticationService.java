@@ -68,4 +68,18 @@ public class AuthenticationService {
         return Response.temporaryRedirect(location).build();
     }
 
+    @Path("getBeer")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getBeer() {
+        return Repository.getInstance().getBeer();
+    }
+
+    @Path("getWine")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getWine() {
+        return Repository.getInstance().getWine();
+    }
+
 }
