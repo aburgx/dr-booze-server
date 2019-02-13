@@ -14,7 +14,10 @@ import org.json.JSONObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -247,9 +250,7 @@ public class Repository {
 
         // return the user and person
         JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
         json.put("person", person.toJson());
-
         String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
@@ -328,9 +329,7 @@ public class Repository {
 
         // return the user and person
         JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
         json.put("person", person.toJson());
-
         String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
@@ -348,6 +347,15 @@ public class Repository {
             return null;
         }
         return resultsGetUser.get(0);
+    }
+
+    public void loadAlcohol() throws IOException {
+        //JSONParser parser = new JSONParser();
+
+        //Object obj = parser.parse();
+        List<String> lines = Files.readAllLines(Paths.get("src/main/resources/alcohol/beers.json"));
+        JSONObject json = new JSONObject(lines.toString());
+        System.out.println(json.toString());
     }
 
 }

@@ -1,20 +1,25 @@
-[
-  {
-    "id": 0,
-    "name": "Rieder Maerzen",
-    "percentage": 4.9,
-    "liter": [0.5, 0.33]
-  },
-  {
-    "id": 1,
-    "name": "Schlaegl Urquell",
-    "percentage": 5.8,
-    "liter": 0.5
-  },
-  {
-    "id": 3,
-    "name": "Zipfer Urtyp",
-    "percentage": 5.4,
-    "liter": 0.5
-  }
-]
+{
+  "beers": [
+    {
+      "id": 0,
+      "name": "Rieder Maerzen",
+      "percentage": 4.9,
+      "liter": [
+        0.5,
+        0.33
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Schlaegl Urquell",
+      "percentage": 5.8,
+      "liter": 0.5
+    },
+    {
+      "id": 3,
+      "name": "Zipfer Urtyp",
+      "percentage": 5.4,
+      "liter": 0.5
+    }
+  ]
+}

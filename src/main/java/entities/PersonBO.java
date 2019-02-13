@@ -66,6 +66,7 @@ public class PersonBO {
         json.put("birthday", birthday.getTime());
         json.put("weight", weight);
         json.put("height", height);
+        json.put("user", user.toJson());
         return json;
     }
 
