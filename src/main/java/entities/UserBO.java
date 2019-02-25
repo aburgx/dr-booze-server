@@ -101,7 +101,6 @@ public class UserBO {
                 this.salt = saltString;
 
                 System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
-
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
@@ -183,4 +182,5 @@ public class UserBO {
     public void setDrinks(List<DrinkBO> drinks) {
         this.drinks = drinks;
     }
+
 }

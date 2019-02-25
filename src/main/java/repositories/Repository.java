@@ -339,6 +339,9 @@ public class Repository {
         return jsonString;
     }
 
+    /**
+     * @return all beer in the database as a json
+     */
     public String getBeer() {
         TypedQuery<Beer> query = em.createQuery("SELECT b FROM Beer b", Beer.class);
         List<Beer> resultList = query.getResultList();
@@ -354,6 +357,9 @@ public class Repository {
         return jsonArray.toString();
     }
 
+    /**
+     * @return all wine in the database as a json
+     */
     public String getWine() {
         TypedQuery<Wine> query = em.createQuery("SELECT w FROM Wine w", Wine.class);
         List<Wine> resultList = query.getResultList();
@@ -368,6 +374,16 @@ public class Repository {
         }
         return jsonArray.toString();
     }
+
+    /**
+     * Adds a drink to an user
+     *
+     * @param jwt      the json web token
+     * @param id       the id of the alcohol
+     * @param type     the alcohol type
+     * @param unixTime the unixTime when the drink was drank
+     * @return a Http-Response
+     */
     public Response addDrink(final String jwt, final long id, final DrinkType type, final int unixTime) {
         UserBO user = getUserFromJwt(jwt);
         System.out.println(type + ", Date" + new Date(unixTime));
@@ -407,20 +423,11 @@ public class Repository {
         return Response.status(Response.Status.OK).build();
     }
 
-    private UserBO getUserFromJwt(final String jwt) {
-        String username = jwtHelper.checkSubject(jwt);
-
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
-                .setParameter("username", username);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
-
-        // check if user exists
-        if (resultsGetUser.size() == 0) {
-            return null;
-        }
-        return resultsGetUser.get(0);
-    }
-
+    /**
+     * Loads all alcohol from the json files into the database
+     *
+     * @throws IOException exception while reading the files
+     */
     public void loadAlcohol() throws IOException {
         String jsonFolder = "src/main/resources/alcohol/";
 
@@ -455,6 +462,20 @@ public class Repository {
             em.persist(wine);
             em.getTransaction().commit();
         }
+    }
+
+    private UserBO getUserFromJwt(final String jwt) {
+        String username = jwtHelper.checkSubject(jwt);
+
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+
+        // check if user exists
+        if (resultsGetUser.size() == 0) {
+            return null;
+        }
+        return resultsGetUser.get(0);
     }
 
 }

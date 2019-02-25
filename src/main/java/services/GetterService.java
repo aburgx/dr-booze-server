@@ -10,6 +10,9 @@ import javax.ws.rs.core.MediaType;
 @Path("getter")
 public class GetterService {
 
+    /**
+     * @return all beer in the database as a json
+     */
     @Path("getBeer")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -17,6 +20,9 @@ public class GetterService {
         return Repository.getInstance().getBeer();
     }
 
+    /**
+     * @return all wine in the database as a json
+     */
     @Path("getWine")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

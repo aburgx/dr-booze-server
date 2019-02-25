@@ -54,6 +54,7 @@ public class ManageService {
      * Updates the details of a person
      *
      * @param person the Transfer Object of the Person entity
+     * @param authHeader the Http-Header
      * @return a json that includes either the user and person object or an error
      */
     @Path("updateDetails")
@@ -74,6 +75,12 @@ public class ManageService {
         );
     }
 
+    /**
+     * Adds a drink to an user
+     * @param authHeader the Http-Header
+     * @param drink the drink the user drank
+     * @return a Http-Response
+     */
     @Path("addDrink")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
