@@ -478,4 +478,38 @@ public class Repository {
         return resultsGetUser.get(0);
     }
 
+    public Response requestPasswordChange(String email) {
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
+                .setParameter("email", email);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+
+        if (resultsGetUser.size() == 0) {
+            return Response.status(Response.Status.CONFLICT).build();
+        }
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    public String updatePassword(String mail, String password) {
+        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
+                .setParameter("email", mail);
+        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+
+        if (resultsGetUser.size() == 0) {
+            return errorgen.generate(607, "email");
+        }
+
+        UserBO user = resultsGetUser.get(0);
+
+        user.setPassword(password);
+
+        if (validator.validateUser(user) != null) return validator.validateUser(user);
+
+        em.getTransaction().begin();
+        em.persist(user);
+        em.getTransaction().commit();
+
+        return user.toJson().toString();
+    }
+
 }

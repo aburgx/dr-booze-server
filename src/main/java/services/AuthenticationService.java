@@ -68,4 +68,25 @@ public class AuthenticationService {
         return Response.temporaryRedirect(location).build();
     }
 
+    /**
+     * Request a change on the password that is linked to the email
+     *
+     * @param user the verified email of a user
+     * @return a status code (OK, Conflict)
+     */
+
+    @Path("requestPasswordChange")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requestPasswordChange(UserVO user) {
+
+        return Repository.getInstance().requestPasswordChange(user.getEmail());
+    }
+
+    @Path("updatePassword")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String updatePassword(UserVO user) {
+        return Repository.getInstance().updatePassword(user.getEmail(), user.getPassword());
+    }
 }

@@ -24,7 +24,6 @@ import java.util.List;
         @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM UserBO u WHERE u.email = :email")
 })
 public class UserBO {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
