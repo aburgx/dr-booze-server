@@ -60,6 +60,24 @@ public class Mail {
         }
     }
 
+    public void resetPasswordConfirmation(UserBO user, int pin) {
+
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
+            message.setSubject("Welcome to Dr. Booze");
+            String mailBody =
+                    "<h1>Do you wanna reset your password?</h1><br>" + "<p>ResetPin is " + pin + "</p>";
+            transport(message, mailBody);
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+
+
+
     private void transport(Message message, String mailBody) throws MessagingException {
         message.setContent(mailBody, "text/html");
 

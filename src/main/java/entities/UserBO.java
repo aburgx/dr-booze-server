@@ -23,6 +23,7 @@ import java.util.List;
         @NamedQuery(name = "User.count-username", query = "SELECT COUNT(u) FROM UserBO u WHERE u.username = :username"),
         @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM UserBO u WHERE u.email = :email")
 })
+
 public class UserBO {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,6 +61,7 @@ public class UserBO {
     private String salt;
 
     private boolean enabled = false;
+
 
     public UserBO() {
         this.drinks = new ArrayList<>();
@@ -181,5 +183,4 @@ public class UserBO {
     public void setDrinks(List<DrinkBO> drinks) {
         this.drinks = drinks;
     }
-
 }

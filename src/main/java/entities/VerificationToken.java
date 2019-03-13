@@ -7,6 +7,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Booze_VerificationToken")
+@NamedQueries({
+        @NamedQuery(name = "Token.get-by-token", query = "SELECT v FROM VerificationToken v WHERE v.token = :token")
+})
 public class VerificationToken {
 
     @Id
@@ -24,15 +27,22 @@ public class VerificationToken {
     public VerificationToken() {
     }
 
-    public VerificationToken(UserBO user) {
+    public VerificationToken(UserBO user, boolean usePin) {
         this.user = user;
-        // generate the unique token
-        this.token = UUID.randomUUID().toString();
-        // setup the expiration date of the token
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        if (usePin) {
+            // generate the pin for a reset
+            this.token = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
+            calendar.add(Calendar.SECOND, 5);
+        } else {
+            // generate the unique token
+            this.token = UUID.randomUUID().toString();
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        // setup the expiration date of the token
         this.expiryDate = calendar.getTime();
+
     }
 
     public long getId() {

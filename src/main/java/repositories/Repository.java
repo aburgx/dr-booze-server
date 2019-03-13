@@ -92,7 +92,7 @@ public class Repository {
         }
 
         // setup the verification token of the user
-        VerificationToken verificationToken = new VerificationToken(user);
+        VerificationToken verificationToken = new VerificationToken(user, false);
         System.out.println("Setup token: " + verificationToken.getToken()
                 + " Expire: " + verificationToken.getExpiryDate());
 
@@ -486,30 +486,61 @@ public class Repository {
         if (resultsGetUser.size() == 0) {
             return Response.status(Response.Status.CONFLICT).build();
         }
+        UserBO user = resultsGetUser.get(0);
+
+        VerificationToken verificationToken = new VerificationToken(user, true);
+
+        int pin = Integer.parseInt(verificationToken.getToken());
+
+        em.getTransaction().begin();
+        em.persist(verificationToken);
+        em.getTransaction().commit();
+
+        executor.execute(() -> {
+            System.out.println("Sending email confirmation for passwordchanges...");
+            mail.resetPasswordConfirmation(resultsGetUser.get(0), pin);
+            System.out.println("Email confirmation sent.");
+        });
 
         return Response.status(Response.Status.OK).build();
+
     }
 
-    public String updatePassword(String mail, String password) {
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
-                .setParameter("email", mail);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
-        if (resultsGetUser.size() == 0) {
-            return errorgen.generate(607, "email");
+    public Response updatePassword(int pin, String password) {
+        String token = (new Integer(pin)).toString();
+        TypedQuery<VerificationToken> queryGetToken = em.createNamedQuery("Token.get-by-token", VerificationToken.class)
+                .setParameter("token", token);
+        List<VerificationToken> resultsGetToken = queryGetToken.getResultList();
+        System.out.println(resultsGetToken);
+        if (resultsGetToken.size() == 0) return Response.status(Response.Status.NOT_FOUND).build();
+
+        VerificationToken verificationToken = resultsGetToken.get(0);
+
+        UserBO user = verificationToken.getUser();
+        if (!user.isEnabled()) return Response.status(Response.Status.FORBIDDEN).build();
+
+        Date currentDate = new Date();
+        Date tokenDate = verificationToken.getExpiryDate();
+
+        if (tokenDate.compareTo(currentDate) <= 0) {
+            em.getTransaction().begin();
+            em.remove(verificationToken);
+            em.getTransaction().commit();
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
-
-        UserBO user = resultsGetUser.get(0);
 
         user.setPassword(password);
 
-        if (validator.validateUser(user) != null) return validator.validateUser(user);
-
+        if (validator.validateUser(user) != null) return Response.status(Response.Status.CONFLICT).build();
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
 
-        return user.toJson().toString();
+
+        return Response.status(Response.Status.OK).build();
+
+
     }
 
 }

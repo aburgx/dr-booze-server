@@ -1,6 +1,7 @@
 package services;
 
 import repositories.Repository;
+import transferObjects.PinVO;
 import transferObjects.UserVO;
 
 import javax.ws.rs.*;
@@ -34,7 +35,7 @@ public class AuthenticationService {
     }
 
     /**
-     * Logs an user in
+     * Logs an user in°
      *
      * @param user the Transfer Object of the User entity
      * @return a json that includes either the jwt or an error
@@ -75,18 +76,25 @@ public class AuthenticationService {
      * @return a status code (OK, Conflict)
      */
 
+    /*token here*/
     @Path("requestPasswordChange")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requestPasswordChange(UserVO user) {
-
         return Repository.getInstance().requestPasswordChange(user.getEmail());
     }
 
+
+    /**
+     * Request a change on the password that is linked to the email
+     *
+     * @param pin the verified email of a user
+     * @return a status code (OK, Conflict)
+     */
     @Path("updatePassword")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public String updatePassword(UserVO user) {
-        return Repository.getInstance().updatePassword(user.getEmail(), user.getPassword());
+    public Response updatePassword(PinVO pin) {
+        return Repository.getInstance().updatePassword(pin.getPin(), pin.getPassword());
     }
 }
