@@ -484,28 +484,28 @@ public class Repository {
         List<UserBO> resultsGetUser = queryGetUser.getResultList();
 
         if (resultsGetUser.size() == 0) {
+            System.out.println("Request Password Change: No User found");
             return Response.status(Response.Status.CONFLICT).build();
         }
         UserBO user = resultsGetUser.get(0);
 
         VerificationToken verificationToken = new VerificationToken(user, true);
 
-        int pin = Integer.parseInt(verificationToken.getToken());
-
         em.getTransaction().begin();
         em.persist(verificationToken);
         em.getTransaction().commit();
 
+        int pin = Integer.parseInt(verificationToken.getToken());
+
         executor.execute(() -> {
-            System.out.println("Sending email confirmation for passwordchanges...");
+            System.out.println("Sending email for password change...");
             mail.resetPasswordConfirmation(resultsGetUser.get(0), pin);
-            System.out.println("Email confirmation sent.");
+            System.out.println("Email sent.");
         });
 
+        System.out.println("Request Password Change: Success");
         return Response.status(Response.Status.OK).build();
-
     }
-
 
     public Response updatePassword(int pin, String password) {
         String token = (new Integer(pin)).toString();
@@ -537,10 +537,7 @@ public class Repository {
         em.persist(user);
         em.getTransaction().commit();
 
-
         return Response.status(Response.Status.OK).build();
-
-
     }
 
 }

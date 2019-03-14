@@ -1,7 +1,7 @@
 package services;
 
 import repositories.Repository;
-import transferObjects.PinVO;
+import transferObjects.UpdatePasswordVO;
 import transferObjects.UserVO;
 
 import javax.ws.rs.*;
@@ -75,8 +75,6 @@ public class AuthenticationService {
      * @param user the verified email of a user
      * @return a status code (OK, Conflict)
      */
-
-    /*token here*/
     @Path("requestPasswordChange")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -84,17 +82,16 @@ public class AuthenticationService {
         return Repository.getInstance().requestPasswordChange(user.getEmail());
     }
 
-
     /**
-     * Request a change on the password that is linked to the email
+     * Update the password of an user
      *
-     * @param pin the verified email of a user
-     * @return a status code (OK, Conflict)
+     * @param updatePassword the Transfer Object for updating the password
+     * @return a status code (OK, Conflict, Forbidden)
      */
     @Path("updatePassword")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updatePassword(PinVO pin) {
-        return Repository.getInstance().updatePassword(pin.getPin(), pin.getPassword());
+    public Response updatePassword(UpdatePasswordVO updatePassword) {
+        return Repository.getInstance().updatePassword(updatePassword.getPin(), updatePassword.getPassword());
     }
 }

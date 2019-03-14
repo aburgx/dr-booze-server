@@ -1,10 +1,10 @@
 package transferObjects;
 
-public class PinVO {
+public class UpdatePasswordVO {
     private int pin;
     private String password;
 
-    public PinVO() {
+    public UpdatePasswordVO() {
     }
 
     public int getPin() {
