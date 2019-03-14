@@ -141,7 +141,7 @@ public class Repository {
             md.update(Hex.decode(user.getSalt()));
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
-            if (!new String(Hex.encode(hash)).equals(user.getPasswordHash())) {
+            if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
                 return errorgen.generate(605, "login");
             }
         } catch (NoSuchAlgorithmException e) {
@@ -488,6 +488,7 @@ public class Repository {
             return Response.status(Response.Status.CONFLICT).build();
         }
         UserBO user = resultsGetUser.get(0);
+        if (!user.isEnabled()) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         VerificationToken verificationToken = new VerificationToken(user, true);
 
@@ -517,9 +518,6 @@ public class Repository {
 
         VerificationToken verificationToken = resultsGetToken.get(0);
 
-        UserBO user = verificationToken.getUser();
-        if (!user.isEnabled()) return Response.status(Response.Status.FORBIDDEN).build();
-
         Date currentDate = new Date();
         Date tokenDate = verificationToken.getExpiryDate();
 
@@ -530,9 +528,11 @@ public class Repository {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
+        UserBO user = verificationToken.getUser();
         user.setPassword(password);
 
         if (validator.validateUser(user) != null) return Response.status(Response.Status.CONFLICT).build();
+
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();

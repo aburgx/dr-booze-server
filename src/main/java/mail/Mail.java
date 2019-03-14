@@ -64,7 +64,7 @@ public class Mail {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
-            message.setSubject("Welcome to Dr. Booze");
+            message.setSubject("Reset your password");
             String mailBody =
                     "<h1>Your pin to reset the password</h1><br>" + "<p>The pin is " + pin + "</p>";
             transport(message, mailBody);

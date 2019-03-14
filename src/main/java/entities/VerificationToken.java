@@ -16,7 +16,7 @@ public class VerificationToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "verificationToken")
+    @OneToOne(mappedBy = "verificationToken", cascade = CascadeType.MERGE)
     private UserBO user;
 
     private String token;
@@ -34,7 +34,7 @@ public class VerificationToken {
         if (usePin) {
             // generate the pin for a reset
             this.token = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
-            calendar.add(Calendar.SECOND, 5);
+            calendar.add(Calendar.MINUTE, 5);
         } else {
             // generate the unique token
             this.token = UUID.randomUUID().toString();

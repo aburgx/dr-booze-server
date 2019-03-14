@@ -13,7 +13,7 @@ public class DrinkBO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private UserBO user;
 
     @Enumerated(value = EnumType.STRING)

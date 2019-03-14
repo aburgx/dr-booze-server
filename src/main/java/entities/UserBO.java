@@ -29,13 +29,13 @@ public class UserBO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.MERGE)
     private PersonBO person;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<DrinkBO> drinks;
 
     @NotNull(message = "601")
@@ -51,27 +51,24 @@ public class UserBO {
     @Column(unique = true)
     private String email;
 
-    @Transient
-    @NotNull(message = "601")
-    @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
-    @Size(min = 8, max = 25, message = "603")
     private String password;
-
-    private String passwordHash;
     private String salt;
 
     private boolean enabled = false;
-
 
     public UserBO() {
         this.drinks = new ArrayList<>();
     }
 
-    public UserBO(String username, String email, String password) {
+    public UserBO(String username, String email,
+                  @NotNull(message = "601")
+                  @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
+                  @Size(min = 8, max = 25, message = "603")
+                          String password) {
         this();
         this.username = username;
         this.email = email;
-        this.password = password;
+        hashPassword(password);
     }
 
     public JSONObject toJson() {
@@ -81,30 +78,27 @@ public class UserBO {
         return json;
     }
 
-    @PrePersist
-    private void hashPassword() {
-        if (this.passwordHash == null) {
-            // generate the salt
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
+    private void hashPassword(String password) {
+        // generate the salt
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
 
-            try {
-                // setup the encryption
-                MessageDigest md = MessageDigest.getInstance("SHA-256");
-                md.update(salt);
+        try {
+            // setup the encryption
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt);
 
-                // encrypt
-                byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-                String encryptedPassword = new String(Hex.encode(hash));
-                this.passwordHash = encryptedPassword;
-                String saltString = new String(Hex.encode(salt));
-                this.salt = saltString;
+            // encrypt
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            String encryptedPassword = new String(Hex.encode(hash));
+            this.password = encryptedPassword;
+            String saltString = new String(Hex.encode(salt));
+            this.salt = saltString;
 
-                System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+            System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
 
@@ -148,16 +142,13 @@ public class UserBO {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public void setPassword(
+            @NotNull(message = "601")
+            @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
+            @Size(min = 8, max = 25, message = "603")
+                    String password) {
+        hashPassword(password);
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 
     public String getSalt() {
