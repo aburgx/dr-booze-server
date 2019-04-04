@@ -30,4 +30,23 @@ public class GetterService {
         return Repository.getInstance().getWine();
     }
 
+    /**
+     * @return all cocktails in the database as a json
+     */
+    @Path("getCocktails")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getCocktails() {
+        return Repository.getInstance().getCocktails();
+    }
+
+    /**
+     * @return all liquor in the database as a json
+     */
+    @Path("getLiquor")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getLiquor() {
+        return Repository.getInstance().getLiquor();
+    }
 }

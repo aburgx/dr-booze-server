@@ -365,12 +365,48 @@ public class Repository {
         List<Wine> resultList = query.getResultList();
         JSONArray jsonArray = new JSONArray();
         for (Wine wine : resultList) {
-            JSONObject beerJson = new JSONObject();
-            beerJson.put("id", wine.getId());
-            beerJson.put("name", wine.getName());
-            beerJson.put("percentage", wine.getPercentage());
-            beerJson.put("amount", wine.getAmount());
-            jsonArray.put(beerJson);
+            JSONObject wineJson = new JSONObject();
+            wineJson.put("id", wine.getId());
+            wineJson.put("name", wine.getName());
+            wineJson.put("percentage", wine.getPercentage());
+            wineJson.put("amount", wine.getAmount());
+            jsonArray.put(wineJson);
+        }
+        return jsonArray.toString();
+    }
+
+    /**
+     * @return all cocktails in the database as a json
+     */
+    public String getCocktails() {
+        TypedQuery<Cocktail> query = em.createQuery("SELECT c FROM Cocktail c", Cocktail.class);
+        List<Cocktail> resultList = query.getResultList();
+        JSONArray jsonArray = new JSONArray();
+        for (Cocktail cocktail : resultList) {
+            JSONObject cocktailJson = new JSONObject();
+            cocktailJson.put("id", cocktail.getId());
+            cocktailJson.put("name", cocktail.getName());
+            cocktailJson.put("percentage", cocktail.getPercentage());
+            cocktailJson.put("amount", cocktail.getAmount());
+            jsonArray.put(cocktailJson);
+        }
+        return jsonArray.toString();
+    }
+
+    /**
+     * @return all liquor in the database as a json
+     */
+    public String getLiquor() {
+        TypedQuery<Liquor> query = em.createQuery("SELECT l FROM Liquor l", Liquor.class);
+        List<Liquor> resultList = query.getResultList();
+        JSONArray jsonArray = new JSONArray();
+        for (Liquor liquor : resultList) {
+            JSONObject liquorJson = new JSONObject();
+            liquorJson.put("id", liquor.getId());
+            liquorJson.put("name", liquor.getName());
+            liquorJson.put("percentage", liquor.getPercentage());
+            liquorJson.put("amount", liquor.getAmount());
+            jsonArray.put(liquorJson);
         }
         return jsonArray.toString();
     }
@@ -453,6 +489,38 @@ public class Repository {
         for (int i = 0; i < jsonArray.length(); ++i) {
             JSONObject json = jsonArray.getJSONObject(i);
             Wine wine = new Wine(
+                    json.getLong("id"),
+                    json.getString("name"),
+                    json.getDouble("percentage"),
+                    json.getInt("amount")
+            );
+            em.getTransaction().begin();
+            em.persist(wine);
+            em.getTransaction().commit();
+        }
+
+        // Read cocktails.json
+        inputStream = Files.newInputStream(Paths.get(jsonFolder + "cocktails.json"));
+        jsonArray = new JSONArray(new JSONTokener(inputStream));
+        for (int i = 0; i < jsonArray.length(); ++i) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            Cocktail wine = new Cocktail(
+                    json.getLong("id"),
+                    json.getString("name"),
+                    json.getDouble("percentage"),
+                    json.getInt("amount")
+            );
+            em.getTransaction().begin();
+            em.persist(wine);
+            em.getTransaction().commit();
+        }
+
+        // Read liquor.json
+        inputStream = Files.newInputStream(Paths.get(jsonFolder + "liquor.json"));
+        jsonArray = new JSONArray(new JSONTokener(inputStream));
+        for (int i = 0; i < jsonArray.length(); ++i) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            Liquor wine = new Liquor(
                     json.getLong("id"),
                     json.getString("name"),
                     json.getDouble("percentage"),

@@ -10,6 +10,8 @@
         <class>entities.Beer</class>
         <class>entities.Wine</class>
         <class>entities.DrinkBO</class>
+        <class>entities.Cocktail</class>
+        <class>entities.Liquor</class>
         <validation-mode>AUTO</validation-mode>
         <properties>
             <property name="javax.persistence.jdbc.url"
