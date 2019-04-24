@@ -35,7 +35,7 @@ public class AuthenticationService {
     }
 
     /**
-     * Logs an user in°
+     * Logs an user in
      *
      * @param user the Transfer Object of the User entity
      * @return a json that includes either the jwt or an error
@@ -72,7 +72,7 @@ public class AuthenticationService {
     /**
      * Request a change on the password that is linked to the email
      *
-     * @param user the verified email of a user
+     * @param user the verified email of an user
      * @return a status code (OK, Conflict)
      */
     @Path("requestPasswordChange")

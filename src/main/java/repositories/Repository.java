@@ -546,6 +546,12 @@ public class Repository {
         return resultsGetUser.get(0);
     }
 
+    /**
+     * Request a change on the password that is linked to the email
+     *
+     * @param email the verified email of an user
+     * @return a status code (OK, Conflict)
+     */
     public Response requestPasswordChange(String email) {
         TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-email", UserBO.class)
                 .setParameter("email", email);
@@ -576,6 +582,13 @@ public class Repository {
         return Response.status(Response.Status.OK).build();
     }
 
+    /**
+     * Updates the password of an user
+     *
+     * @param pin      the pin from the password change email
+     * @param password the new password of the user
+     * @return a status code (OK, Conflict, Not_found)
+     */
     public Response updatePassword(int pin, String password) {
         String token = (new Integer(pin)).toString();
         TypedQuery<VerificationToken> queryGetToken = em.createNamedQuery("Token.get-by-token", VerificationToken.class)
