@@ -15,7 +15,6 @@ import org.json.JSONTokener;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -411,16 +410,8 @@ public class Repository {
         return jsonArray.toString();
     }
 
-    /**
-     * Adds a drink to an user
-     *
-     * @param jwt      the json web token
-     * @param id       the id of the alcohol
-     * @param type     the alcohol type
-     * @param unixTime the unixTime when the drink was drank
-     * @return a Http-Response
-     */
-    public Response addDrink(final String jwt, final long id, final DrinkType type, final int unixTime) {
+    public Response addDrink(String jwt, long id, DrinkType type,
+                             long unixTime, float longitude, float latitude) {
         UserBO user = getUserFromJwt(jwt);
         System.out.println(type + ", Date" + new Date(unixTime));
         switch (type) {
@@ -432,8 +423,9 @@ public class Repository {
                         new Date(unixTime),
                         beer.getName(),
                         beer.getPercentage(),
-                        beer.getAmount()
-                );
+                        beer.getAmount(),
+                        longitude,
+                        latitude);
                 em.getTransaction().begin();
                 em.persist(beerDrink);
                 em.getTransaction().commit();
@@ -446,14 +438,43 @@ public class Repository {
                         new Date(unixTime),
                         wine.getName(),
                         wine.getPercentage(),
-                        wine.getAmount()
-                );
+                        wine.getAmount(),
+                        longitude,
+                        latitude);
                 em.getTransaction().begin();
                 em.persist(wineDrink);
                 em.getTransaction().commit();
                 break;
-            default:
-                throw new WebApplicationException();
+            case COCKTAIL:
+                Cocktail cocktail = em.find(Cocktail.class, id);
+                DrinkBO cocktailDrink = new DrinkBO(
+                        user,
+                        type,
+                        new Date(unixTime),
+                        cocktail.getName(),
+                        cocktail.getPercentage(),
+                        cocktail.getAmount(),
+                        longitude,
+                        latitude);
+                em.getTransaction().begin();
+                em.persist(cocktailDrink);
+                em.getTransaction().commit();
+                break;
+            case LIQUOR:
+                Liquor liquor = em.find(Liquor.class, id);
+                DrinkBO liquorDrink = new DrinkBO(
+                        user,
+                        type,
+                        new Date(unixTime),
+                        liquor.getName(),
+                        liquor.getPercentage(),
+                        liquor.getAmount(),
+                        longitude,
+                        latitude);
+                em.getTransaction().begin();
+                em.persist(liquorDrink);
+                em.getTransaction().commit();
+                break;
         }
 
         return Response.status(Response.Status.OK).build();
@@ -504,14 +525,14 @@ public class Repository {
         jsonArray = new JSONArray(new JSONTokener(inputStream));
         for (int i = 0; i < jsonArray.length(); ++i) {
             JSONObject json = jsonArray.getJSONObject(i);
-            Cocktail wine = new Cocktail(
+            Cocktail cocktail = new Cocktail(
                     json.getLong("id"),
                     json.getString("name"),
                     json.getDouble("percentage"),
                     json.getInt("amount")
             );
             em.getTransaction().begin();
-            em.persist(wine);
+            em.persist(cocktail);
             em.getTransaction().commit();
         }
 
@@ -520,14 +541,14 @@ public class Repository {
         jsonArray = new JSONArray(new JSONTokener(inputStream));
         for (int i = 0; i < jsonArray.length(); ++i) {
             JSONObject json = jsonArray.getJSONObject(i);
-            Liquor wine = new Liquor(
+            Liquor liquor = new Liquor(
                     json.getLong("id"),
                     json.getString("name"),
                     json.getDouble("percentage"),
                     json.getInt("amount")
             );
             em.getTransaction().begin();
-            em.persist(wine);
+            em.persist(liquor);
             em.getTransaction().commit();
         }
     }
@@ -621,4 +642,19 @@ public class Repository {
         return Response.status(Response.Status.OK).build();
     }
 
+    public String getDrinks(String jwt) {
+        UserBO user = getUserFromJwt(jwt);
+        JSONArray jsonArray = new JSONArray();
+        for (DrinkBO drink : user.getDrinks()) {
+            JSONObject drinkJson = new JSONObject()
+                    .put("type", drink.getType())
+                    .put("name", drink.getName())
+                    .put("amount", drink.getAmount())
+                    .put("timeWhenDrank", drink.getDrankDate())
+                    .put("longitude", drink.getLongitude())
+                    .put("latitude", drink.getLatitude());
+            jsonArray.put(drinkJson);
+        }
+        return jsonArray.toString();
+    }
 }

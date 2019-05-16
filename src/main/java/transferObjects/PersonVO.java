@@ -13,7 +13,6 @@ public class PersonVO {
     private double weight;
 
     public PersonVO() {
-
     }
 
     public String getPassword() {

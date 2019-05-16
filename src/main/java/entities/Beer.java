@@ -16,7 +16,6 @@ public class Beer {
     private int amount;
 
     public Beer() {
-
     }
 
     public Beer(long id, String name, double percentage, int amount) {

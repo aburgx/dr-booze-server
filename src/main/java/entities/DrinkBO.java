@@ -25,17 +25,22 @@ public class DrinkBO {
     private String name;
     private double percentage;
     private int amount;
+    private float longitude;
+    private float latitude;
 
     public DrinkBO() {
     }
 
-    public DrinkBO(UserBO user, DrinkType type, Date drankDate, String name, double percentage, int amount) {
+    public DrinkBO(UserBO user, DrinkType type, Date drankDate,
+                   String name, double percentage, int amount, float longitude, float latitude) {
         this.user = user;
         this.drankDate = drankDate;
         this.type = type;
         this.name = name;
         this.percentage = percentage;
         this.amount = amount;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     public long getId() {
@@ -102,4 +107,19 @@ public class DrinkBO {
         this.amount = amount;
     }
 
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
 }

@@ -6,7 +6,12 @@ public class DrinkVO {
 
     private long id;
     private DrinkType type;
-    private int unixTime;
+    private long unixTime;
+    private float longitude;
+    private float latitude;
+
+    public DrinkVO() {
+    }
 
     public long getId() {
         return id;
@@ -24,11 +29,28 @@ public class DrinkVO {
         this.type = type;
     }
 
-    public int getUnixTime() {
+    public long getUnixTime() {
         return unixTime;
     }
 
-    public void setUnixTime(int unixTime) {
+    public void setUnixTime(long unixTime) {
         this.unixTime = unixTime;
     }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
 }
