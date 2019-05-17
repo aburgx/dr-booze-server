@@ -644,6 +644,7 @@ public class Repository {
 
     public String getDrinks(String jwt) {
         UserBO user = getUserFromJwt(jwt);
+        em.refresh(user);
         JSONArray jsonArray = new JSONArray();
         for (DrinkBO drink : user.getDrinks()) {
             JSONObject drinkJson = new JSONObject()
