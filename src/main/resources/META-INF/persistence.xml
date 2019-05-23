@@ -12,6 +12,8 @@
         <class>entities.DrinkBO</class>
         <class>entities.Cocktail</class>
         <class>entities.Liquor</class>
+        <class>entities.ChallengeBO</class>
+        <class>entities.Template</class>
         <validation-mode>AUTO</validation-mode>
         <properties>
             <property name="javax.persistence.jdbc.url"

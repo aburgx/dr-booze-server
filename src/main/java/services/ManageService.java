@@ -53,7 +53,7 @@ public class ManageService {
     /**
      * Updates the details of a person
      *
-     * @param person the Transfer Object of the Person entity
+     * @param person     the Transfer Object of the Person entity
      * @param authHeader the Http-Header
      * @return a json that includes either the user and person object or an error
      */
@@ -77,8 +77,9 @@ public class ManageService {
 
     /**
      * Adds a drink to an user
+     *
      * @param authHeader the Http-Header
-     * @param drink the drink the user drank
+     * @param drink      the drink the user drank
      * @return a Http-Response
      */
     @Path("addDrink")
@@ -92,6 +93,14 @@ public class ManageService {
                 drink.getType(),
                 drink.getUnixTime()
         );
+    }
+
+    @Path("manageChallenges")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+        String[] auth = authHeader.split("\\s");
+        return Repository.getInstance().challengeManager(auth[1]);
     }
 
 }

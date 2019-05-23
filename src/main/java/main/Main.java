@@ -38,6 +38,7 @@ public class Main {
 
         // load alcohol into the database
         Repository.getInstance().loadAlcohol();
+        Repository.getInstance().loadTemplates();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", BASE_URI));
         System.in.read();

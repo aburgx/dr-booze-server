@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "content": "This week drink only ${param} alcoholic beverages}",
+    "amount": 150,
+    "type": "MAXWEEK"
+  },
+  {
+    "id": 2,
+    "content": "This week drink every day just ${param} alcoholic beverages}",
+    "amount": 200,
+    "type": "MAXDAY"
+  },
+  {
+    "id": 3,
+    "content": "Drink on at least ${param} days maximum ${param} alcoholic beverage}",
+    "amount": 300,
+    "type": "MAXDAYS"
+  },
+  {
+    "id": 4,
+    "content": "Stay this week under an alcohol level of ${param}",
+    "amount": 500,
+    "type": "MAXPERCENTAGE"
+  },
+  {
+    "id": 5,
+    "content": "Tell your wife I love her",
+    "amount": 100,
+    "type": "MAXGAG"
+  }
+]

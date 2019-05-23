@@ -7,6 +7,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "Booze_Drink")
+@NamedQueries({
+        @NamedQuery(name = "Drink.get-drinks-in-between-time", query = "SELECT d from DrinkBO d where d.user.id = :id and (d.drankDate between :start and current_date)"),
+})
 public class DrinkBO {
 
     @Id
@@ -60,14 +63,6 @@ public class DrinkBO {
 
     public void setType(DrinkType type) {
         this.type = type;
-    }
-
-    public Date getDate() {
-        return drankDate;
-    }
-
-    public void setDate(Date drankDate) {
-        this.drankDate = drankDate;
     }
 
     public String getName() {

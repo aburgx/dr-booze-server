@@ -1,5 +1,6 @@
 package entities;
 
+import org.bouncycastle.asn1.cmp.Challenge;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import javax.ws.rs.NotSupportedException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,14 +52,31 @@ public class UserBO {
     @Size(min = 6, max = 100, message = "603")
     @Column(unique = true)
     private String email;
-
     private String password;
     private String salt;
 
     private boolean enabled = false;
 
+    @OneToMany
+    private List<ChallengeBO> challenges;
+
+    private int token;
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public int getToken() {
+        return token;
+    }
+
+    public void setToken(int token) {
+        this.token = token;
+    }
+
     public UserBO() {
         this.drinks = new ArrayList<>();
+        this.challenges = new ArrayList<>();
     }
 
     public UserBO(String username, String email,
@@ -174,4 +193,13 @@ public class UserBO {
     public void setDrinks(List<DrinkBO> drinks) {
         this.drinks = drinks;
     }
+
+    public List<ChallengeBO> getChallenges() {
+        return challenges;
+    }
+
+    public void setChallenges(List<ChallengeBO> challenges) {
+        this.challenges = challenges;
+    }
+
 }
