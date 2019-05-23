@@ -2,5 +2,8 @@ package enums;
 
 public enum DrinkType {
     BEER,
-    WINE
+    WINE,
+    COCKTAIL,
+    LIQUOR,
+    OTHER
 }
