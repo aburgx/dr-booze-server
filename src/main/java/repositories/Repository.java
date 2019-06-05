@@ -652,6 +652,7 @@ public class Repository {
         UserBO user = getUserFromJwt(jwt);
         em.refresh(user);
         JSONArray jsonArray = new JSONArray();
+        assert user != null;
         for (DrinkBO drink : user.getDrinks()) {
             JSONObject drinkJson = new JSONObject()
                     .put("type", drink.getType())
@@ -664,6 +665,7 @@ public class Repository {
         }
         return jsonArray.toString();
     }
+
     /**
      * Loads every template from the json file into the database
      *
@@ -734,7 +736,7 @@ public class Repository {
         // get 1 challenge at a time
         for (int i = 0; i < 3; i++) {
             Template template;
-            boolean repeat = false;
+            boolean repeat;
             do {
                 repeat = false;
                 int rand = new Random().nextInt(5) + 1; //Start with 1 ends with 5
