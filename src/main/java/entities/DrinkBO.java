@@ -3,6 +3,7 @@ package entities;
 import enums.DrinkType;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -28,14 +29,16 @@ public class DrinkBO {
     private String name;
     private double percentage;
     private int amount;
-    private float longitude;
-    private float latitude;
+
+    private BigDecimal longitude;
+    private BigDecimal latitude;
 
     public DrinkBO() {
     }
 
     public DrinkBO(UserBO user, DrinkType type, Date drankDate,
-                   String name, double percentage, int amount, float longitude, float latitude) {
+                   String name, double percentage, int amount,
+                   BigDecimal longitude, BigDecimal latitude) {
         this.user = user;
         this.drankDate = drankDate;
         this.type = type;
@@ -102,19 +105,19 @@ public class DrinkBO {
         this.amount = amount;
     }
 
-    public float getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
     }
 
-    public float getLatitude() {
+    public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(BigDecimal latitude) {
         this.latitude = latitude;
     }
 }

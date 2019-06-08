@@ -8,28 +8,27 @@ import helper.JwtHelper;
 import helper.ValidatorHelper;
 import mail.Mail;
 import objects.ErrorGenerator;
-import org.bouncycastle.asn1.cmp.Challenge;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import sun.util.resources.cldr.aa.CalendarData_aa_ER;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -430,8 +429,8 @@ public class Repository {
                         beer.getName(),
                         beer.getPercentage(),
                         beer.getAmount(),
-                        longitude,
-                        latitude);
+                        new BigDecimal(Float.toString(longitude)),
+                        new BigDecimal(Float.toString(latitude)));
                 em.getTransaction().begin();
                 em.persist(beerDrink);
                 em.getTransaction().commit();
@@ -445,8 +444,8 @@ public class Repository {
                         wine.getName(),
                         wine.getPercentage(),
                         wine.getAmount(),
-                        longitude,
-                        latitude);
+                        new BigDecimal(Float.toString(longitude)),
+                        new BigDecimal(Float.toString(latitude)));
                 em.getTransaction().begin();
                 em.persist(wineDrink);
                 em.getTransaction().commit();
@@ -460,8 +459,8 @@ public class Repository {
                         cocktail.getName(),
                         cocktail.getPercentage(),
                         cocktail.getAmount(),
-                        longitude,
-                        latitude);
+                        new BigDecimal(Float.toString(longitude)),
+                        new BigDecimal(Float.toString(latitude)));
                 em.getTransaction().begin();
                 em.persist(cocktailDrink);
                 em.getTransaction().commit();
@@ -475,8 +474,8 @@ public class Repository {
                         liquor.getName(),
                         liquor.getPercentage(),
                         liquor.getAmount(),
-                        longitude,
-                        latitude);
+                        new BigDecimal(Float.toString(longitude)),
+                        new BigDecimal(Float.toString(latitude)));
                 em.getTransaction().begin();
                 em.persist(liquorDrink);
                 em.getTransaction().commit();
@@ -655,10 +654,10 @@ public class Repository {
         assert user != null;
         for (DrinkBO drink : user.getDrinks()) {
             JSONObject drinkJson = new JSONObject()
-                    .put("type", drink.getType())
+                    .put("drinkType", drink.getType())
                     .put("name", drink.getName())
                     .put("amount", drink.getAmount())
-                    .put("timeWhenDrank", drink.getDrankDate())
+                    .put("timeWhenDrank", drink.getDrankDate().getTime())
                     .put("longitude", drink.getLongitude())
                     .put("latitude", drink.getLatitude());
             jsonArray.put(drinkJson);
