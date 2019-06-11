@@ -7,16 +7,25 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "Booze_Cocktail")
 public class Cocktail {
-
+    /**
+     * the id of the cocktail
+     */
     @Id
     private long id;
-
+    /**
+     * the name of the cocktail
+     */
     private String name;
+    /**
+     * the alcohol percentage of the cocktail
+     */
     private double percentage;
+    /**
+     * the amount in ml
+     */
     private int amount;
 
     public Cocktail() {
-
     }
 
     public Cocktail(long id, String name, double percentage, int amount) {

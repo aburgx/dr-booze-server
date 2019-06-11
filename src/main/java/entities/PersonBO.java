@@ -17,31 +17,48 @@ import java.util.Date;
 })
 public class PersonBO {
 
+    /**
+     * the id of the person
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
+    /**
+     * the associated user of the person
+     */
     @OneToOne(mappedBy = "person", cascade = CascadeType.MERGE)
     @NotNull(message = "601")
     private UserBO user;
-
+    /**
+     * the first name of the person
+     */
     @Size(max = 100, message = "603")
     private String firstName;
-
+    /**
+     * the last name of the person
+     */
     @Size(max = 100, message = "603")
     private String lastName;
-
+    /**
+     * the gender of the person
+     */
     @NotNull(message = "601")
     @Size(min = 1, max = 1, message = "603")
     private String gender;
-
+    /**
+     * the birthday of the person
+     */
     @Temporal(value = TemporalType.DATE)
     @NotNull(message = "601")
     private Date birthday;
-
+    /**
+     * the height in cm
+     */
     @NotNull(message = "601")
     private double height;
-
+    /**
+     * the weight in kg
+     */
     @NotNull(message = "601")
     private double weight;
 

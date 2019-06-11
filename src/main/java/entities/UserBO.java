@@ -1,6 +1,5 @@
 package entities;
 
-import org.bouncycastle.asn1.cmp.Challenge;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
@@ -9,7 +8,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import javax.ws.rs.NotSupportedException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -27,24 +25,37 @@ import java.util.List;
 })
 
 public class UserBO {
+    /**
+     * the id of the user
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
+    /**
+     * the verificationToken for the email confirmation
+     */
     @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
-
+    /**
+     * the person of the user
+     */
     @OneToOne(cascade = CascadeType.MERGE)
     private PersonBO person;
-
+    /**
+     * the list of drink that the user has drank
+     */
     @OneToMany(mappedBy = "user")
     private List<DrinkBO> drinks;
-
+    /**
+     * the username of the user
+     */
     @NotNull(message = "601")
     @Size(min = 4, max = 25, message = "603")
     @Column(unique = true)
     private String username;
-
+    /**
+     * the email of the user
+     */
     @NotNull(message = "601")
     @Email(message = "604", regexp =
             "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\" +
@@ -52,27 +63,27 @@ public class UserBO {
     @Size(min = 6, max = 100, message = "603")
     @Column(unique = true)
     private String email;
+    /**
+     * the hashed password of the user
+     */
     private String password;
+    /**
+     * the salt for password encryption
+     */
     private String salt;
-
+    /**
+     * indicates if the user has confirmed his email
+     */
     private boolean enabled = false;
-
+    /**
+     * the current challenges of the user
+     */
     @OneToMany
     private List<ChallengeBO> challenges;
-
+    /**
+     * the amount of booze points
+     */
     private int token;
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public int getToken() {
-        return token;
-    }
-
-    public void setToken(int token) {
-        this.token = token;
-    }
 
     public UserBO() {
         this.drinks = new ArrayList<>();
@@ -119,6 +130,10 @@ public class UserBO {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getId() {
@@ -200,6 +215,14 @@ public class UserBO {
 
     public void setChallenges(List<ChallengeBO> challenges) {
         this.challenges = challenges;
+    }
+
+    public int getToken() {
+        return token;
+    }
+
+    public void setToken(int token) {
+        this.token = token;
     }
 
 }

@@ -3,7 +3,6 @@ package entities;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.json.JsonObject;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,7 +47,6 @@ public class ChallengeBO {
         this.parameter = new ArrayList<>();
         this.date = new Date();
     }
-
 
     public ChallengeBO(UserBO userBO) {
         this.userBO = userBO;
