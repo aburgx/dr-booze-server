@@ -3,52 +3,69 @@ package entities;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
+
 /*
     TODO: Regex for firstName and lastName
  */
 @Entity
 @Table(name = "Booze_Person")
 @NamedQueries({
-        @NamedQuery(name = "Person.get-with-user", query = "SELECT p FROM Person p WHERE p.user = :user")
+        @NamedQuery(name = "Person.get-with-user", query = "SELECT p FROM PersonBO p WHERE p.user = :user")
 })
-public class Person {
+public class PersonBO {
 
+    /**
+     * the id of the person
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    /**
+     * the associated user of the person
+     */
+    @OneToOne(mappedBy = "person", cascade = CascadeType.MERGE)
     @NotNull(message = "601")
-    private User user;
-
+    private UserBO user;
+    /**
+     * the first name of the person
+     */
     @Size(max = 100, message = "603")
     private String firstName;
-
+    /**
+     * the last name of the person
+     */
     @Size(max = 100, message = "603")
     private String lastName;
-
+    /**
+     * the gender of the person
+     */
     @NotNull(message = "601")
     @Size(min = 1, max = 1, message = "603")
     private String gender;
-
+    /**
+     * the birthday of the person
+     */
     @Temporal(value = TemporalType.DATE)
     @NotNull(message = "601")
     private Date birthday;
-
+    /**
+     * the height in cm
+     */
     @NotNull(message = "601")
     private double height;
-
+    /**
+     * the weight in kg
+     */
     @NotNull(message = "601")
     private double weight;
 
-    public Person() {
+    public PersonBO() {
     }
 
-    public Person(User user, String firstName, String lastName, String gender, Date birthday, double height, double weight) {
+    public PersonBO(UserBO user, String firstName, String lastName, String gender, Date birthday, double height, double weight) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -63,9 +80,10 @@ public class Person {
         json.put("firstName", firstName);
         json.put("lastName", lastName);
         json.put("gender", gender);
-        json.put("birthday", birthday);
+        json.put("birthday", birthday.getTime());
         json.put("weight", weight);
         json.put("height", height);
+        json.put("user", user.toJson());
         return json;
     }
 
@@ -73,11 +91,11 @@ public class Person {
         return id;
     }
 
-    public User getUser() {
+    public UserBO getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserBO user) {
         this.user = user;
     }
 

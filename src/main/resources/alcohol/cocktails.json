@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "Cosmopolitan",
+    "percentage": 25,
+    "amount": 100
+  },
+  {
+    "id": 2,
+    "name": "Pina colada",
+    "percentage": 8,
+    "amount": 150
+  }
+]

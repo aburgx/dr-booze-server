@@ -7,32 +7,50 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Booze_VerificationToken")
+@NamedQueries({
+        @NamedQuery(name = "Token.get-by-token", query = "SELECT v FROM VerificationToken v WHERE v.token = :token")
+})
 public class VerificationToken {
-
+    /**
+     * the id the verification token
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private User user;
-
+    /**
+     * the user of the verification token
+     */
+    @OneToOne(mappedBy = "verificationToken", cascade = CascadeType.MERGE)
+    private UserBO user;
+    /**
+     * the special token for the verification
+     */
     private String token;
-
+    /**
+     * the expiry date of the token
+     */
     @Temporal(value = TemporalType.DATE)
     private Date expiryDate;
 
     public VerificationToken() {
     }
 
-    public VerificationToken(User user) {
+    public VerificationToken(UserBO user, boolean usePin) {
         this.user = user;
-        // generate the unique token
-        this.token = UUID.randomUUID().toString();
-        // setup the expiration date of the token
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        if (usePin) {
+            // generate the pin for a reset
+            this.token = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
+            calendar.add(Calendar.MINUTE, 5);
+        } else {
+            // generate the unique token
+            this.token = UUID.randomUUID().toString();
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        // setup the expiration date of the token
         this.expiryDate = calendar.getTime();
+
     }
 
     public long getId() {
@@ -43,7 +61,7 @@ public class VerificationToken {
         return token;
     }
 
-    public User getUser() {
+    public UserBO getUser() {
         return user;
     }
 
