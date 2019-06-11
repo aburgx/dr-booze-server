@@ -12,13 +12,22 @@ import javax.persistence.*;
 })
 public class Template {
 
+    /**
+     * id of the template
+     */
     @Id
     private long id;
-    // how the template looks
+    /**
+     * how the template looks
+     */
     private String content;
-    // given Booze-points on success
+    /**
+     * given Booze-points on success
+     */
     private int amount;
-    // ChallengeType to minimize difficulties in the validation process
+    /**
+     * ChallengeType to minimize difficulties in the validation process
+     */
     @Enumerated(EnumType.STRING)
     private ChallengeType type;
 

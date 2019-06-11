@@ -12,18 +12,36 @@ import java.util.List;
 @Entity
 @Table(name = "Booze_Challenges")
 public class ChallengeBO {
+    /**
+     * id of the challenge
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    /**
+     * template to use in the challenge
+     */
     @ManyToOne
     private Template template;
+    /**
+     * user of the challenge
+     */
     @ManyToOne
     private UserBO userBO;
+    /**
+     * parameter list of the challenge parameters
+     */
     @ElementCollection
     private List<Integer> parameter;
+    /**
+     * Date when the challenge was created
+     */
     @Temporal(TemporalType.DATE)
     @Column(name = "createDate")
     private Date date;
+    /**
+     * was the challenge a success
+     */
     private boolean success;
 
     public ChallengeBO() {
