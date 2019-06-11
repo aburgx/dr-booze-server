@@ -111,6 +111,13 @@ public class ManageService {
         String[] auth = authHeader.split("\\s");
         return Repository.getInstance().getDrinks(auth[1]);
     }
+
+    /**
+     * Return the 3 challenges a user has
+     *
+     * @param authHeader the Http-Header
+     * @return a json that includes the challenges from a user
+     */
     @Path("manageChallenges")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

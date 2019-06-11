@@ -697,6 +697,10 @@ public class Repository {
     }
 
     /**
+     * <b>Manage all user challenges</b>
+     * when the challenges are fulfilled then generate new challenges
+     * else send the saved challenges
+     *
      * @param jwt the json web token
      * @return challenges
      */
@@ -729,6 +733,8 @@ public class Repository {
     }
 
     /**
+     * generate 3 challenges based on the users drinking history
+     *
      * @param user user object of current user
      */
     private void generateChallenges(UserBO user) {
@@ -753,6 +759,8 @@ public class Repository {
     }
 
     /**
+     * receive custom parameters for a challenge
+     *
      * @param t template of the challenge to set parameters
      * @param u user object to generate personalised challenges
      * @return a new Challenge
@@ -787,6 +795,8 @@ public class Repository {
     }
 
     /**
+     * check the challenges on complete if the user fulfilled them
+     *
      * @param user user object to check his challenges
      * @param d    current date
      */
