@@ -10,5 +10,17 @@
     "name": "Pina colada",
     "percentage": 8,
     "amount": 150
+  },
+  {
+    "id": 3,
+    "name": "Mojito",
+    "percentage": 12,
+    "amount": 200
+  },
+  {
+    "id": 4,
+    "name": "Dry Martini",
+    "percentage": 30,
+    "amount": 100
   }
 ]
