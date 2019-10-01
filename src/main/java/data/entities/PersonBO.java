@@ -7,9 +7,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 
-/*
-    TODO: Regex for firstName and lastName
- */
 @Entity
 @Table(name = "Booze_Person")
 @NamedQueries({

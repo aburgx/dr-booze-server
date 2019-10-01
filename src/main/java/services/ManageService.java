@@ -2,6 +2,7 @@ package services;
 
 import data.transferobjects.DrinkVO;
 import data.transferobjects.PersonVO;
+import repositories.ChallengeRepository;
 import repositories.Repository;
 
 import javax.ws.rs.*;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.Response;
 @Path("manage")
 public class ManageService {
     private Repository repo = new Repository();
+    private ChallengeRepository challengeRepo = new ChallengeRepository();
 
     /**
      * @param authHeader the HTTP-Header that includes an Authorization with the jwt
@@ -116,7 +118,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
-        return repo.challengeManager(auth[1]);
+        return challengeRepo.challengeManager(auth[1]);
     }
 
 }

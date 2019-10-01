@@ -2,7 +2,6 @@ package helper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class JwtHelper {
-
     private String key = null;
 
     public JwtHelper() {
@@ -24,22 +22,19 @@ public class JwtHelper {
         }
     }
 
-    public String create(String subject) {
+    public String create(long userId) {
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject(String.valueOf(userId))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
-    public String checkSubject(String token) {
-        try {
-            return Jwts.parser()
-                    .setSigningKey(key)
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (SignatureException ex) {
-            return null;
-        }
+    public long getUserId(String token) {
+        String subject = Jwts.parser()
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return Long.parseLong(subject);
     }
 }
