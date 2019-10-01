@@ -4,97 +4,60 @@ import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "Booze_User")
 @NamedQueries({
         @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM UserBO u WHERE u.username = :username"),
-        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM UserBO u WHERE u.email = :email"),
-        @NamedQuery(name = "User.count-username", query = "SELECT COUNT(u) FROM UserBO u WHERE u.username = :username"),
-        @NamedQuery(name = "User.count-email", query = "SELECT COUNT(u) FROM UserBO u WHERE u.email = :email")
+        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM UserBO u WHERE u.email = :email")
 })
-
 public class UserBO {
-    /**
-     * the id of the user
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    /**
-     * the verificationToken for the email confirmation
-     */
+
     @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
-    /**
-     * the person of the user
-     */
-    @OneToOne(cascade = CascadeType.MERGE)
-    private PersonBO person;
-    /**
-     * the list of drink that the user has drank
-     */
+
     @OneToMany(mappedBy = "user")
     private List<DrinkBO> drinks;
-    /**
-     * the username of the user
-     */
-    @NotNull(message = "601")
-    @Size(min = 4, max = 25, message = "603")
+
     @Column(unique = true)
     private String username;
-    /**
-     * the email of the user
-     */
-    @NotNull(message = "601")
-    @Email(message = "604", regexp =
-            "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\" +
-                    "[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$")
-    @Size(min = 6, max = 100, message = "603")
+
     @Column(unique = true)
     private String email;
-    /**
-     * the hashed password of the user
-     */
+
     private String password;
-    /**
-     * the salt for password encryption
-     */
     private String salt;
-    /**
-     * indicates if the user has confirmed his email
-     */
     private boolean enabled = false;
-    /**
-     * the current challenges of the user
-     */
+
+    private String firstName;
+    private String lastName;
+    private String gender;
+
+    @Temporal(TemporalType.DATE)
+    private Date birthday;
+    private double height;
+    private double weight;
+
     @OneToMany
     private List<ChallengeBO> challenges;
-    /**
-     * the amount of booze points
-     */
-    private int token;
+    private int points;
 
     public UserBO() {
         this.drinks = new ArrayList<>();
         this.challenges = new ArrayList<>();
     }
 
-    public UserBO(String username, String email,
-                  @NotNull(message = "601")
-                  @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
-                  @Size(min = 8, max = 25, message = "603")
-                          String password) {
+    public UserBO(String username, String email, String password) {
         this();
         this.username = username;
         this.email = email;
@@ -102,10 +65,16 @@ public class UserBO {
     }
 
     public JSONObject toJson() {
-        JSONObject json = new JSONObject();
-        json.put("username", username);
-        json.put("email", email);
-        return json;
+        return new JSONObject()
+                .put("username", username)
+                .put("email", email)
+                .put("firstName", firstName)
+                .put("lastName", lastName)
+                .put("gender", gender)
+                .put("birthDay", birthday)
+                .put("height", height)
+                .put("weight", weight)
+                .put("points", points);
     }
 
     private void hashPassword(String password) {
@@ -132,12 +101,12 @@ public class UserBO {
         }
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public VerificationToken getVerificationToken() {
@@ -146,14 +115,6 @@ public class UserBO {
 
     public void setVerificationToken(VerificationToken verificationToken) {
         this.verificationToken = verificationToken;
-    }
-
-    public PersonBO getPerson() {
-        return person;
-    }
-
-    public void setPerson(PersonBO person) {
-        this.person = person;
     }
 
     public String getUsername() {
@@ -176,13 +137,16 @@ public class UserBO {
         return password;
     }
 
-    public void setPassword(
-            @NotNull(message = "601")
-            @Pattern(message = "604", regexp = "^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$")
-            @Size(min = 8, max = 25, message = "603")
-                    String password) {
+    public void setPassword(String password) {
         hashPassword(password);
+    }
 
+    public List<DrinkBO> getDrinks() {
+        return drinks;
+    }
+
+    public void setDrinks(List<DrinkBO> drinks) {
+        this.drinks = drinks;
     }
 
     public String getSalt() {
@@ -201,12 +165,52 @@ public class UserBO {
         this.enabled = enabled;
     }
 
-    public List<DrinkBO> getDrinks() {
-        return drinks;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setDrinks(List<DrinkBO> drinks) {
-        this.drinks = drinks;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     public List<ChallengeBO> getChallenges() {
@@ -217,12 +221,11 @@ public class UserBO {
         this.challenges = challenges;
     }
 
-    public int getToken() {
-        return token;
+    public int getPoints() {
+        return points;
     }
 
-    public void setToken(int token) {
-        this.token = token;
+    public void setPoints(int points) {
+        this.points = points;
     }
-
 }

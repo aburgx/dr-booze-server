@@ -27,7 +27,7 @@ public class AuthenticationService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String register(UserVO user) {
+    public Response register(UserVO user) {
         return repo.register(
                 user.getUsername(),
                 user.getEmail(),
@@ -45,7 +45,7 @@ public class AuthenticationService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String login(UserVO user) {
+    public Response login(UserVO user) {
         return repo.login(user.getUsername(), user.getPassword());
     }
 

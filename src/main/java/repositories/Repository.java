@@ -1,12 +1,13 @@
 package repositories;
 
-import data.entities.*;
+import data.entities.Alcohol;
+import data.entities.DrinkBO;
+import data.entities.UserBO;
+import data.entities.VerificationToken;
 import data.enums.AlcoholType;
-import data.objects.ErrorGenerator;
 import data.transferobjects.DrinkVO;
 import helper.EntityManagerHelper;
 import helper.JwtHelper;
-import helper.ValidatorHelper;
 import mail.Mail;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
@@ -31,120 +32,96 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@SuppressWarnings("Duplicates")
 public class Repository {
     private EntityManager em;
-    private ErrorGenerator errorgen;
-    private ValidatorHelper validator;
     private JwtHelper jwtHelper;
     private Mail mail;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
     public Repository() {
         em = EntityManagerHelper.getInstance();
-        this.validator = new ValidatorHelper();
-        this.errorgen = new ErrorGenerator();
         this.jwtHelper = new JwtHelper();
         this.mail = new Mail();
     }
 
     /**
-     * Registers a new user and validates his input
+     * Registers a new user
      *
      * @param username the username of the user
      * @param email    the email of the user
      * @param password the password of the user
-     * @return a json String that includes either the newly registered user or all validation errors
+     * @return a response containing either a OK, CONFLICT or FORBIDDEN
      */
-    public String register(final String username, final String email, final String password) {
-        UserBO user = new UserBO(username, email, password);
+    public Response register(String username, String email, String password) {
+        if (validateUser(username, email, password)) {
+            long countUsername = em.createQuery("SELECT COUNT(u) FROM UserBO u WHERE u.username = :username", Long.class)
+                    .setParameter("username", username)
+                    .getSingleResult();
 
-        // validate the user
-        String resultUser = validator.validateUser(user);
-        if (resultUser != null)
-            return resultUser;
+            long countEmail = em.createQuery("SELECT COUNT(u) FROM UserBO u WHERE u.email = :email", Long.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            if (countUsername == 0 && countEmail == 0) {
+                UserBO user = new UserBO(username, email, password);
 
-        TypedQuery<Long> queryUniqueName = em.createNamedQuery("User.count-username", Long.class)
-                .setParameter("username", username);
-        long numberOfEntriesName = queryUniqueName.getSingleResult();
+                VerificationToken verificationToken = new VerificationToken(user, false);
+                System.out.println("Setup token: " + verificationToken.getToken()
+                        + " Expire: " + verificationToken.getExpiryDate());
 
-        TypedQuery<Long> queryUniqueEmail = em.createNamedQuery("User.count-email", Long.class)
-                .setParameter("email", email);
-        long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
+                em.getTransaction().begin();
+                em.persist(user);
+                em.persist(verificationToken);
+                em.getTransaction().commit();
 
-        // check if the username or the email is already taken
-        if (numberOfEntriesName != 0) {
-            return errorgen.generate(602, "username");
+                /*
+                // multithreaded email sending
+                executor.execute(() -> {
+                    System.out.println("Sending email confirmation...");
+                    mail.sendConfirmation(user, verificationToken);
+                    System.out.println("Email confirmation sent.");
+                });
+                */
+                return Response.ok().build();
+            } else {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+
+        } else {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
-        if (numberOfEntriesEmail != 0) {
-            return errorgen.generate(602, "email");
-        }
-
-        // setup the verification token of the user
-        VerificationToken verificationToken = new VerificationToken(user, false);
-        System.out.println("Setup token: " + verificationToken.getToken()
-                + " Expire: " + verificationToken.getExpiryDate());
-
-        // persist the new user
-        em.getTransaction().begin();
-        em.persist(user);
-        em.persist(verificationToken);
-        em.getTransaction().commit();
-
-        /*
-        // multithreaded email sending
-        executor.execute(() -> {
-            System.out.println("Sending email confirmation...");
-            mail.sendConfirmation(user, verificationToken);
-            System.out.println("Email confirmation sent.");
-        });
-        */
-
-        // return user as json
-        JSONObject json = new JSONObject();
-        json.put("user", user.toJson());
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
     }
 
     /**
-     * Logs the user in if the username and password is correct
+     * Logs an user in
      *
      * @param username the username of the user
      * @param password the password of the user
-     * @return a json containing either the user if the login was successful or an error code
+     * @return a response containing either a OK (with the user) or UNAUTHORIZED
      */
-    public String login(final String username, final String password) {
+    public Response login(String username, String password) {
         // check if the username exists in the database
-        TypedQuery<UserBO> queryGetUser = em.createNamedQuery("User.get-with-username", UserBO.class)
-                .setParameter("username", username);
-        List<UserBO> resultsGetUser = queryGetUser.getResultList();
+        List<UserBO> results = em.createNamedQuery("User.get-with-username", UserBO.class)
+                .setParameter("username", username)
+                .getResultList();
+        if (results.size() != 0) {
+            UserBO user = results.get(0);
+            // check if the password is correct
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                md.update(Hex.decode(user.getSalt()));
+                byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
-        if (resultsGetUser.size() == 0) {
-            return errorgen.generate(605, "login");
-        }
-
-        // check if the password is correct
-        UserBO user = resultsGetUser.get(0);
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(Hex.decode(user.getSalt()));
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-
-            if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
-                return errorgen.generate(605, "login");
+                if (new String(Hex.encode(hash)).equals(user.getPassword())) {
+                    String jwt = jwtHelper.create(user.getId());
+                    JSONObject json = new JSONObject();
+                    json.put("token", jwt);
+                    return Response.ok(json.toString()).build();
+                }
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
-
-        String jwtToken = jwtHelper.create(user.getId());
-        JSONObject json = new JSONObject();
-        json.put("token", jwtToken);
-
-        System.out.println("Logged in: " + user.getUsername() + " with token: " + jwtToken);
-        return json.toString();
+        return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     /**
@@ -178,14 +155,8 @@ public class Repository {
         return false;
     }
 
-    /**
-     * @param jwt the json web token
-     * @return a json string that includes the person
-     */
-    public String getPerson(final String jwt) {
+   /* public String getDetails(String jwt) {
         UserBO user = getUserFromJwt(jwt);
-        if (user == null)
-            return errorgen.generate(607, "user");
 
         PersonBO person = user.getPerson();
 
@@ -198,10 +169,10 @@ public class Repository {
         String jsonString = json.toString();
         System.out.println(jsonString);
         return jsonString;
-    }
+    }*/
 
     /**
-     * Inserts the details of an user as a person object
+     * Inserts the details of an user
      *
      * @param jwt       the json web token
      * @param firstName the first name of the user
@@ -210,45 +181,27 @@ public class Repository {
      * @param birthday  the birthday of the user
      * @param height    the height of the user
      * @param weight    the weight of the user
-     * @return a json String that includes either the user or all validation errors
+     * @return a response containing either a OK (with the user) or FORBIDDEN
      */
-    public String insertDetails(final String jwt, final String firstName, final String lastName, final String gender,
-                                final Date birthday, final double height, final double weight) {
-        // check if the gender, height and weight is incorrect
-        if (!gender.equals("m") && !gender.equals("f")) {
-            return errorgen.generate(604, "gender");
-        } else if (height < 150.0 || height > 230.0) {
-            return errorgen.generate(604, "height");
-        } else if (weight < 30 || weight > 200) {
-            return errorgen.generate(604, "weight");
+    public Response insertDetails(String jwt, String firstName, String lastName,
+                                  String gender, Date birthday, double height, double weight) {
+        gender = gender.toUpperCase();
+        if (validateUserDetails(firstName, lastName, gender, height, weight)) {
+            UserBO user = getUserFromJwt(jwt);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setGender(gender);
+            user.setBirthday(birthday);
+            user.setHeight(height);
+            user.setWeight(weight);
+
+            em.getTransaction().begin();
+            em.persist(user);
+            em.getTransaction().commit();
+
+            return Response.ok(user.toJson().toString()).build();
         }
-
-        UserBO user = getUserFromJwt(jwt);
-        if (user == null)
-            return errorgen.generate(607, "user");
-
-        PersonBO person = new PersonBO(user, firstName, lastName, gender, birthday, height, weight);
-        user.setPerson(person);
-
-        // validate the person
-        String resultPerson = validator.validatePerson(person);
-        if (resultPerson != null)
-            return resultPerson;
-
-        System.out.println(person.toString());
-        System.out.println(person.getUser().toString());
-
-        // persist the updated user & person
-        em.getTransaction().begin();
-        em.persist(person);
-        em.getTransaction().commit();
-
-        // return the user and person
-        JSONObject json = new JSONObject();
-        json.put("person", person.toJson());
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
+        return Response.status(Response.Status.FORBIDDEN).build();
     }
 
     /**
@@ -262,72 +215,35 @@ public class Repository {
      * @param birthday  the new birthday of the user
      * @param height    the new height of the user
      * @param weight    the new weight of the user
-     * @return a json String that includes either the user or all validation errors
+     * @return a response containing either a OK (with the updated user) or FORBIDDEN
      */
-    public String updateDetails(final String jwt, final String password, final String firstName,
-                                final String lastName, final String gender, final Date birthday,
-                                final double height, final double weight) {
+    public Response updateDetails(String jwt, String username, String password, String firstName,
+                                  String lastName, String gender, Date birthday,
+                                  double height, double weight) {
+        if (validateUserDetails(firstName, lastName, gender, height, weight)) {
+            UserBO user = getUserFromJwt(jwt);
+            if (username != null) {
+                if (!validateUsername(username)) return Response.status(Response.Status.FORBIDDEN).build();
+                user.setUsername(username);
+            }
+            if (password != null) {
+                if (!validatePassword(password)) return Response.status(Response.Status.FORBIDDEN).build();
+                user.setPassword(password);
+            }
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setGender(gender);
+            user.setBirthday(birthday);
+            user.setHeight(height);
+            user.setWeight(weight);
 
-        System.out.println("jwt: " + jwt + " password: " + password + " firstName: " + firstName
-                + " lastName: " + lastName + " gender: " + gender + " birthday: " + birthday
-                + " height: " + height + " weight: " + weight);
+            em.getTransaction().begin();
+            em.persist(user);
+            em.getTransaction().commit();
 
-        UserBO user = getUserFromJwt(jwt);
-        if (user == null)
-            return errorgen.generate(607, "user");
-
-        PersonBO person = user.getPerson();
-        if (person == null)
-            return errorgen.generate(607, "person");
-
-        // set the new value if the value is not null
-        if (password != null)
-            user.setPassword(password);
-        if (firstName != null)
-            person.setFirstName(firstName);
-        if (lastName != null)
-            person.setLastName(lastName);
-        if (birthday != null)
-            person.setBirthday(birthday);
-        if (gender != null) {
-            if (!gender.equals("m") && !gender.equals("f"))
-                return errorgen.generate(604, "gender");
-            person.setGender(gender);
+            return Response.ok(user.toJson().toString()).build();
         }
-        if (height != 0) {
-            if (height < 150.0 || height > 230.0)
-                return errorgen.generate(604, "height");
-            person.setHeight(height);
-        }
-        if (weight != 0) {
-            if (weight < 30 || weight > 200)
-                return errorgen.generate(604, "weight");
-            person.setWeight(weight);
-        }
-
-        // validate the user
-        String resultUser = validator.validateUser(user);
-        if (resultUser != null)
-            return resultUser;
-
-        // validate the person
-        String resultPerson = validator.validatePerson(person);
-        if (resultPerson != null)
-            return resultPerson;
-
-        System.out.println(person.toJson().toString());
-
-        // persist the updated user & person
-        em.getTransaction().begin();
-        em.persist(user);
-        em.getTransaction().commit();
-
-        // return the user and person
-        JSONObject json = new JSONObject();
-        json.put("person", person.toJson());
-        String jsonString = json.toString();
-        System.out.println(jsonString);
-        return jsonString;
+        return Response.status(Response.Status.FORBIDDEN).build();
     }
 
     /**
@@ -414,7 +330,6 @@ public class Repository {
     }
 
 
-
     /**
      * Request a change on the password that is linked to the email
      *
@@ -478,11 +393,10 @@ public class Repository {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
+        if (!validatePassword(password)) return Response.status(Response.Status.FORBIDDEN).build();
+
         UserBO user = verificationToken.getUser();
         user.setPassword(password);
-
-        if (validator.validateUser(user) != null) return Response.status(Response.Status.CONFLICT).build();
-
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
@@ -516,5 +430,38 @@ public class Repository {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         return user;
+    }
+
+    private boolean validateUser(String username, String email, String password) {
+        if (validateUsername(username)) {
+            if (email.length() >= 6 && email.length() <= 100
+                    && email.matches("^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)" +
+                    "|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)" +
+                    "+[a-zA-Z]{2,}))$")) {
+                return validatePassword(password);
+            }
+        }
+        return false;
+    }
+
+    private boolean validateUserDetails(String firstName, String lastName,
+                                        String gender, double height, double weight) {
+        if (firstName.length() <= 100 && lastName.length() <= 100) {
+            if (gender.equals("M") || gender.equals("F")) {
+                if (height >= 150.0 && height <= 230.0) {
+                    return (weight >= 30 && weight <= 200);
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean validateUsername(String username) {
+        return (username.length() >= 4 && username.length() <= 25);
+    }
+
+    private boolean validatePassword(String password) {
+        return (password.length() >= 8 && password.length() <= 25
+                && password.matches("^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$"));
     }
 }

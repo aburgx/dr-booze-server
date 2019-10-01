@@ -18,17 +18,13 @@ public class ManageService {
     private Repository repo = new Repository();
     private ChallengeRepository challengeRepo = new ChallengeRepository();
 
-    /**
-     * @param authHeader the HTTP-Header that includes an Authorization with the jwt
-     * @return the person of an user or an error
-     */
-    @Path("getPerson")
+    /*@Path("getDetails")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getPerson(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public String getDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
-        return repo.getPerson(auth[1]);
-    }
+        return repo.getDetails(auth[1]);
+    }*/
 
     /**
      * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
@@ -40,7 +36,7 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
+    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
         String[] auth = authHeader.split("\\s");
         return repo.insertDetails(
                 auth[1],
@@ -64,10 +60,11 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
+    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
         String[] auth = authHeader.split("\\s");
         return repo.updateDetails(
                 auth[1],
+                person.getUsername(),
                 person.getPassword(),
                 person.getFirstName(),
                 person.getLastName(),

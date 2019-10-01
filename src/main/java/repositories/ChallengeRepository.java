@@ -182,7 +182,7 @@ public class ChallengeRepository {
                             .getResultList();
                     if (drinks.size() < maxAllowed) {
                         //TODO: implement first check
-                        user.setToken(user.getToken() + challenge.getTemplate().getAmount());
+                        user.setPoints(user.getPoints() + challenge.getTemplate().getAmount());
                         challenge.setSuccess(true);
                     } else {
                         challenge.setSuccess(false);
@@ -206,7 +206,7 @@ public class ChallengeRepository {
                         cal.add(Calendar.DAY_OF_MONTH, i);
                     }
                     if (!failed) {
-                        user.setToken(user.getToken() + challenge.getTemplate().getAmount());
+                        user.setPoints(user.getPoints() + challenge.getTemplate().getAmount());
                         challenge.setSuccess(true);
                     } else {
                         challenge.setSuccess(false);
@@ -235,7 +235,7 @@ public class ChallengeRepository {
                         cal1.add(Calendar.DAY_OF_MONTH, i);
                     }
                     if (failedCount < days) {
-                        user.setToken(user.getToken() + challenge.getTemplate().getAmount());
+                        user.setPoints(user.getPoints() + challenge.getTemplate().getAmount());
                         challenge.setSuccess(true);
                     } else {
                         challenge.setSuccess(false);

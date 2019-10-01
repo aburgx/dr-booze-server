@@ -3,7 +3,7 @@ package data.transferobjects;
 import java.util.Date;
 
 public class PersonVO {
-
+    private String username;
     private String password;
     private String firstName;
     private String lastName;
@@ -13,6 +13,14 @@ public class PersonVO {
     private double weight;
 
     public PersonVO() {
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
