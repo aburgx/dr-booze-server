@@ -1,4 +1,4 @@
-package transferObjects;
+package data.transferobjects;
 
 import java.math.BigDecimal;
 import java.util.Date;

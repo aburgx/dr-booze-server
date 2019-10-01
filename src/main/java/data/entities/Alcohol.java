@@ -1,6 +1,6 @@
-package entities;
+package data.entities;
 
-import enums.AlcoholType;
+import data.enums.AlcoholType;
 
 import javax.persistence.*;
 

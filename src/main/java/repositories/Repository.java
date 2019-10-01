@@ -1,21 +1,21 @@
 package repositories;
 
-import entities.*;
-import enums.AlcoholType;
-import enums.ChallengeType;
-import helper.EntityManagerFactoryHelper;
+import data.entities.*;
+import data.enums.AlcoholType;
+import data.enums.ChallengeType;
+import data.objects.ErrorGenerator;
+import data.transferobjects.DrinkVO;
 import helper.JwtHelper;
 import helper.ValidatorHelper;
 import mail.Mail;
-import objects.ErrorGenerator;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import transferObjects.DrinkVO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -32,29 +32,22 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("Duplicates")
 public class Repository {
-
-    private EntityManager em;
+    private static EntityManager em;
     private ErrorGenerator errorgen;
     private ValidatorHelper validator;
     private JwtHelper jwtHelper;
     private Mail mail;
     private ExecutorService executor = Executors.newFixedThreadPool(10);
 
-    private static Repository instance = null;
-
-    private Repository() {
-        EntityManagerFactory emf = EntityManagerFactoryHelper.getFactory();
-        this.em = emf.createEntityManager();
+    public Repository() {
+        if (em == null) {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("DrBoozePU");
+            em = emf.createEntityManager();
+        }
         this.validator = new ValidatorHelper();
         this.errorgen = new ErrorGenerator();
         this.jwtHelper = new JwtHelper();
         this.mail = new Mail();
-    }
-
-    public static Repository getInstance() {
-        if (instance == null)
-            instance = new Repository();
-        return instance;
     }
 
     /**

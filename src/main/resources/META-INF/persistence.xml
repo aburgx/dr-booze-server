@@ -4,13 +4,13 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
     <persistence-unit name="DrBoozePU" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>entities.UserBO</class>
-        <class>entities.VerificationToken</class>
-        <class>entities.PersonBO</class>
-        <class>entities.DrinkBO</class>
-        <class>entities.Alcohol</class>
-        <class>entities.ChallengeBO</class>
-        <class>entities.Template</class>
+        <class>data.entities.UserBO</class>
+        <class>data.entities.VerificationToken</class>
+        <class>data.entities.PersonBO</class>
+        <class>data.entities.DrinkBO</class>
+        <class>data.entities.Alcohol</class>
+        <class>data.entities.ChallengeBO</class>
+        <class>data.entities.Template</class>
         <validation-mode>AUTO</validation-mode>
         <properties>
             <property name="javax.persistence.jdbc.url"

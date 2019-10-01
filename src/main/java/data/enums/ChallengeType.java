@@ -1,10 +1,10 @@
-package enums;
+package data.enums;
 
 public enum ChallengeType {
     MAXWEEK,
     MAXDAY,
     MAXDAYS,
     MAXPERCENTAGE,
-    MAXGAG;
+    MAXGAG
 }
 

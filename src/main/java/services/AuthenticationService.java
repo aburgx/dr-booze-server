@@ -1,8 +1,8 @@
 package services;
 
+import data.transferobjects.UpdatePasswordVO;
+import data.transferobjects.UserVO;
 import repositories.Repository;
-import transferObjects.UpdatePasswordVO;
-import transferObjects.UserVO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
  */
 @Path("auth")
 public class AuthenticationService {
+    private Repository repo = new Repository();
 
     /**
      * Registers a new user
@@ -27,7 +28,7 @@ public class AuthenticationService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String register(UserVO user) {
-        return Repository.getInstance().register(
+        return repo.register(
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword()
@@ -45,7 +46,7 @@ public class AuthenticationService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String login(UserVO user) {
-        return Repository.getInstance().login(user.getUsername(), user.getPassword());
+        return repo.login(user.getUsername(), user.getPassword());
     }
 
     /**
@@ -61,7 +62,7 @@ public class AuthenticationService {
         try {
             // when the right token was given, send the user to the login page telling him it was successful else tell him there was something wrong
             location = new URI("http://localhost:4200/login?token="
-                    + Repository.getInstance().verify(emailToken));
+                    + repo.verify(emailToken));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -79,7 +80,7 @@ public class AuthenticationService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requestPasswordChange(UserVO user) {
-        return Repository.getInstance().requestPasswordChange(user.getEmail());
+        return repo.requestPasswordChange(user.getEmail());
     }
 
     /**
@@ -92,6 +93,6 @@ public class AuthenticationService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updatePassword(UpdatePasswordVO updatePassword) {
-        return Repository.getInstance().updatePassword(updatePassword.getPin(), updatePassword.getPassword());
+        return repo.updatePassword(updatePassword.getPin(), updatePassword.getPassword());
     }
 }

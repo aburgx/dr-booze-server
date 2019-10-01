@@ -11,6 +11,8 @@ import javax.ws.rs.core.Response;
 
 @Path("getter")
 public class GetterService {
+    private Repository repo = new Repository();
+
     /**
      * @param type the alcohol type
      * @return all alcohols as jsonarray
@@ -19,6 +21,6 @@ public class GetterService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAlcohols(@PathParam("type") String type) {
-        return Repository.getInstance().getAlcohols(type.toUpperCase());
+        return repo.getAlcohols(type.toUpperCase());
     }
 }

@@ -1,6 +1,6 @@
-package entities;
+package data.entities;
 
-import enums.ChallengeType;
+import data.enums.ChallengeType;
 
 import javax.persistence.*;
 

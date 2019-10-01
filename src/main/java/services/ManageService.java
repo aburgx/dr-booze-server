@@ -1,8 +1,8 @@
 package services;
 
+import data.transferobjects.DrinkVO;
+import data.transferobjects.PersonVO;
 import repositories.Repository;
-import transferObjects.DrinkVO;
-import transferObjects.PersonVO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("manage")
 public class ManageService {
+    private Repository repo = new Repository();
 
     /**
      * @param authHeader the HTTP-Header that includes an Authorization with the jwt
@@ -24,7 +25,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getPerson(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().getPerson(auth[1]);
+        return repo.getPerson(auth[1]);
     }
 
     /**
@@ -39,7 +40,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public String insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().insertDetails(
+        return repo.insertDetails(
                 auth[1],
                 person.getFirstName(),
                 person.getLastName(),
@@ -63,7 +64,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public String updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().updateDetails(
+        return repo.updateDetails(
                 auth[1],
                 person.getPassword(),
                 person.getFirstName(),
@@ -87,7 +88,7 @@ public class ManageService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, DrinkVO drinkVO) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().addDrink(auth[1], drinkVO);
+        return repo.addDrink(auth[1], drinkVO);
     }
 
     /**
@@ -101,7 +102,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().getDrinks(auth[1]);
+        return repo.getDrinks(auth[1]);
     }
 
     /**
@@ -115,7 +116,7 @@ public class ManageService {
     @Produces(MediaType.APPLICATION_JSON)
     public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().challengeManager(auth[1]);
+        return repo.challengeManager(auth[1]);
     }
 
 }

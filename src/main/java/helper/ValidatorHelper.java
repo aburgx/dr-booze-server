@@ -1,7 +1,7 @@
 package helper;
 
-import entities.PersonBO;
-import entities.UserBO;
+import data.entities.PersonBO;
+import data.entities.UserBO;
 import org.json.JSONObject;
 
 import javax.validation.ConstraintViolation;

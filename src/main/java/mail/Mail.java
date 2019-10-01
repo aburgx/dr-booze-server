@@ -1,7 +1,7 @@
 package mail;
 
-import entities.UserBO;
-import entities.VerificationToken;
+import data.entities.UserBO;
+import data.entities.VerificationToken;
 import utils.Constants;
 
 import javax.mail.Message;

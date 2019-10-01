@@ -23,9 +23,10 @@ public class Main {
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
 
-        // load alcohol into the database
-        Repository.getInstance().loadAlcohol();
-        Repository.getInstance().loadTemplates();
+        // load alcohol and the challenge templates into the database
+        Repository repo = new Repository();
+        repo.loadAlcohol();
+        repo.loadTemplates();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));
         System.in.read();

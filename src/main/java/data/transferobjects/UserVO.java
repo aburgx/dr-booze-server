@@ -1,4 +1,4 @@
-package transferObjects;
+package data.transferobjects;
 
 public class UserVO {
 

@@ -1,4 +1,4 @@
-package entities;
+package data.entities;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
