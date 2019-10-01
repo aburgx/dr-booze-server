@@ -1,56 +1,46 @@
 package transferObjects;
 
-import enums.DrinkType;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class DrinkVO {
-
-    private long id;
-    private DrinkType type;
-    private long unixTime;
-    private float longitude;
-    private float latitude;
+    private long alcoholId;
+    private Date drankDate;
+    private BigDecimal longitude;
+    private BigDecimal latitude;
 
     public DrinkVO() {
     }
 
-    public long getId() {
-        return id;
+    public long getAlcoholId() {
+        return alcoholId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setAlcoholId(long alcoholId) {
+        this.alcoholId = alcoholId;
     }
 
-    public DrinkType getType() {
-        return type;
+    public Date getDrankDate() {
+        return drankDate;
     }
 
-    public void setType(DrinkType type) {
-        this.type = type;
+    public void setDrankDate(Date drankDate) {
+        this.drankDate = drankDate;
     }
 
-    public long getUnixTime() {
-        return unixTime;
-    }
-
-    public void setUnixTime(long unixTime) {
-        this.unixTime = unixTime;
-    }
-
-    public float getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
     }
 
-    public float getLatitude() {
+    public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(BigDecimal latitude) {
         this.latitude = latitude;
     }
-
 }

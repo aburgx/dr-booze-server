@@ -7,11 +7,8 @@
         <class>entities.UserBO</class>
         <class>entities.VerificationToken</class>
         <class>entities.PersonBO</class>
-        <class>entities.Beer</class>
-        <class>entities.Wine</class>
         <class>entities.DrinkBO</class>
-        <class>entities.Cocktail</class>
-        <class>entities.Liquor</class>
+        <class>entities.Alcohol</class>
         <class>entities.ChallengeBO</class>
         <class>entities.Template</class>
         <validation-mode>AUTO</validation-mode>

@@ -79,23 +79,15 @@ public class ManageService {
      * Adds a drink to an user
      *
      * @param authHeader the Http-Header
-     * @param drink      the drink the user drank
+     * @param drinkVO      the drink the user drank
      * @return a Http-Response
      */
     @Path("addDrink")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, DrinkVO drink) {
-        System.out.println("addDrink called");
+    public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, DrinkVO drinkVO) {
         String[] auth = authHeader.split("\\s");
-        return Repository.getInstance().addDrink(
-                auth[1],
-                drink.getId(),
-                drink.getType(),
-                drink.getUnixTime(),
-                drink.getLongitude(),
-                drink.getLatitude()
-        );
+        return Repository.getInstance().addDrink(auth[1], drinkVO);
     }
 
     /**
@@ -107,7 +99,7 @@ public class ManageService {
     @Path("getDrinks")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         String[] auth = authHeader.split("\\s");
         return Repository.getInstance().getDrinks(auth[1]);
     }

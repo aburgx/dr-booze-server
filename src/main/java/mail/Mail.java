@@ -2,7 +2,7 @@ package mail;
 
 import entities.UserBO;
 import entities.VerificationToken;
-import main.Main;
+import utils.Constants;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -17,9 +17,6 @@ import java.util.Properties;
 
 import static javax.mail.Message.RecipientType;
 
-/**
- * @author Alexander Burghuber
- */
 public class Mail {
 
     private String emailPassword;
@@ -52,7 +49,7 @@ public class Mail {
             message.setSubject("Welcome to Dr. Booze");
             String mailBody =
                     "<h1>Welcome to Dr. Booze</h1><br>" +
-                            "<a href='" + Main.BASE_URI + "/auth/verify/" + verificationToken.getToken()
+                            "<a href='" + Constants.BASE_URI + "/auth/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
             transport(message, mailBody);
         } catch (MessagingException ex) {

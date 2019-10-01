@@ -1,7 +1,5 @@
 package entities;
 
-import enums.DrinkType;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -9,26 +7,22 @@ import java.util.Date;
 @Entity
 @Table(name = "Booze_Drink")
 @NamedQueries({
-        @NamedQuery(name = "Drink.get-drinks-in-between-time", query = "SELECT d from DrinkBO d where d.user.id = :id and (d.drankDate between :start and current_date)"),
+        @NamedQuery(name = "Drink.get-drinks-in-between-time",
+                query = "SELECT d from DrinkBO d where d.user.id = :id and (d.drankDate between :start and current_date)"),
 })
 public class DrinkBO {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private long id;
 
     @ManyToOne
     private UserBO user;
 
-    @Enumerated(value = EnumType.STRING)
-    private DrinkType type;
+    @ManyToOne
+    private Alcohol alcohol;
 
-    @Temporal(value = TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date drankDate;
-
-    private String name;
-    private double percentage;
-    private int amount;
 
     private BigDecimal longitude;
     private BigDecimal latitude;
@@ -36,15 +30,10 @@ public class DrinkBO {
     public DrinkBO() {
     }
 
-    public DrinkBO(UserBO user, DrinkType type, Date drankDate,
-                   String name, double percentage, int amount,
-                   BigDecimal longitude, BigDecimal latitude) {
+    public DrinkBO(UserBO user, Alcohol alcohol, Date drankDate, BigDecimal longitude, BigDecimal latitude) {
         this.user = user;
+        this.alcohol = alcohol;
         this.drankDate = drankDate;
-        this.type = type;
-        this.name = name;
-        this.percentage = percentage;
-        this.amount = amount;
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -65,20 +54,12 @@ public class DrinkBO {
         this.user = user;
     }
 
-    public DrinkType getType() {
-        return type;
+    public Alcohol getAlcohol() {
+        return alcohol;
     }
 
-    public void setType(DrinkType type) {
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setAlcohol(Alcohol alcohol) {
+        this.alcohol = alcohol;
     }
 
     public Date getDrankDate() {
@@ -87,22 +68,6 @@ public class DrinkBO {
 
     public void setDrankDate(Date drankDate) {
         this.drankDate = drankDate;
-    }
-
-    public double getPercentage() {
-        return percentage;
-    }
-
-    public void setPercentage(double percentage) {
-        this.percentage = percentage;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
     }
 
     public BigDecimal getLongitude() {

@@ -1,8 +1,8 @@
 package repositories;
 
 import entities.*;
+import enums.AlcoholType;
 import enums.ChallengeType;
-import enums.DrinkType;
 import helper.EntityManagerFactoryHelper;
 import helper.JwtHelper;
 import helper.ValidatorHelper;
@@ -12,6 +12,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import transferObjects.DrinkVO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -19,23 +20,16 @@ import javax.persistence.TypedQuery;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-/**
- * @author Alexander Burghuber
- */
 @SuppressWarnings("Duplicates")
 public class Repository {
 
@@ -106,12 +100,14 @@ public class Repository {
         em.persist(verificationToken);
         em.getTransaction().commit();
 
+        /*
         // multithreaded email sending
         executor.execute(() -> {
             System.out.println("Sending email confirmation...");
             mail.sendConfirmation(user, verificationToken);
             System.out.println("Email confirmation sent.");
         });
+        */
 
         // return user as json
         JSONObject json = new JSONObject();
@@ -344,218 +340,90 @@ public class Repository {
     }
 
     /**
-     * @return all beer in the database as a json
+     * @param typeStr the alcohol type
+     * @return a response containing either a OK and the alcohols or a NOT_FOUND if the type doesn't exists
      */
-    public String getBeer() {
-        TypedQuery<Beer> query = em.createQuery("SELECT b FROM Beer b", Beer.class);
-        List<Beer> resultList = query.getResultList();
-        JSONArray jsonArray = new JSONArray();
-        for (Beer beer : resultList) {
-            JSONObject beerJson = new JSONObject();
-            beerJson.put("id", beer.getId());
-            beerJson.put("name", beer.getName());
-            beerJson.put("percentage", beer.getPercentage());
-            beerJson.put("amount", beer.getAmount());
-            jsonArray.put(beerJson);
+    public Response getAlcohols(String typeStr) {
+        if (typeStr.equals("BEER") || typeStr.equals("WINE") || typeStr.equals("LIQUOR") || typeStr.equals("COCKTAIL")) {
+            AlcoholType type = AlcoholType.valueOf(typeStr);
+            TypedQuery<Alcohol> query = em.createNamedQuery("Alcohol.get-with-type", Alcohol.class)
+                    .setParameter("type", type);
+            List<Alcohol> alcohols = query.getResultList();
+
+            JSONArray jsonArray = new JSONArray();
+            for (Alcohol alcohol : alcohols) {
+                JSONObject alcoholJson = new JSONObject()
+                        .put("id", alcohol.getId())
+                        .put("name", alcohol.getName())
+                        .put("percentage", alcohol.getPercentage())
+                        .put("amount", alcohol.getAmount());
+                jsonArray.put(alcoholJson);
+            }
+            return Response.ok(jsonArray.toString()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return jsonArray.toString();
     }
 
     /**
-     * @return all wine in the database as a json
+     * adds a drink to a user
+     *
+     * @param jwt     the json web token
+     * @param drinkVO the drink value object
+     * @return a response containing either a OK, NOT_FOUND or UNAUTHORIZED
      */
-    public String getWine() {
-        TypedQuery<Wine> query = em.createQuery("SELECT w FROM Wine w", Wine.class);
-        List<Wine> resultList = query.getResultList();
-        JSONArray jsonArray = new JSONArray();
-        for (Wine wine : resultList) {
-            JSONObject wineJson = new JSONObject();
-            wineJson.put("id", wine.getId());
-            wineJson.put("name", wine.getName());
-            wineJson.put("percentage", wine.getPercentage());
-            wineJson.put("amount", wine.getAmount());
-            jsonArray.put(wineJson);
-        }
-        return jsonArray.toString();
-    }
-
-    /**
-     * @return all cocktails in the database as a json
-     */
-    public String getCocktails() {
-        TypedQuery<Cocktail> query = em.createQuery("SELECT c FROM Cocktail c", Cocktail.class);
-        List<Cocktail> resultList = query.getResultList();
-        JSONArray jsonArray = new JSONArray();
-        for (Cocktail cocktail : resultList) {
-            JSONObject cocktailJson = new JSONObject();
-            cocktailJson.put("id", cocktail.getId());
-            cocktailJson.put("name", cocktail.getName());
-            cocktailJson.put("percentage", cocktail.getPercentage());
-            cocktailJson.put("amount", cocktail.getAmount());
-            jsonArray.put(cocktailJson);
-        }
-        return jsonArray.toString();
-    }
-
-    /**
-     * @return all liquor in the database as a json
-     */
-    public String getLiquor() {
-        TypedQuery<Liquor> query = em.createQuery("SELECT l FROM Liquor l", Liquor.class);
-        List<Liquor> resultList = query.getResultList();
-        JSONArray jsonArray = new JSONArray();
-        for (Liquor liquor : resultList) {
-            JSONObject liquorJson = new JSONObject();
-            liquorJson.put("id", liquor.getId());
-            liquorJson.put("name", liquor.getName());
-            liquorJson.put("percentage", liquor.getPercentage());
-            liquorJson.put("amount", liquor.getAmount());
-            jsonArray.put(liquorJson);
-        }
-        return jsonArray.toString();
-    }
-
-    public Response addDrink(String jwt, long id, DrinkType type,
-                             long unixTime, float longitude, float latitude) {
+    public Response addDrink(String jwt, DrinkVO drinkVO) {
         UserBO user = getUserFromJwt(jwt);
-        System.out.println(type + ", Date" + new Date(unixTime));
-        switch (type) {
-            case BEER:
-                Beer beer = em.find(Beer.class, id);
-                DrinkBO beerDrink = new DrinkBO(
-                        user,
-                        type,
-                        new Date(unixTime),
-                        beer.getName(),
-                        beer.getPercentage(),
-                        beer.getAmount(),
-                        new BigDecimal(Float.toString(longitude)),
-                        new BigDecimal(Float.toString(latitude)));
+        if (user != null) {
+            Alcohol alcohol = em.find(Alcohol.class, drinkVO.getAlcoholId());
+            if (alcohol != null) {
+                DrinkBO drink = new DrinkBO(
+                        user, alcohol, drinkVO.getDrankDate(),
+                        drinkVO.getLongitude(), drinkVO.getLatitude()
+                );
                 em.getTransaction().begin();
-                em.persist(beerDrink);
+                em.persist(drink);
                 em.getTransaction().commit();
-                break;
-            case WINE:
-                Wine wine = em.find(Wine.class, id);
-                DrinkBO wineDrink = new DrinkBO(
-                        user,
-                        type,
-                        new Date(unixTime),
-                        wine.getName(),
-                        wine.getPercentage(),
-                        wine.getAmount(),
-                        new BigDecimal(Float.toString(longitude)),
-                        new BigDecimal(Float.toString(latitude)));
-                em.getTransaction().begin();
-                em.persist(wineDrink);
-                em.getTransaction().commit();
-                break;
-            case COCKTAIL:
-                Cocktail cocktail = em.find(Cocktail.class, id);
-                DrinkBO cocktailDrink = new DrinkBO(
-                        user,
-                        type,
-                        new Date(unixTime),
-                        cocktail.getName(),
-                        cocktail.getPercentage(),
-                        cocktail.getAmount(),
-                        new BigDecimal(Float.toString(longitude)),
-                        new BigDecimal(Float.toString(latitude)));
-                em.getTransaction().begin();
-                em.persist(cocktailDrink);
-                em.getTransaction().commit();
-                break;
-            case LIQUOR:
-                Liquor liquor = em.find(Liquor.class, id);
-                DrinkBO liquorDrink = new DrinkBO(
-                        user,
-                        type,
-                        new Date(unixTime),
-                        liquor.getName(),
-                        liquor.getPercentage(),
-                        liquor.getAmount(),
-                        new BigDecimal(Float.toString(longitude)),
-                        new BigDecimal(Float.toString(latitude)));
-                em.getTransaction().begin();
-                em.persist(liquorDrink);
-                em.getTransaction().commit();
-                break;
+                return Response.ok().build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-
-        return Response.status(Response.Status.OK).build();
     }
 
     /**
      * Loads all alcohol from the json files into the database
-     *
-     * @throws IOException exception while reading the files
      */
-    public void loadAlcohol() throws IOException {
-        String jsonFolder = "src/main/resources/alcohol/";
+    public void loadAlcohol() {
+        String folder = "src/main/resources/alcohol/";
+        Map<AlcoholType, String> alcohols = new HashMap<>();
+        alcohols.put(AlcoholType.BEER, "beers.json");
+        alcohols.put(AlcoholType.WINE, "wine.json");
+        alcohols.put(AlcoholType.LIQUOR, "liquor.json");
+        alcohols.put(AlcoholType.COCKTAIL, "cocktails.json");
 
-        // Read beer.json
-        InputStream inputStream = Files.newInputStream(Paths.get(jsonFolder + "beers.json"));
-        JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
-        for (int i = 0; i < jsonArray.length(); ++i) {
-            JSONObject json = jsonArray.getJSONObject(i);
-            Beer beer = new Beer(
-                    json.getLong("id"),
-                    json.getString("name"),
-                    json.getDouble("percentage"),
-                    json.getInt("amount")
-            );
-            em.getTransaction().begin();
-            em.persist(beer);
-            em.getTransaction().commit();
-        }
-
-        // Read wine.json
-        inputStream = Files.newInputStream(Paths.get(jsonFolder + "wine.json"));
-        jsonArray = new JSONArray(new JSONTokener(inputStream));
-        for (int i = 0; i < jsonArray.length(); ++i) {
-            JSONObject json = jsonArray.getJSONObject(i);
-            Wine wine = new Wine(
-                    json.getLong("id"),
-                    json.getString("name"),
-                    json.getDouble("percentage"),
-                    json.getInt("amount")
-            );
-            em.getTransaction().begin();
-            em.persist(wine);
-            em.getTransaction().commit();
-        }
-
-        // Read cocktails.json
-        inputStream = Files.newInputStream(Paths.get(jsonFolder + "cocktails.json"));
-        jsonArray = new JSONArray(new JSONTokener(inputStream));
-        for (int i = 0; i < jsonArray.length(); ++i) {
-            JSONObject json = jsonArray.getJSONObject(i);
-            Cocktail cocktail = new Cocktail(
-                    json.getLong("id"),
-                    json.getString("name"),
-                    json.getDouble("percentage"),
-                    json.getInt("amount")
-            );
-            em.getTransaction().begin();
-            em.persist(cocktail);
-            em.getTransaction().commit();
-        }
-
-        // Read liquor.json
-        inputStream = Files.newInputStream(Paths.get(jsonFolder + "liquor.json"));
-        jsonArray = new JSONArray(new JSONTokener(inputStream));
-        for (int i = 0; i < jsonArray.length(); ++i) {
-            JSONObject json = jsonArray.getJSONObject(i);
-            Liquor liquor = new Liquor(
-                    json.getLong("id"),
-                    json.getString("name"),
-                    json.getDouble("percentage"),
-                    json.getInt("amount")
-            );
-            em.getTransaction().begin();
-            em.persist(liquor);
-            em.getTransaction().commit();
-        }
+        em.getTransaction().begin();
+        alcohols.forEach((type, file) -> {
+            try {
+                InputStream inputStream = Files.newInputStream(Paths.get(folder + file));
+                JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
+                for (int i = 0; i < jsonArray.length(); ++i) {
+                    JSONObject json = jsonArray.getJSONObject(i);
+                    Alcohol alcohol = new Alcohol(
+                            type,
+                            json.getString("name"),
+                            json.getFloat("percentage"),
+                            json.getInt("amount")
+                    );
+                    em.persist(alcohol);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        em.getTransaction().commit();
     }
 
     private UserBO getUserFromJwt(final String jwt) {
@@ -647,22 +515,27 @@ public class Repository {
         return Response.status(Response.Status.OK).build();
     }
 
-    public String getDrinks(String jwt) {
+    /**
+     * @param jwt the json web token
+     * @return a response containing either a OK and the drinks or a UNAUTHORIZED
+     */
+    public Response getDrinks(String jwt) {
         UserBO user = getUserFromJwt(jwt);
         em.refresh(user);
-        JSONArray jsonArray = new JSONArray();
-        assert user != null;
-        for (DrinkBO drink : user.getDrinks()) {
-            JSONObject drinkJson = new JSONObject()
-                    .put("drinkType", drink.getType())
-                    .put("name", drink.getName())
-                    .put("amount", drink.getAmount())
-                    .put("timeWhenDrank", drink.getDrankDate().getTime())
-                    .put("longitude", drink.getLongitude())
-                    .put("latitude", drink.getLatitude());
-            jsonArray.put(drinkJson);
+        if (user != null) {
+            JSONArray jsonArray = new JSONArray();
+            for (DrinkBO drink : user.getDrinks()) {
+                JSONObject drinkJson = new JSONObject()
+                        .put("alcoholId", drink.getAlcohol().getId())
+                        .put("drankDate", drink.getDrankDate())
+                        .put("longitude", drink.getLongitude())
+                        .put("latitude", drink.getLatitude());
+                jsonArray.put(drinkJson);
+            }
+            return Response.ok(jsonArray.toString()).build();
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        return jsonArray.toString();
     }
 
     /**
