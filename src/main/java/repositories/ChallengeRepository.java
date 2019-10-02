@@ -25,13 +25,8 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 public class ChallengeRepository {
-    private EntityManager em;
-    private JwtHelper jwtHelper;
-
-    public ChallengeRepository() {
-        em = EntityManagerHelper.getInstance();
-        this.jwtHelper = new JwtHelper();
-    }
+    private EntityManager em = EntityManagerHelper.getInstance();
+    private JwtHelper jwtHelper = new JwtHelper();
 
     /**
      * Loads every template from the json file into the database

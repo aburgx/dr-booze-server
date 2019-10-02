@@ -1,12 +1,11 @@
-package data.transferobjects;
+package data.dto;
 
-public class UserVO {
-
+public class UserDTO {
     private String username;
     private String email;
     private String password;
 
-    public UserVO() {
+    public UserDTO() {
     }
 
     public String getUsername() {
@@ -32,6 +31,4 @@ public class UserVO {
     public void setPassword(String password) {
         this.password = password;
     }
-
-
 }

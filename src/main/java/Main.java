@@ -1,8 +1,8 @@
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import repositories.AlcoholRepository;
 import repositories.ChallengeRepository;
-import repositories.Repository;
 import utils.Constants;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class Main {
         l.addHandler(ch);
 
         // load alcohol and the challenge templates into the database
-        new Repository().loadAlcohol();
+        new AlcoholRepository().loadAlcohol();
         new ChallengeRepository().loadTemplates();
 
         System.out.println(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));

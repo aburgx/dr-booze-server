@@ -1,15 +1,15 @@
-package data.transferobjects;
+package data.dto;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class DrinkVO {
+public class DrinkDTO {
     private long alcoholId;
     private Date drankDate;
     private BigDecimal longitude;
     private BigDecimal latitude;
 
-    public DrinkVO() {
+    public DrinkDTO() {
     }
 
     public long getAlcoholId() {

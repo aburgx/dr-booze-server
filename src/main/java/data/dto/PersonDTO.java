@@ -1,18 +1,18 @@
-package data.transferobjects;
+package data.dto;
 
 import java.util.Date;
 
-public class PersonVO {
+public class PersonDTO {
     private String username;
     private String password;
     private String firstName;
     private String lastName;
     private String gender;
     private Date birthday;
-    private double height;
-    private double weight;
+    private int height;
+    private int weight;
 
-    public PersonVO() {
+    public PersonDTO() {
     }
 
     public String getUsername() {
@@ -63,19 +63,19 @@ public class PersonVO {
         this.birthday = birthday;
     }
 
-    public double getHeight() {
+    public int getHeight() {
         return height;
     }
 
-    public void setHeight(double height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 
-    public double getWeight() {
+    public int getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(int weight) {
         this.weight = weight;
     }
 }

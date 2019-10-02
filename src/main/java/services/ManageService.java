@@ -1,45 +1,36 @@
 package services;
 
-import data.transferobjects.DrinkVO;
-import data.transferobjects.PersonVO;
+import data.dto.DrinkDTO;
+import data.dto.PersonDTO;
+import repositories.AlcoholRepository;
 import repositories.ChallengeRepository;
-import repositories.Repository;
+import repositories.UserRepository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/**
- * @author Alexander Burghuber
- */
 @Path("manage")
 public class ManageService {
-    private Repository repo = new Repository();
+    private UserRepository userRepo = new UserRepository();
+    private AlcoholRepository alcoholRepo = new AlcoholRepository();
     private ChallengeRepository challengeRepo = new ChallengeRepository();
 
-    /*@Path("getDetails")
+    @Path("getUser")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        String[] auth = authHeader.split("\\s");
-        return repo.getDetails(auth[1]);
-    }*/
+    public Response getUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
+        return userRepo.getUser(getJwt(auth));
+    }
 
-    /**
-     * Inserts the details(firstName, lastName, gender, etc.) of an already existing user
-     *
-     * @param person the Transfer Object of the Person entity
-     * @return a json that includes either the user and person object or an error
-     */
     @Path("insertDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
-        String[] auth = authHeader.split("\\s");
-        return repo.insertDetails(
-                auth[1],
+    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonDTO person) {
+        return userRepo.insertDetails(
+                getJwt(auth),
                 person.getFirstName(),
                 person.getLastName(),
                 person.getGender(),
@@ -49,21 +40,13 @@ public class ManageService {
         );
     }
 
-    /**
-     * Updates the details of a person
-     *
-     * @param person     the Transfer Object of the Person entity
-     * @param authHeader the Http-Header
-     * @return a json that includes either the user and person object or an error
-     */
     @Path("updateDetails")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, PersonVO person) {
-        String[] auth = authHeader.split("\\s");
-        return repo.updateDetails(
-                auth[1],
+    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonDTO person) {
+        return userRepo.updateDetails(
+                getJwt(auth),
                 person.getUsername(),
                 person.getPassword(),
                 person.getFirstName(),
@@ -75,47 +58,41 @@ public class ManageService {
         );
     }
 
-    /**
-     * Adds a drink to an user
-     *
-     * @param authHeader the Http-Header
-     * @param drinkVO      the drink the user drank
-     * @return a Http-Response
-     */
+    @Path("getAlcohols/{type}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAlcohols(@PathParam("type") String type) {
+        return alcoholRepo.getAlcohols(type.toUpperCase());
+    }
+
     @Path("addDrink")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, DrinkVO drinkVO) {
-        String[] auth = authHeader.split("\\s");
-        return repo.addDrink(auth[1], drinkVO);
+    public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, DrinkDTO drinkDTO) {
+        return alcoholRepo.addDrink(
+                getJwt(auth),
+                drinkDTO.getAlcoholId(),
+                drinkDTO.getDrankDate(),
+                drinkDTO.getLongitude(),
+                drinkDTO.getLatitude()
+        );
     }
 
-    /**
-     * Returns all drinks from a user
-     *
-     * @param authHeader the Http-Header
-     * @return a json that includes all drinks from a user
-     */
     @Path("getDrinks")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        String[] auth = authHeader.split("\\s");
-        return repo.getDrinks(auth[1]);
+    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
+        return alcoholRepo.getDrinks(getJwt(auth));
     }
 
-    /**
-     * Return the 3 challenges a user has
-     *
-     * @param authHeader the Http-Header
-     * @return a json that includes the challenges from a user
-     */
     @Path("manageChallenges")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        String[] auth = authHeader.split("\\s");
-        return challengeRepo.challengeManager(auth[1]);
+    public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
+        return challengeRepo.challengeManager(getJwt(auth));
     }
 
+    private String getJwt(String auth) {
+        return auth.split("\\s")[1];
+    }
 }

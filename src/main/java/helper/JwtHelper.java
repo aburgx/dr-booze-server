@@ -9,16 +9,18 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class JwtHelper {
-    private String key = null;
+    private static String key = null;
 
     public JwtHelper() {
-        // load the jwt key from the config file
-        try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
-            Properties prop = new Properties();
-            prop.load(input);
-            key = prop.getProperty("jwt_key");
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if (key == null) {
+            // load the jwt key from the config file
+            try (InputStream input = new FileInputStream("src/main/resources/properties/config.properties")) {
+                Properties prop = new Properties();
+                prop.load(input);
+                key = prop.getProperty("jwt_key");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

@@ -1,10 +1,10 @@
-package data.transferobjects;
+package data.dto;
 
-public class UpdatePasswordVO {
+public class UpdatePasswordDTO {
     private int pin;
     private String password;
 
-    public UpdatePasswordVO() {
+    public UpdatePasswordDTO() {
     }
 
     public int getPin() {
