@@ -7,4 +7,3 @@ public enum ChallengeType {
     MAXPERCENTAGE,
     MAXGAG
 }
-

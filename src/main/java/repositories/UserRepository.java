@@ -215,7 +215,6 @@ public class UserRepository {
         return Response.status(Response.Status.FORBIDDEN).build();
     }
 
-    // TODO: Update Responses
     /**
      * Request the change of the password
      *
