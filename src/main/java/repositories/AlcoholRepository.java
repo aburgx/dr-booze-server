@@ -23,10 +23,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class AlcoholRepository {
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
+    private static Logger LOG = Logger.getLogger(AlcoholRepository.class.getName());
+
 
     /**
      * Adds a drink to an user.
@@ -46,6 +49,8 @@ public class AlcoholRepository {
             em.getTransaction().begin();
             em.persist(drink);
             em.getTransaction().commit();
+
+            LOG.info("Added drink to user: " + user.getId() + ", " + user.getUsername());
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -70,6 +75,8 @@ public class AlcoholRepository {
                     .put("latitude", drink.getLatitude());
             jsonArray.put(drinkJson);
         }
+
+        LOG.info("Returned drinks of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok(jsonArray.toString()).build();
     }
 
@@ -95,6 +102,8 @@ public class AlcoholRepository {
                         .put("amount", alcohol.getAmount());
                 jsonArray.put(alcoholJson);
             }
+
+            LOG.info("Returned alcohols of type: " + typeStr);
             return Response.ok(jsonArray.toString()).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();

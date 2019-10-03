@@ -18,12 +18,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class UserRepository {
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
     private Mail mail = new Mail();
     private ExecutorService executor = Executors.newFixedThreadPool(10);
+    private static Logger LOG = Logger.getLogger(UserRepository.class.getName());
 
     /**
      * Registers a new user.
@@ -54,12 +56,9 @@ public class UserRepository {
                 em.getTransaction().commit();
 
                 // async email sending
-                executor.execute(() -> {
-                    System.out.println("Sending email confirmation...");
-                    mail.sendConfirmation(user, verificationToken);
-                    System.out.println("Email confirmation sent.");
-                });
+                executor.execute(() -> mail.sendConfirmation(user, verificationToken));
 
+                LOG.info("Registered new user: " + user.getId() + ", " + user.getUsername());
                 return Response.ok().build();
             } else {
                 return Response.status(Response.Status.CONFLICT).build();
@@ -95,6 +94,8 @@ public class UserRepository {
                     JSONObject json = new JSONObject()
                             .put("user", user.toJson())
                             .put("token", jwt);
+
+                    LOG.info("Logged in user: " + user.getId() + ", " + user.getUsername());
                     return Response.ok(json.toString()).build();
                 }
             } catch (NoSuchAlgorithmException e) {
@@ -119,10 +120,13 @@ public class UserRepository {
         if (tokens.size() != 0) {
             // verify the user and delete the verification token
             VerificationToken verifyToken = tokens.get(0);
+            UserBO user = verifyToken.getUser();
             em.getTransaction().begin();
-            verifyToken.getUser().setEnabled(true);
+            user.setEnabled(true);
             em.remove(verifyToken);
             em.getTransaction().commit();
+
+            LOG.info("Verified user: " + user.getId() + ", " + user.getUsername());
             return true;
         }
         return false;
@@ -157,6 +161,7 @@ public class UserRepository {
 
             em.getTransaction().commit();
 
+            LOG.info("Inserted details of user: " + user.getId() + ", " + user.getUsername());
             return Response.ok(user.toJson().toString()).build();
         }
         return Response.status(Response.Status.FORBIDDEN).build();
@@ -208,6 +213,7 @@ public class UserRepository {
 
                     em.getTransaction().commit();
 
+                    LOG.info("Updated details of user: " + user.getId() + ", " + user.getUsername());
                     return Response.ok(user.toJson().toString()).build();
                 }
             }
@@ -244,12 +250,9 @@ public class UserRepository {
         int pin = Integer.parseInt(verificationToken.getToken());
 
         // async email sending
-        executor.execute(() -> {
-            System.out.println("Sending email for password change...");
-            mail.resetPasswordConfirmation(user, pin);
-            System.out.println("Email sent.");
-        });
+        executor.execute(() -> mail.resetPasswordConfirmation(user, pin));
 
+        LOG.info("Requested password change of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok().build();
     }
 
@@ -292,6 +295,7 @@ public class UserRepository {
         user.setPassword(password);
         em.getTransaction().commit();
 
+        LOG.info("Changed password of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok().build();
     }
 

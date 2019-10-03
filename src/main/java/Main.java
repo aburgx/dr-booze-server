@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
+    private static Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
@@ -28,9 +29,10 @@ public class Main {
         new AlcoholRepository().loadAlcohol();
         new ChallengeRepository().loadTemplates();
 
-        System.out.println(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));
+        LOG.info(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));
         System.in.read();
         server.shutdownNow();
+        LOG.info("Server closed.");
     }
 
     private static HttpServer startServer() {

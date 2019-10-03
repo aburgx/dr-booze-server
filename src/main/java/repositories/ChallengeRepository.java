@@ -34,7 +34,6 @@ public class ChallengeRepository {
      * @throws IOException while file reading
      */
     public void loadTemplates() throws IOException {
-
         String jsonFolder = "src/main/resources/challenges/";
 
         InputStream inputStream = Files.newInputStream(Paths.get(jsonFolder + "challenges.json"));
