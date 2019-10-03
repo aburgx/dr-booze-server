@@ -15,7 +15,7 @@ public class VerificationToken {
      * the unique id
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private long id;
 
     /**

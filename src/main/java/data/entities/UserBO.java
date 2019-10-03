@@ -20,14 +20,8 @@ import java.util.List;
 })
 public class UserBO {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private long id;
-
-    @OneToOne(cascade = CascadeType.MERGE)
-    private VerificationToken verificationToken;
-
-    @OneToMany(mappedBy = "user")
-    private List<DrinkBO> drinks;
 
     @Column(unique = true)
     private String username;
@@ -45,12 +39,20 @@ public class UserBO {
 
     @Temporal(TemporalType.DATE)
     private Date birthday;
+
     private int height;
     private int weight;
 
+    private int points;
+
+    @OneToOne(cascade = CascadeType.MERGE)
+    private VerificationToken verificationToken;
+
+    @OneToMany(mappedBy = "user")
+    private List<DrinkBO> drinks;
+
     @OneToMany
     private List<ChallengeBO> challenges;
-    private int points;
 
     public UserBO() {
         this.drinks = new ArrayList<>();
