@@ -93,7 +93,7 @@ public class UserRepository {
                 if (new String(Hex.encode(hash)).equals(user.getPassword())) {
                     String jwt = jwtHelper.create(user.getId());
                     JSONObject json = new JSONObject()
-                            .put("user", user.toJson().toString())
+                            .put("user", user.toJson())
                             .put("token", jwt);
                     return Response.ok(json.toString()).build();
                 }
@@ -195,10 +195,10 @@ public class UserRepository {
                     UserBO user = getUserFromJwt(jwt);
 
                     em.getTransaction().begin();
-
                     user.setUsername(username);
-                    user.setPassword(password);
-
+                    if (password != null) {
+                        user.setPassword(password);
+                    }
                     user.setFirstName(firstName);
                     user.setLastName(lastName);
                     user.setGender(gender);
@@ -259,40 +259,41 @@ public class UserRepository {
      *
      * @param pin      the pin from the request-password-change email
      * @param password the new password of the user
-     * @return a status code (OK, Conflict, Not_found)
+     * @return a response containing OK, NOT_FOUND, GONE or FORBIDDEN
      */
     public Response updatePassword(int pin, String password) {
+        //check if the token exists
         List<VerificationToken> results = em.createNamedQuery("Token.get-by-token", VerificationToken.class)
                 .setParameter("token", String.valueOf(pin))
                 .getResultList();
-
         if (results.size() == 0) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         VerificationToken verificationToken = results.get(0);
 
+        // check if the token has expired
         Date currentDate = new Date();
         Date tokenDate = verificationToken.getExpiryDate();
-
         if (tokenDate.compareTo(currentDate) <= 0) {
             em.getTransaction().begin();
             em.remove(verificationToken);
             em.getTransaction().commit();
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.GONE).build();
         }
 
+        // check if the new password is valid
         if (!validatePassword(password)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
+        // set the new password
         UserBO user = verificationToken.getUser();
-        user.setPassword(password);
         em.getTransaction().begin();
-        em.persist(user);
+        user.setPassword(password);
         em.getTransaction().commit();
 
-        return Response.status(Response.Status.OK).build();
+        return Response.ok().build();
     }
 
     private UserBO getUserFromJwt(String jwt) {

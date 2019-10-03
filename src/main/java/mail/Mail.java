@@ -18,7 +18,6 @@ import java.util.Properties;
 import static javax.mail.Message.RecipientType;
 
 public class Mail {
-
     private String emailPassword;
     private Session session;
 
@@ -49,7 +48,7 @@ public class Mail {
             message.setSubject("Welcome to Dr. Booze");
             String mailBody =
                     "<h1>Welcome to Dr. Booze</h1><br>" +
-                            "<a href='" + Constants.BASE_URI + "/auth/verify/" + verificationToken.getToken()
+                            "<a href='" + Constants.EMAIL_URI + "auth/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
             transport(message, mailBody);
         } catch (MessagingException ex) {
@@ -72,11 +71,9 @@ public class Mail {
 
     private void transport(Message message, String mailBody) throws MessagingException {
         message.setContent(mailBody, "text/html");
-
         Transport transport = session.getTransport("smtp");
         transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
         transport.sendMessage(message, message.getAllRecipients());
         transport.close();
     }
-
 }

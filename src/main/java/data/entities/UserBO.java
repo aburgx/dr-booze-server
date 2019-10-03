@@ -71,7 +71,7 @@ public class UserBO {
                 .put("firstName", firstName)
                 .put("lastName", lastName)
                 .put("gender", gender)
-                .put("birthDay", birthday)
+                .put("birthday", birthday)
                 .put("height", height)
                 .put("weight", weight)
                 .put("points", points);

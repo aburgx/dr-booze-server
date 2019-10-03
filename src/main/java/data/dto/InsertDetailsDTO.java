@@ -2,9 +2,7 @@ package data.dto;
 
 import java.util.Date;
 
-public class PersonDTO {
-    private String username;
-    private String password;
+public class InsertDetailsDTO {
     private String firstName;
     private String lastName;
     private String gender;
@@ -12,23 +10,7 @@ public class PersonDTO {
     private int height;
     private int weight;
 
-    public PersonDTO() {
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public InsertDetailsDTO() {
     }
 
     public String getFirstName() {

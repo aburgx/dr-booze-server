@@ -1,7 +1,8 @@
 package services;
 
 import data.dto.DrinkDTO;
-import data.dto.PersonDTO;
+import data.dto.InsertDetailsDTO;
+import data.dto.UpdateDetailsDTO;
 import repositories.AlcoholRepository;
 import repositories.ChallengeRepository;
 import repositories.UserRepository;
@@ -28,7 +29,7 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonDTO person) {
+    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, InsertDetailsDTO person) {
         return userRepo.insertDetails(
                 getJwt(auth),
                 person.getFirstName(),
@@ -44,7 +45,7 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonDTO person) {
+    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, UpdateDetailsDTO person) {
         return userRepo.updateDetails(
                 getJwt(auth),
                 person.getUsername(),
