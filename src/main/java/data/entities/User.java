@@ -32,6 +32,7 @@ public class User {
     private String password;
     private String salt;
     private boolean enabled = false;
+    private boolean detailsSet = false;
 
     private String firstName;
     private String lastName;
@@ -92,10 +93,10 @@ public class User {
 
             // encrypt
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            String encryptedPassword = new String(Hex.encode(hash));
-            this.password = encryptedPassword;
-            String saltString = new String(Hex.encode(salt));
-            this.salt = saltString;
+            // encrypted password
+            this.password = new String(Hex.encode(hash));
+            // salt
+            this.salt = new String(Hex.encode(salt));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -163,6 +164,14 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isDetailsSet() {
+        return detailsSet;
+    }
+
+    public void setDetailsSet(boolean detailsSet) {
+        this.detailsSet = detailsSet;
     }
 
     public String getFirstName() {

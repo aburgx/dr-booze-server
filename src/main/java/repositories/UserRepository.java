@@ -92,8 +92,10 @@ public class UserRepository {
                 if (new String(Hex.encode(hash)).equals(user.getPassword())) {
                     String jwt = jwtHelper.create(user.getId());
                     JSONObject json = new JSONObject()
-                            .put("user", user.toJson())
                             .put("token", jwt);
+                    if (user.isDetailsSet()) {
+                        json.put("user", user.toJson());
+                    }
 
                     LOG.info("Logged in user: " + user.getId() + ", " + user.getUsername());
                     return Response.ok(json.toString()).build();
@@ -159,6 +161,8 @@ public class UserRepository {
             user.setHeight(height);
             user.setWeight(weight);
 
+            user.setDetailsSet(true);
+
             em.getTransaction().commit();
 
             LOG.info("Inserted details of user: " + user.getId() + ", " + user.getUsername());
@@ -171,11 +175,14 @@ public class UserRepository {
      * Returns the user.
      *
      * @param jwt the json web token
-     * @return a response containing OK (with the user)
+     * @return a response containing OK (with the user) or CONFLIC
      */
     public Response getUser(String jwt) {
         User user = getUserFromJwt(jwt);
-        return Response.ok(user.toJson().toString()).build();
+        if (user.isDetailsSet()) {
+            return Response.ok(user.toJson().toString()).build();
+        }
+        return Response.status(Response.Status.CONFLICT).build();
     }
 
     /**
@@ -189,36 +196,39 @@ public class UserRepository {
      * @param birthday  the new birthday of the user
      * @param height    the new height of the user
      * @param weight    the new weight of the user
-     * @return a response containing OK (with the updated user) or FORBIDDEN
+     * @return a response containing OK (with the updated user), CONFLICT or FORBIDDEN
      */
     public Response updateDetails(String jwt, String username, String password, String firstName,
                                   String lastName, String gender, Date birthday,
                                   int height, int weight) {
-        if (validateUserDetails(firstName, lastName, gender, height, weight)) {
-            if (password == null || validatePassword(password)) {
-                if (validateUsername(username)) {
-                    User user = getUserFromJwt(jwt);
+        User user = getUserFromJwt(jwt);
+        if (user.isDetailsSet()) {
+            if (validateUserDetails(firstName, lastName, gender, height, weight)) {
+                if (password == null || validatePassword(password)) {
+                    if (validateUsername(username)) {
+                        em.getTransaction().begin();
 
-                    em.getTransaction().begin();
-                    user.setUsername(username);
-                    if (password != null) {
-                        user.setPassword(password);
+                        user.setUsername(username);
+                        if (password != null) {
+                            user.setPassword(password);
+                        }
+                        user.setFirstName(firstName);
+                        user.setLastName(lastName);
+                        user.setGender(gender);
+                        user.setBirthday(birthday);
+                        user.setHeight(height);
+                        user.setWeight(weight);
+
+                        em.getTransaction().commit();
+
+                        LOG.info("Updated details of user: " + user.getId() + ", " + user.getUsername());
+                        return Response.ok(user.toJson().toString()).build();
                     }
-                    user.setFirstName(firstName);
-                    user.setLastName(lastName);
-                    user.setGender(gender);
-                    user.setBirthday(birthday);
-                    user.setHeight(height);
-                    user.setWeight(weight);
-
-                    em.getTransaction().commit();
-
-                    LOG.info("Updated details of user: " + user.getId() + ", " + user.getUsername());
-                    return Response.ok(user.toJson().toString()).build();
                 }
             }
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
-        return Response.status(Response.Status.FORBIDDEN).build();
+        return Response.status(Response.Status.CONFLICT).build();
     }
 
     /**
