@@ -1,9 +1,9 @@
 package repositories;
 
-import data.entities.ChallengeBO;
-import data.entities.DrinkBO;
-import data.entities.Template;
-import data.entities.UserBO;
+import data.entities.Challenge;
+import data.entities.ChallengeTemplate;
+import data.entities.Drink;
+import data.entities.User;
 import data.enums.ChallengeType;
 import helper.EntityManagerHelper;
 import helper.JwtHelper;
@@ -43,8 +43,8 @@ public class ChallengeRepository {
             //Parse Object to JSONObject
             JSONObject jsonObject = (JSONObject) item;
 
-            //Generate Template from JSONObject
-            Template template = new Template(
+            //Generate ChallengeTemplate from JSONObject
+            ChallengeTemplate template = new ChallengeTemplate(
                     jsonObject.getLong("id"),
                     jsonObject.getString("content"),
                     jsonObject.getInt("amount"),
@@ -67,7 +67,7 @@ public class ChallengeRepository {
      */
     public String challengeManager(final String jwt) {
         System.out.println("Manager reached");
-        UserBO user = getUserFromJwt(jwt);
+        User user = getUserFromJwt(jwt);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -7);
         // checks if user is null and breaks
@@ -86,8 +86,8 @@ public class ChallengeRepository {
             checkChallenges(user, cal.getTime());
         }
         JSONArray challenges = new JSONArray();
-        for (ChallengeBO challengeBO : user.getChallenges()) {
-            challenges.put(challengeBO.toJson());
+        for (Challenge challenge : user.getChallenges()) {
+            challenges.put(challenge.toJson());
         }
         return challenges.toString();
     }
@@ -97,19 +97,19 @@ public class ChallengeRepository {
      *
      * @param user user object of current user
      */
-    private void generateChallenges(UserBO user) {
+    private void generateChallenges(User user) {
         // get 1 challenge at a time
         for (int i = 0; i < 3; i++) {
-            Template template;
+            ChallengeTemplate template;
             boolean repeat;
             do {
                 repeat = false;
                 int rand = new Random().nextInt(5) + 1; //Start with 1 ends with 5
                 if (rand == 4) rand = 5;// Challenge 4 not implemented yet TODO: remove
-                template = em.createNamedQuery("Template.getRandomTemplate", Template.class)
+                template = em.createNamedQuery("Template.getRandomTemplate", ChallengeTemplate.class)
                         .setParameter("id", rand).getSingleResult();
-                for (ChallengeBO challengeBO : user.getChallenges()) {
-                    if (challengeBO.getTemplate().getId() == rand) {
+                for (Challenge challenge : user.getChallenges()) {
+                    if (challenge.getTemplate().getId() == rand) {
                         repeat = true;
                     }
                 }
@@ -125,14 +125,14 @@ public class ChallengeRepository {
      * @param u user object to generate personalised challenges
      * @return a new Challenge
      */
-    private ChallengeBO setParameter(Template t, UserBO u) {
+    private Challenge setParameter(ChallengeTemplate t, User u) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -7);
-        List<DrinkBO> drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", DrinkBO.class)
+        List<Drink> drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", Drink.class)
                 .setParameter("id", u.getId())
                 .setParameter("start", cal.getTime())
                 .getResultList(); // drinks that the user drank in a week
-        ChallengeBO challenge = new ChallengeBO();
+        Challenge challenge = new Challenge();
         challenge.setTemplate(t);
         switch (t.getType()) {
             case MAXWEEK:// check if user drank no more than x drinks in a week
@@ -160,17 +160,17 @@ public class ChallengeRepository {
      * @param user user object to check his challenges
      * @param d    current date
      */
-    private void checkChallenges(UserBO user, Date d) {
+    private void checkChallenges(User user, Date d) {
         user.getChallenges().forEach(challenge -> {
-            Template template = challenge.getTemplate();
+            ChallengeTemplate template = challenge.getTemplate();
             Integer maxAllowed;
-            List<DrinkBO> drinks;
+            List<Drink> drinks;
             boolean failed = false;
             Calendar cal = Calendar.getInstance();
             switch (template.getType()) {
                 case MAXWEEK: // check if user drank no more than x drinks in a week
                     maxAllowed = challenge.getParameter().get(0);
-                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", DrinkBO.class)
+                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", Drink.class)
                             .setParameter("start", d)
                             .setParameter("id", user.getId())
                             .getResultList();
@@ -184,15 +184,15 @@ public class ChallengeRepository {
                     break;
                 case MAXDAY: // check if user drank more than x drinks per day
                     maxAllowed = challenge.getParameter().get(0);
-                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", DrinkBO.class)
+                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", Drink.class)
                             .setParameter("start", d)
                             .setParameter("id", user.getId())
                             .getResultList();
                     cal.setTime(d);
 
                     for (int i = 0; i < 7; i++) {
-                        Stream<DrinkBO> drinksOfOneDay = drinks.stream().filter(
-                                drinkBO -> drinkBO.getDrankDate().equals(cal.getTime())
+                        Stream<Drink> drinksOfOneDay = drinks.stream().filter(
+                                drink -> drink.getDrankDate().equals(cal.getTime())
                         );
                         if (drinksOfOneDay.count() > maxAllowed) {
                             failed = true;
@@ -211,7 +211,7 @@ public class ChallengeRepository {
                     maxAllowed = challenge.getParameter().get(1);
                     int failedCount = 0;
 
-                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", DrinkBO.class)
+                    drinks = em.createNamedQuery("Drink.get-drinks-in-between-time", Drink.class)
                             .setParameter("start", d)
                             .setParameter("id", user.getId())
                             .getResultList();
@@ -220,8 +220,8 @@ public class ChallengeRepository {
                     cal1.setTime(d);
 
                     for (int i = 0; i < 7; i++) {
-                        Stream<DrinkBO> drinksOfOneDay = drinks.stream().filter(
-                                drinkBO -> drinkBO.getDrankDate().equals(cal1.getTime())
+                        Stream<Drink> drinksOfOneDay = drinks.stream().filter(
+                                drink -> drink.getDrankDate().equals(cal1.getTime())
                         );
                         if (drinksOfOneDay.count() < maxAllowed) {
                             failedCount++;
@@ -246,9 +246,9 @@ public class ChallengeRepository {
         generateChallenges(user);
     }
 
-    private UserBO getUserFromJwt(final String jwt) {
+    private User getUserFromJwt(final String jwt) {
         long id = jwtHelper.getUserId(jwt);
-        UserBO user = em.find(UserBO.class, id);
+        User user = em.find(User.class, id);
         if (user == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }

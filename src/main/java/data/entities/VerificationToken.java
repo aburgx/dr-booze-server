@@ -22,7 +22,7 @@ public class VerificationToken {
      * the user of the verification token
      */
     @OneToOne(mappedBy = "verificationToken", cascade = CascadeType.MERGE)
-    private UserBO user;
+    private User user;
 
     /**
      * the token for the verification
@@ -38,7 +38,7 @@ public class VerificationToken {
     public VerificationToken() {
     }
 
-    public VerificationToken(UserBO user, boolean useAsPin) {
+    public VerificationToken(User user, boolean useAsPin) {
         this.user = user;
         if (useAsPin) {
             // generate the pin for a reset
@@ -62,11 +62,11 @@ public class VerificationToken {
         this.id = id;
     }
 
-    public UserBO getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserBO user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

@@ -15,10 +15,10 @@ import java.util.List;
 @Entity
 @Table(name = "Booze_User")
 @NamedQueries({
-        @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM UserBO u WHERE u.username = :username"),
-        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM UserBO u WHERE u.email = :email")
+        @NamedQuery(name = "User.get-with-username", query = "SELECT u FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM User u WHERE u.email = :email")
 })
-public class UserBO {
+public class User {
     @Id
     @GeneratedValue
     private long id;
@@ -49,17 +49,17 @@ public class UserBO {
     private VerificationToken verificationToken;
 
     @OneToMany(mappedBy = "user")
-    private List<DrinkBO> drinks;
+    private List<Drink> drinks;
 
     @OneToMany
-    private List<ChallengeBO> challenges;
+    private List<Challenge> challenges;
 
-    public UserBO() {
+    public User() {
         this.drinks = new ArrayList<>();
         this.challenges = new ArrayList<>();
     }
 
-    public UserBO(String username, String email, String password) {
+    public User(String username, String email, String password) {
         this();
         this.username = username;
         this.email = email;
@@ -141,11 +141,11 @@ public class UserBO {
         hashPassword(password);
     }
 
-    public List<DrinkBO> getDrinks() {
+    public List<Drink> getDrinks() {
         return drinks;
     }
 
-    public void setDrinks(List<DrinkBO> drinks) {
+    public void setDrinks(List<Drink> drinks) {
         this.drinks = drinks;
     }
 
@@ -213,11 +213,11 @@ public class UserBO {
         this.weight = weight;
     }
 
-    public List<ChallengeBO> getChallenges() {
+    public List<Challenge> getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(List<ChallengeBO> challenges) {
+    public void setChallenges(List<Challenge> challenges) {
         this.challenges = challenges;
     }
 

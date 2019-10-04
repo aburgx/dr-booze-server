@@ -1,8 +1,8 @@
 package repositories;
 
 import data.entities.Alcohol;
-import data.entities.DrinkBO;
-import data.entities.UserBO;
+import data.entities.Drink;
+import data.entities.User;
 import data.enums.AlcoholType;
 import helper.EntityManagerHelper;
 import helper.JwtHelper;
@@ -42,10 +42,10 @@ public class AlcoholRepository {
      * @return a response containing OK or NOT_FOUND
      */
     public Response addDrink(String jwt, long alcoholId, Date drankDate, BigDecimal longitude, BigDecimal latitude) {
-        UserBO user = getUserFromJwt(jwt);
+        User user = getUserFromJwt(jwt);
         Alcohol alcohol = em.find(Alcohol.class, alcoholId);
         if (alcohol != null) {
-            DrinkBO drink = new DrinkBO(user, alcohol, drankDate, longitude, latitude);
+            Drink drink = new Drink(user, alcohol, drankDate, longitude, latitude);
             em.getTransaction().begin();
             em.persist(drink);
             em.getTransaction().commit();
@@ -58,18 +58,18 @@ public class AlcoholRepository {
     }
 
     /**
-     * Returns all drinks the user drank
+     * Returns all drinks the user drank.
      *
      * @param jwt the json web token
      * @return a response containing either OK (with the drinks) or UNAUTHORIZED
      */
     public Response getDrinks(String jwt) {
-        UserBO user = getUserFromJwt(jwt);
+        User user = getUserFromJwt(jwt);
         em.refresh(user);
         JSONArray jsonArray = new JSONArray();
-        for (DrinkBO drink : user.getDrinks()) {
+        for (Drink drink : user.getDrinks()) {
             JSONObject drinkJson = new JSONObject()
-                    .put("alcoholId", drink.getAlcohol().getId())
+                    .put("alcohol", drink.getAlcohol().toJson())
                     .put("drankDate", drink.getDrankDate())
                     .put("longitude", drink.getLongitude())
                     .put("latitude", drink.getLatitude());
@@ -143,9 +143,9 @@ public class AlcoholRepository {
         });
     }
 
-    private UserBO getUserFromJwt(String jwt) {
+    private User getUserFromJwt(String jwt) {
         long id = jwtHelper.getUserId(jwt);
-        UserBO user = em.find(UserBO.class, id);
+        User user = em.find(User.class, id);
         if (user == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }

@@ -5,52 +5,52 @@ import data.enums.ChallengeType;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Booze_Template")
+@Table(name = "Booze_ChallengeTemplate")
 @NamedQueries({
-        @NamedQuery(name = "Template.count", query = "select count(t) from Template t"),
-        @NamedQuery(name = "Template.getRandomTemplate", query = "SELECT t from Template t where t.id = :id")
+        @NamedQuery(name = "Template.count", query = "select count(t) from ChallengeTemplate t"),
+        @NamedQuery(name = "Template.getRandomTemplate", query = "SELECT t from ChallengeTemplate t where t.id = :id")
 })
-public class Template {
-
+public class ChallengeTemplate {
     /**
      * id of the template
      */
     @Id
     private long id;
+
     /**
      * how the template looks
      */
     private String content;
+
     /**
      * given Booze-points on success
      */
     private int amount;
+
     /**
      * ChallengeType to minimize difficulties in the validation process
      */
     @Enumerated(EnumType.STRING)
     private ChallengeType type;
 
-
-    public Template(String content, int amount) {
-        this.content = content;
-        this.amount = amount;
+    public ChallengeTemplate() {
     }
 
-    public Template() {
-    }
-
-    public Template(long id, String content, int amount, ChallengeType type) {
+    public ChallengeTemplate(long id, String content, int amount, ChallengeType type) {
         this.id = id;
         this.content = content;
         this.amount = amount;
         this.type = type;
     }
 
-    public Template(long id, String content, int amount) {
-        this.id = id;
-        this.content = content;
-        this.amount = amount;
+    @Override
+    public String toString() {
+        return "{" +
+                "id=" + id +
+                ", content='" + content + '\'' +
+                ", amount=" + amount +
+                ", type=" + type +
+                '}';
     }
 
     public long getId() {
@@ -83,15 +83,5 @@ public class Template {
 
     public void setType(ChallengeType type) {
         this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                ", amount=" + amount +
-                ", type=" + type +
-                '}';
     }
 }

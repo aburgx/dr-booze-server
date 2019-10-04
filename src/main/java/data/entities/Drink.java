@@ -8,15 +8,15 @@ import java.util.Date;
 @Table(name = "Booze_Drink")
 @NamedQueries({
         @NamedQuery(name = "Drink.get-drinks-in-between-time",
-                query = "SELECT d from DrinkBO d where d.user.id = :id and (d.drankDate between :start and current_date)"),
+                query = "SELECT d from Drink d where d.user.id = :id and (d.drankDate between :start and current_date)"),
 })
-public class DrinkBO {
+public class Drink {
     @Id
     @GeneratedValue
     private long id;
 
     @ManyToOne
-    private UserBO user;
+    private User user;
 
     @ManyToOne
     private Alcohol alcohol;
@@ -27,10 +27,10 @@ public class DrinkBO {
     private BigDecimal longitude;
     private BigDecimal latitude;
 
-    public DrinkBO() {
+    public Drink() {
     }
 
-    public DrinkBO(UserBO user, Alcohol alcohol, Date drankDate, BigDecimal longitude, BigDecimal latitude) {
+    public Drink(User user, Alcohol alcohol, Date drankDate, BigDecimal longitude, BigDecimal latitude) {
         this.user = user;
         this.alcohol = alcohol;
         this.drankDate = drankDate;
@@ -46,11 +46,11 @@ public class DrinkBO {
         this.id = id;
     }
 
-    public UserBO getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserBO user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

@@ -1,6 +1,6 @@
 package repositories;
 
-import data.entities.UserBO;
+import data.entities.User;
 import data.entities.VerificationToken;
 import helper.EntityManagerHelper;
 import helper.JwtHelper;
@@ -38,14 +38,14 @@ public class UserRepository {
     public Response register(String username, String email, String password) {
         if (validateUsername(username) && validateEmail(email) && validatePassword(password)) {
             // check if the username or email already exists
-            long countUsername = em.createQuery("SELECT COUNT(u) FROM UserBO u WHERE u.username = :username", Long.class)
+            long countUsername = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
                     .setParameter("username", username)
                     .getSingleResult();
-            long countEmail = em.createQuery("SELECT COUNT(u) FROM UserBO u WHERE u.email = :email", Long.class)
+            long countEmail = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
                     .setParameter("email", email)
                     .getSingleResult();
             if (countUsername == 0 && countEmail == 0) {
-                UserBO user = new UserBO(username, email, password);
+                User user = new User(username, email, password);
 
                 // generate a token for the email verification
                 VerificationToken verificationToken = new VerificationToken(user, false);
@@ -78,11 +78,11 @@ public class UserRepository {
      */
     public Response login(String username, String password) {
         // check if an user with this username exists
-        List<UserBO> results = em.createNamedQuery("User.get-with-username", UserBO.class)
+        List<User> results = em.createNamedQuery("User.get-with-username", User.class)
                 .setParameter("username", username)
                 .getResultList();
         if (results.size() != 0) {
-            UserBO user = results.get(0);
+            User user = results.get(0);
             // check if the password is correct
             try {
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -120,7 +120,7 @@ public class UserRepository {
         if (tokens.size() != 0) {
             // verify the user and delete the verification token
             VerificationToken verifyToken = tokens.get(0);
-            UserBO user = verifyToken.getUser();
+            User user = verifyToken.getUser();
             em.getTransaction().begin();
             user.setEnabled(true);
             em.remove(verifyToken);
@@ -148,7 +148,7 @@ public class UserRepository {
                                   String gender, Date birthday, int height, int weight) {
         gender = gender.toUpperCase();
         if (validateUserDetails(firstName, lastName, gender, height, weight)) {
-            UserBO user = getUserFromJwt(jwt);
+            User user = getUserFromJwt(jwt);
 
             em.getTransaction().begin();
 
@@ -174,7 +174,7 @@ public class UserRepository {
      * @return a response containing OK (with the user)
      */
     public Response getUser(String jwt) {
-        UserBO user = getUserFromJwt(jwt);
+        User user = getUserFromJwt(jwt);
         return Response.ok(user.toJson().toString()).build();
     }
 
@@ -197,7 +197,7 @@ public class UserRepository {
         if (validateUserDetails(firstName, lastName, gender, height, weight)) {
             if (password == null || validatePassword(password)) {
                 if (validateUsername(username)) {
-                    UserBO user = getUserFromJwt(jwt);
+                    User user = getUserFromJwt(jwt);
 
                     em.getTransaction().begin();
                     user.setUsername(username);
@@ -228,7 +228,7 @@ public class UserRepository {
      * @return a response containing OK, NOT_FOUND or FORBIDDEN
      */
     public Response requestPasswordChange(String email) {
-        List<UserBO> results = em.createNamedQuery("User.get-with-email", UserBO.class)
+        List<User> results = em.createNamedQuery("User.get-with-email", User.class)
                 .setParameter("email", email)
                 .getResultList();
 
@@ -236,7 +236,7 @@ public class UserRepository {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        UserBO user = results.get(0);
+        User user = results.get(0);
         if (!user.isEnabled()) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -290,7 +290,7 @@ public class UserRepository {
         }
 
         // set the new password
-        UserBO user = verificationToken.getUser();
+        User user = verificationToken.getUser();
         em.getTransaction().begin();
         user.setPassword(password);
         em.getTransaction().commit();
@@ -299,9 +299,9 @@ public class UserRepository {
         return Response.ok().build();
     }
 
-    private UserBO getUserFromJwt(String jwt) {
+    private User getUserFromJwt(String jwt) {
         long id = jwtHelper.getUserId(jwt);
-        UserBO user = em.find(UserBO.class, id);
+        User user = em.find(User.class, id);
         if (user == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }

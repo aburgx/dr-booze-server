@@ -1,6 +1,6 @@
 package mail;
 
-import data.entities.UserBO;
+import data.entities.User;
 import data.entities.VerificationToken;
 import utils.Constants;
 
@@ -41,7 +41,7 @@ public class Mail {
         }
     }
 
-    public void sendConfirmation(UserBO user, VerificationToken verificationToken) {
+    public void sendConfirmation(User user, VerificationToken verificationToken) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));
@@ -56,7 +56,7 @@ public class Mail {
         }
     }
 
-    public void resetPasswordConfirmation(UserBO user, int pin) {
+    public void resetPasswordConfirmation(User user, int pin) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.addRecipients(RecipientType.TO, String.valueOf(new InternetAddress(user.getEmail())));

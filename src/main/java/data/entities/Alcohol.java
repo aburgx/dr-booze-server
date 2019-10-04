@@ -1,6 +1,7 @@
 package data.entities;
 
 import data.enums.AlcoholType;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 
@@ -29,6 +30,15 @@ public class Alcohol {
         this.name = name;
         this.percentage = percentage;
         this.amount = amount;
+    }
+
+    public JSONObject toJson() {
+        return new JSONObject()
+                .put("id", id)
+                .put("type", type.toString())
+                .put("name", name)
+                .put("percentage", percentage)
+                .put("amount", amount);
     }
 
     public long getId() {
