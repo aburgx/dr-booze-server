@@ -257,13 +257,13 @@ public class UserRepository {
     }
 
     /**
-     * Updates the password of an user.
+     * Changes the password of an user.
      *
      * @param pin      the pin from the request-password-change email
      * @param password the new password of the user
      * @return a response containing OK, NOT_FOUND, GONE or FORBIDDEN
      */
-    public Response updatePassword(int pin, String password) {
+    public Response changePassword(int pin, String password) {
         //check if the token exists
         List<VerificationToken> results = em.createNamedQuery("Token.get-by-token", VerificationToken.class)
                 .setParameter("token", String.valueOf(pin))

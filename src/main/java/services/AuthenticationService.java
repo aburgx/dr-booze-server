@@ -1,6 +1,6 @@
 package services;
 
-import data.dto.UpdatePasswordDTO;
+import data.dto.ChangePasswordDTO;
 import data.dto.UserDTO;
 import repositories.UserRepository;
 
@@ -30,24 +30,24 @@ public class AuthenticationService {
 
     @Path("verify/{token}")
     @GET
-    public String verify(@PathParam("token") String token) {
+    public Response verify(@PathParam("token") String token) {
         if (userRepo.verify(token)) {
-            return "Successfully verified.";
+            return Response.ok("Successfully verified.").build();
         }
-        return "Failure. The user might already be verified.";
+        return Response.status(Response.Status.FORBIDDEN).entity("Failure. The user might already be verified.").build();
     }
 
-    @Path("requestPasswordChange")
+    @Path("request-password-change")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requestPasswordChange(UserDTO user) {
         return userRepo.requestPasswordChange(user.getEmail());
     }
 
-    @Path("updatePassword")
-    @POST
+    @Path("change-password")
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updatePassword(UpdatePasswordDTO updatePassword) {
-        return userRepo.updatePassword(updatePassword.getPin(), updatePassword.getPassword());
+    public Response changePassword(ChangePasswordDTO changePassword) {
+        return userRepo.changePassword(changePassword.getPin(), changePassword.getPassword());
     }
 }

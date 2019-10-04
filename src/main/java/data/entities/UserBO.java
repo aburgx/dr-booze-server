@@ -96,8 +96,6 @@ public class UserBO {
             this.password = encryptedPassword;
             String saltString = new String(Hex.encode(salt));
             this.salt = saltString;
-
-            System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

@@ -48,7 +48,7 @@ public class Mail {
             message.setSubject("Welcome to Dr. Booze");
             String mailBody =
                     "<h1>Welcome to Dr. Booze</h1><br>" +
-                            "<a href='" + Constants.EMAIL_URI + "auth/verify/" + verificationToken.getToken()
+                            "<a href='" + Constants.EMAIL_URI + "/auth/verify/" + verificationToken.getToken()
                             + "'>Confirm your email</a>";
             transport(message, mailBody);
         } catch (MessagingException ex) {

@@ -18,55 +18,62 @@ public class ManageService {
     private AlcoholRepository alcoholRepo = new AlcoholRepository();
     private ChallengeRepository challengeRepo = new ChallengeRepository();
 
-    @Path("getUser")
+    @Path("user")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
         return userRepo.getUser(getJwt(auth));
     }
 
-    @Path("insertDetails")
+    @Path("details")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, InsertDetailsDTO person) {
+    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, InsertDetailsDTO insertDetails) {
         return userRepo.insertDetails(
                 getJwt(auth),
-                person.getFirstName(),
-                person.getLastName(),
-                person.getGender(),
-                person.getBirthday(),
-                person.getHeight(),
-                person.getWeight()
+                insertDetails.getFirstName(),
+                insertDetails.getLastName(),
+                insertDetails.getGender(),
+                insertDetails.getBirthday(),
+                insertDetails.getHeight(),
+                insertDetails.getWeight()
         );
     }
 
-    @Path("updateDetails")
-    @POST
+    @Path("details")
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, UpdateDetailsDTO person) {
+    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, UpdateDetailsDTO updateDetails) {
         return userRepo.updateDetails(
                 getJwt(auth),
-                person.getUsername(),
-                person.getPassword(),
-                person.getFirstName(),
-                person.getLastName(),
-                person.getGender(),
-                person.getBirthday(),
-                person.getHeight(),
-                person.getWeight()
+                updateDetails.getUsername(),
+                updateDetails.getPassword(),
+                updateDetails.getFirstName(),
+                updateDetails.getLastName(),
+                updateDetails.getGender(),
+                updateDetails.getBirthday(),
+                updateDetails.getHeight(),
+                updateDetails.getWeight()
         );
     }
 
-    @Path("getAlcohols/{type}")
+    @Path("alcohols/{type}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAlcohols(@PathParam("type") String type) {
         return alcoholRepo.getAlcohols(type.toUpperCase());
     }
 
-    @Path("addDrink")
+    @Path("drinks")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
+        return alcoholRepo.getDrinks(getJwt(auth));
+    }
+
+    @Path("drinks")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, DrinkDTO drinkDTO) {
@@ -79,14 +86,7 @@ public class ManageService {
         );
     }
 
-    @Path("getDrinks")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
-        return alcoholRepo.getDrinks(getJwt(auth));
-    }
-
-    @Path("manageChallenges")
+    @Path("challenges")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {

@@ -1,10 +1,10 @@
 package data.dto;
 
-public class UpdatePasswordDTO {
+public class ChangePasswordDTO {
     private int pin;
     private String password;
 
-    public UpdatePasswordDTO() {
+    public ChangePasswordDTO() {
     }
 
     public int getPin() {
