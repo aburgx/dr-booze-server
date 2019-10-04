@@ -95,14 +95,8 @@ public class AlcoholRepository {
 
             JSONArray jsonArray = new JSONArray();
             for (Alcohol alcohol : alcohols) {
-                JSONObject alcoholJson = new JSONObject()
-                        .put("id", alcohol.getId())
-                        .put("name", alcohol.getName())
-                        .put("percentage", alcohol.getPercentage())
-                        .put("amount", alcohol.getAmount());
-                jsonArray.put(alcoholJson);
+                jsonArray.put(alcohol.toJson());
             }
-
             LOG.info("Returned alcohols of type: " + typeStr);
             return Response.ok(jsonArray.toString()).build();
         } else {
