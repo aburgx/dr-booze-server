@@ -1,8 +1,7 @@
 package services;
 
+import data.dto.DetailsDTO;
 import data.dto.DrinkDTO;
-import data.dto.InsertDetailsDTO;
-import data.dto.UpdateDetailsDTO;
 import repositories.AlcoholRepository;
 import repositories.ChallengeRepository;
 import repositories.UserRepository;
@@ -29,33 +28,15 @@ public class ManageService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, InsertDetailsDTO insertDetails) {
-        return userRepo.insertDetails(
+    public Response setDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, DetailsDTO details) {
+        return userRepo.setDetails(
                 getJwt(auth),
-                insertDetails.getFirstName(),
-                insertDetails.getLastName(),
-                insertDetails.getGender(),
-                insertDetails.getBirthday(),
-                insertDetails.getHeight(),
-                insertDetails.getWeight()
-        );
-    }
-
-    @Path("details")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updateDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, UpdateDetailsDTO updateDetails) {
-        return userRepo.updateDetails(
-                getJwt(auth),
-                updateDetails.getUsername(),
-                updateDetails.getPassword(),
-                updateDetails.getFirstName(),
-                updateDetails.getLastName(),
-                updateDetails.getGender(),
-                updateDetails.getBirthday(),
-                updateDetails.getHeight(),
-                updateDetails.getWeight()
+                details.getFirstName(),
+                details.getLastName(),
+                details.getGender(),
+                details.getBirthday(),
+                details.getHeight(),
+                details.getWeight()
         );
     }
 

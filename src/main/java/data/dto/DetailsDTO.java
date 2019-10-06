@@ -2,7 +2,7 @@ package data.dto;
 
 import java.util.Date;
 
-public class InsertDetailsDTO {
+public class DetailsDTO {
     private String firstName;
     private String lastName;
     private String gender;
@@ -10,7 +10,7 @@ public class InsertDetailsDTO {
     private int height;
     private int weight;
 
-    public InsertDetailsDTO() {
+    public DetailsDTO() {
     }
 
     public String getFirstName() {
@@ -34,7 +34,7 @@ public class InsertDetailsDTO {
     }
 
     public void setGender(String gender) {
-        this.gender = gender.toLowerCase();
+        this.gender = gender;
     }
 
     public Date getBirthday() {

@@ -74,7 +74,7 @@ public class UserRepository {
      *
      * @param username the username of the user
      * @param password the password of the user
-     * @return a response containing OK (with the user and token) or UNAUTHORIZED
+     * @return a response containing OK (with the jwt) or UNAUTHORIZED
      */
     public Response login(String username, String password) {
         // check if an user with this username exists
@@ -93,10 +93,6 @@ public class UserRepository {
                     String jwt = jwtHelper.create(user.getId());
                     JSONObject json = new JSONObject()
                             .put("token", jwt);
-                    if (user.isDetailsSet()) {
-                        json.put("user", user.toJson());
-                    }
-
                     LOG.info("Logged in user: " + user.getId() + ", " + user.getUsername());
                     return Response.ok(json.toString()).build();
                 }
@@ -135,47 +131,10 @@ public class UserRepository {
     }
 
     /**
-     * Inserts the details of an user.
-     *
-     * @param jwt       the json web token
-     * @param firstName the first name of the user
-     * @param lastName  the last name of the user
-     * @param gender    the gender of the user
-     * @param birthday  the birthday of the user
-     * @param height    the height of the user
-     * @param weight    the weight of the user
-     * @return a response containing OK (with the user) or FORBIDDEN
-     */
-    public Response insertDetails(String jwt, String firstName, String lastName,
-                                  String gender, Date birthday, int height, int weight) {
-        gender = gender.toUpperCase();
-        if (validateUserDetails(firstName, lastName, gender, height, weight)) {
-            User user = getUserFromJwt(jwt);
-
-            em.getTransaction().begin();
-
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setGender(gender);
-            user.setBirthday(birthday);
-            user.setHeight(height);
-            user.setWeight(weight);
-
-            user.setDetailsSet(true);
-
-            em.getTransaction().commit();
-
-            LOG.info("Inserted details of user: " + user.getId() + ", " + user.getUsername());
-            return Response.ok(user.toJson().toString()).build();
-        }
-        return Response.status(Response.Status.FORBIDDEN).build();
-    }
-
-    /**
      * Returns the user.
      *
      * @param jwt the json web token
-     * @return a response containing OK (with the user) or CONFLIC
+     * @return a response containing OK (with the user) or CONFLICT
      */
     public Response getUser(String jwt) {
         User user = getUserFromJwt(jwt);
@@ -186,53 +145,47 @@ public class UserRepository {
     }
 
     /**
-     * Updates the details of an user.
+     * Sets the details of an user.
+     * The firstName and the lastName are allowed to be null.
      *
      * @param jwt       the json web token
-     * @param password  the new password of the user
-     * @param firstName the new firstName of the user
-     * @param lastName  the new lastName of the user
-     * @param gender    the new gender of the user
-     * @param birthday  the new birthday of the user
-     * @param height    the new height of the user
-     * @param weight    the new weight of the user
-     * @return a response containing OK (with the updated user), CONFLICT or FORBIDDEN
+     * @param firstName the first name of the user
+     * @param lastName  the last name of the user
+     * @param gender    the gender of the user
+     * @param birthday  the birthday of the user
+     * @param height    the height of the user
+     * @param weight    the weight of the user
+     * @return a response containing OK (with the user) or FORBIDDEN
      */
-    public Response updateDetails(String jwt, String username, String password, String firstName,
-                                  String lastName, String gender, Date birthday,
-                                  int height, int weight) {
-        User user = getUserFromJwt(jwt);
-        if (user.isDetailsSet()) {
-            if (validateUserDetails(firstName, lastName, gender, height, weight)) {
-                if (password == null || validatePassword(password)) {
-                    if (validateUsername(username)) {
-                        em.getTransaction().begin();
-
-                        user.setUsername(username);
-                        if (password != null) {
-                            user.setPassword(password);
-                        }
+    public Response setDetails(String jwt, String firstName, String lastName,
+                               String gender, Date birthday, int height, int weight) {
+        if ((firstName == null && lastName == null) || validateName(firstName, lastName)) {
+            if (validateHeightWeight(height, weight)) {
+                if (validateGender(gender)) {
+                    User user = getUserFromJwt(jwt);
+                    em.getTransaction().begin();
+                    if (firstName != null) {
+                        // if firstName is not null then lastName is also not null because of the previous if
                         user.setFirstName(firstName);
                         user.setLastName(lastName);
-                        user.setGender(gender);
-                        user.setBirthday(birthday);
-                        user.setHeight(height);
-                        user.setWeight(weight);
-
-                        em.getTransaction().commit();
-
-                        LOG.info("Updated details of user: " + user.getId() + ", " + user.getUsername());
-                        return Response.ok(user.toJson().toString()).build();
                     }
+                    user.setGender(gender.toUpperCase());
+                    user.setBirthday(birthday);
+                    user.setHeight(height);
+                    user.setWeight(weight);
+                    user.setDetailsSet(true);
+                    em.getTransaction().commit();
+
+                    LOG.info("Set details of user: " + user.getId() + ", " + user.getUsername());
+                    return Response.ok(user.toJson().toString()).build();
                 }
             }
-            return Response.status(Response.Status.FORBIDDEN).build();
         }
-        return Response.status(Response.Status.CONFLICT).build();
+        return Response.status(Response.Status.FORBIDDEN).build();
     }
 
     /**
-     * Request the change of the password
+     * Request the change of the password.
      *
      * @param email the email of an user
      * @return a response containing OK, NOT_FOUND or FORBIDDEN
@@ -319,28 +272,48 @@ public class UserRepository {
     }
 
     private boolean validateUsername(String username) {
-        return (username.length() >= 4 && username.length() <= 25);
+        if (username != null) {
+            return (username.length() >= 4 && username.length() <= 25);
+        }
+        return false;
     }
 
     private boolean validatePassword(String password) {
-        return (password.length() >= 8 && password.length() <= 25
-                && password.matches("^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$"));
+        if (password != null) {
+            return (password.length() >= 8 && password.length() <= 25
+                    && password.matches("^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$"));
+        }
+        return false;
     }
 
     private boolean validateEmail(String email) {
-        return (email.length() >= 6 && email.length() <= 100
-                && email.matches("^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)" +
-                "|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)" +
-                "+[a-zA-Z]{2,}))$"));
+        if (email != null) {
+            return (email.length() >= 6 && email.length() <= 100
+                    && email.matches("^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)" +
+                    "|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)" +
+                    "+[a-zA-Z]{2,}))$"));
+        }
+        return false;
     }
 
-    private boolean validateUserDetails(String firstName, String lastName, String gender, double height, double weight) {
-        if (firstName.length() <= 100 && lastName.length() <= 100) {
-            if (gender.equals("M") || gender.equals("F")) {
-                if (height >= 150.0 && height <= 230.0) {
-                    return (weight >= 30 && weight <= 200);
-                }
-            }
+    private boolean validateName(String firstName, String lastName) {
+        if (firstName != null && lastName != null) {
+            return firstName.length() <= 100 && lastName.length() <= 100;
+        }
+        return false;
+    }
+
+    private boolean validateGender(String gender) {
+        if (gender != null) {
+            gender = gender.toUpperCase();
+            return gender.equals("M") || gender.equals("F");
+        }
+        return false;
+    }
+
+    private boolean validateHeightWeight(double height, double weight) {
+        if (height >= 150.0 && height <= 230.0) {
+            return (weight >= 30 && weight <= 200);
         }
         return false;
     }
