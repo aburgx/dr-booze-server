@@ -1,12 +1,10 @@
 package data.dto;
 
-import java.util.Date;
-
 public class DetailsDTO {
     private String firstName;
     private String lastName;
     private String gender;
-    private Date birthday;
+    private long birthday;
     private int height;
     private int weight;
 
@@ -37,11 +35,11 @@ public class DetailsDTO {
         this.gender = gender;
     }
 
-    public Date getBirthday() {
+    public long getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(long birthday) {
         this.birthday = birthday;
     }
 

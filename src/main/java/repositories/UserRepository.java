@@ -158,7 +158,7 @@ public class UserRepository {
      * @return a response containing OK (with the user) or FORBIDDEN
      */
     public Response setDetails(String jwt, String firstName, String lastName,
-                               String gender, Date birthday, int height, int weight) {
+                               String gender, long birthday, int height, int weight) {
         if ((firstName == null && lastName == null) || validateName(firstName, lastName)) {
             if (validateHeightWeight(height, weight)) {
                 if (validateGender(gender)) {
@@ -170,7 +170,7 @@ public class UserRepository {
                         user.setLastName(lastName);
                     }
                     user.setGender(gender.toUpperCase());
-                    user.setBirthday(birthday);
+                    user.setBirthday(new Date(birthday));
                     user.setHeight(height);
                     user.setWeight(weight);
                     user.setDetailsSet(true);

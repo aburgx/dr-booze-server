@@ -74,7 +74,7 @@ public class User {
                 .put("firstName", firstName)
                 .put("lastName", lastName)
                 .put("gender", gender)
-                .put("birthday", birthday)
+                .put("birthday", birthday.getTime())
                 .put("height", height)
                 .put("weight", weight)
                 .put("points", points);
