@@ -68,14 +68,8 @@ public class AlcoholRepository {
         em.refresh(user);
         JSONArray jsonArray = new JSONArray();
         for (Drink drink : user.getDrinks()) {
-            JSONObject drinkJson = new JSONObject()
-                    .put("alcohol", drink.getAlcohol().toJson())
-                    .put("drankDate", drink.getDrankDate())
-                    .put("longitude", drink.getLongitude())
-                    .put("latitude", drink.getLatitude());
-            jsonArray.put(drinkJson);
+            jsonArray.put(drink.toJson());
         }
-
         LOG.info("Returned drinks of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok(jsonArray.toString()).build();
     }

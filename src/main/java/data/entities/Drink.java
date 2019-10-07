@@ -1,5 +1,7 @@
 package data.entities;
 
+import org.json.JSONObject;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -36,6 +38,14 @@ public class Drink {
         this.drankDate = drankDate;
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public JSONObject toJson() {
+        return new JSONObject()
+                .put("alcohol", alcohol.toJson())
+                .put("drankDate", drankDate.getTime())
+                .put("longitude", longitude)
+                .put("latitude", latitude);
     }
 
     public long getId() {
