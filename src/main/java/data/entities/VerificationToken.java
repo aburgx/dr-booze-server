@@ -1,4 +1,4 @@
-package entities;
+package data.entities;
 
 import javax.persistence.*;
 import java.util.Calendar;
@@ -12,20 +12,23 @@ import java.util.UUID;
 })
 public class VerificationToken {
     /**
-     * the id the verification token
+     * the unique id
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private long id;
+
     /**
      * the user of the verification token
      */
     @OneToOne(mappedBy = "verificationToken", cascade = CascadeType.MERGE)
-    private UserBO user;
+    private User user;
+
     /**
-     * the special token for the verification
+     * the token for the verification
      */
     private String token;
+
     /**
      * the expiry date of the token
      */
@@ -35,38 +38,51 @@ public class VerificationToken {
     public VerificationToken() {
     }
 
-    public VerificationToken(UserBO user, boolean usePin) {
+    public VerificationToken(User user, boolean useAsPin) {
         this.user = user;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        if (usePin) {
+        if (useAsPin) {
             // generate the pin for a reset
             this.token = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
+            // setup the expiration date of the pin
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
             calendar.add(Calendar.MINUTE, 5);
+            this.expiryDate = calendar.getTime();
         } else {
             // generate the unique token
             this.token = UUID.randomUUID().toString();
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
-        // setup the expiration date of the token
-        this.expiryDate = calendar.getTime();
-
     }
 
     public long getId() {
         return id;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String getToken() {
         return token;
     }
 
-    public UserBO getUser() {
-        return user;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Date getExpiryDate() {
         return expiryDate;
     }
 
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
 }

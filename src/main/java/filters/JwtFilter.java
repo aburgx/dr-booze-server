@@ -21,13 +21,9 @@ public class JwtFilter implements ContainerRequestFilter {
         try {
             String[] auth = rc.getHeaderString(HttpHeaders.AUTHORIZATION)
                     .split("\\s");
-            jwtHelper.checkSubject(auth[1]);
+            jwtHelper.getUserId(auth[1]);
         } catch (Exception ex) {
-            System.out.println("Unauthorized activity has been detected");
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-
     }
-
 }
-

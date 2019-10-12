@@ -1,26 +1,14 @@
-package transferObjects;
+package data.dto;
 
-import java.util.Date;
-
-public class PersonVO {
-
-    private String password;
+public class DetailsDTO {
     private String firstName;
     private String lastName;
     private String gender;
-    private Date birthday;
-    private double height;
-    private double weight;
+    private long birthday;
+    private int height;
+    private int weight;
 
-    public PersonVO() {
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public DetailsDTO() {
     }
 
     public String getFirstName() {
@@ -44,30 +32,30 @@ public class PersonVO {
     }
 
     public void setGender(String gender) {
-        this.gender = gender.toLowerCase();
+        this.gender = gender;
     }
 
-    public Date getBirthday() {
+    public long getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(long birthday) {
         this.birthday = birthday;
     }
 
-    public double getHeight() {
+    public int getHeight() {
         return height;
     }
 
-    public void setHeight(double height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 
-    public double getWeight() {
+    public int getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(int weight) {
         this.weight = weight;
     }
 }

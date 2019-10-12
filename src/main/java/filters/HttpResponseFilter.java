@@ -5,9 +5,6 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
-/**
- * @author Alexander Burghuber
- */
 @Provider
 public class HttpResponseFilter implements ContainerResponseFilter {
 
@@ -17,5 +14,4 @@ public class HttpResponseFilter implements ContainerResponseFilter {
         responseContext.getHeaders().putSingle("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
         responseContext.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
-
 }

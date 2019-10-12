@@ -1,14 +1,22 @@
 [
   {
-    "id": 1,
     "name": "Cosmopolitan",
     "percentage": 25,
     "amount": 100
   },
   {
-    "id": 2,
     "name": "Pina colada",
     "percentage": 8,
     "amount": 150
+  },
+  {
+    "name": "Mojito",
+    "percentage": 12,
+    "amount": 200
+  },
+  {
+    "name": "Dry Martini",
+    "percentage": 30,
+    "amount": 100
   }
 ]
