@@ -2,21 +2,25 @@
   {
     "name": "Rieder Maerzen",
     "percentage": 4.9,
-    "amount": 330
+    "amount": 330,
+    "category": "beer"
   },
   {
     "name": "Rieder Maerzen",
     "percentage": 4.9,
-    "amount": 500
+    "amount": 500,
+    "category": "beer"
   },
   {
     "name": "Schlaegl Urquell",
     "percentage": 5.8,
-    "amount": 500
+    "amount": 500,
+    "category": "beer"
   },
   {
     "name": "Zipfer Urtyp",
     "percentage": 5.4,
-    "amount": 500
+    "amount": 500,
+    "category": "beer"
   }
 ]

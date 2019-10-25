@@ -2,11 +2,13 @@
   {
     "name": "Riesling Smaragd Singerriedel",
     "percentage": 14,
-    "amount": 175
+    "amount": 175,
+    "category": "white wine"
   },
   {
     "name": "Grüner Veltliner Kalmücke",
     "percentage": 12.5,
-    "amount": 175
+    "amount": 175,
+    "category": "white wine"
   }
 ]
