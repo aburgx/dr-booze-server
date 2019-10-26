@@ -67,6 +67,25 @@ public class ManageService {
         );
     }
 
+    @Path("favourites/{type}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFavouritesOfType(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("type") String type) {
+        return alcoholRepo.getFavouritesOfType(getJwt(auth), type.toUpperCase());
+    }
+
+    @Path("favourites/{id}")
+    @POST
+    public Response addFavourite(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
+        return alcoholRepo.addFavourite(getJwt(auth), alcoholId);
+    }
+
+    @Path("favourites/{id}")
+    @DELETE
+    public Response removeFavourite(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
+        return alcoholRepo.removeFavourite(getJwt(auth), alcoholId);
+    }
+
     @Path("challenges")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

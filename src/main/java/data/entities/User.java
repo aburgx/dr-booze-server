@@ -8,9 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "Booze_User")
@@ -52,11 +50,15 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Drink> drinks;
 
+    @ManyToMany
+    private Set<Alcohol> favouriteAlcohols;
+
     @OneToMany
     private List<Challenge> challenges;
 
     public User() {
         this.drinks = new ArrayList<>();
+        this.favouriteAlcohols = new HashSet<>();
         this.challenges = new ArrayList<>();
     }
 
@@ -142,14 +144,6 @@ public class User {
         hashPassword(password);
     }
 
-    public List<Drink> getDrinks() {
-        return drinks;
-    }
-
-    public void setDrinks(List<Drink> drinks) {
-        this.drinks = drinks;
-    }
-
     public String getSalt() {
         return salt;
     }
@@ -220,6 +214,22 @@ public class User {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public List<Drink> getDrinks() {
+        return drinks;
+    }
+
+    public void setDrinks(List<Drink> drinks) {
+        this.drinks = drinks;
+    }
+
+    public Set<Alcohol> getFavouriteAlcohols() {
+        return favouriteAlcohols;
+    }
+
+    public void setFavouriteAlcohols(Set<Alcohol> favouriteAlcohols) {
+        this.favouriteAlcohols = favouriteAlcohols;
     }
 
     public List<Challenge> getChallenges() {

@@ -24,12 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class AlcoholRepository {
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
     private static Logger LOG = Logger.getLogger(AlcoholRepository.class.getName());
-
 
     /**
      * Adds a drink to an user.
@@ -52,9 +52,8 @@ public class AlcoholRepository {
 
             LOG.info("Added drink to user: " + user.getId() + ", " + user.getUsername());
             return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
         }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     /**
@@ -81,7 +80,7 @@ public class AlcoholRepository {
      * @return a response containing either an OK (with the alcohols) or NOT_FOUND
      */
     public Response getAlcohols(String typeStr) {
-        if (typeStr.equals("BEER") || typeStr.equals("WINE") || typeStr.equals("LIQUOR") || typeStr.equals("COCKTAIL")) {
+        if (validateAlcoholType(typeStr)) {
             AlcoholType type = AlcoholType.valueOf(typeStr);
             TypedQuery<Alcohol> query = em.createNamedQuery("Alcohol.get-with-type", Alcohol.class)
                     .setParameter("type", type);
@@ -93,9 +92,73 @@ public class AlcoholRepository {
             }
             LOG.info("Returned alcohols of type: " + typeStr);
             return Response.ok(jsonArray.toString()).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
         }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    /**
+     * Returns the favourite alcohols of an user of this type.
+     *
+     * @param jwt     the json web token
+     * @param typeStr the alcohol type
+     * @return a response containing either an OK (with the favorite alcohols) or NOT_FOUND
+     */
+    public Response getFavouritesOfType(String jwt, String typeStr) {
+        if (validateAlcoholType(typeStr)) {
+            User user = getUserFromJwt(jwt);
+            List<Alcohol> favouritesOfType = user.getFavouriteAlcohols()
+                    .stream()
+                    .filter(alcohol -> alcohol.getType() == AlcoholType.valueOf(typeStr))
+                    .collect(Collectors.toList());
+            JSONArray jsonArray = new JSONArray();
+            for (Alcohol alcohol : favouritesOfType) {
+                jsonArray.put(alcohol.toJson());
+            }
+            LOG.info("Returned favourite alcohols of type " + typeStr
+                    + " for user: " + user.getId() + ", " + user.getUsername());
+            return Response.ok(jsonArray.toString()).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    /**
+     * Adds a new favourite alcohol of an user.
+     *
+     * @param jwt       the json web token
+     * @param alcoholId the alcohol id
+     * @return a response containing either an OK or NOT_FOUND
+     */
+    public Response addFavourite(String jwt, long alcoholId) {
+        User user = getUserFromJwt(jwt);
+        Alcohol alcohol = em.find(Alcohol.class, alcoholId);
+        if (alcohol != null) {
+            em.getTransaction().begin();
+            user.getFavouriteAlcohols().add(alcohol);
+            em.getTransaction().commit();
+            LOG.info("Added favourite alcohol to user: " + user.getId() + ", " + user.getUsername());
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    /**
+     * Removes a favourite alcohol of an user.
+     *
+     * @param jwt       the json web token
+     * @param alcoholId the alcohol id
+     * @return a response containing either an OK or NOT_FOUND
+     */
+    public Response removeFavourite(String jwt, long alcoholId) {
+        User user = getUserFromJwt(jwt);
+        Alcohol alcohol = em.find(Alcohol.class, alcoholId);
+        if (alcohol != null) {
+            em.getTransaction().begin();
+            user.getFavouriteAlcohols().remove(alcohol);
+            em.getTransaction().commit();
+            LOG.info("Removed favourite alcohol of user: " + user.getId() + ", " + user.getUsername());
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     /**
@@ -121,6 +184,9 @@ public class AlcoholRepository {
                             json.getFloat("percentage"),
                             json.getInt("amount")
                     );
+                    if (json.has("category")) {
+                        alcohol.setCategory(json.getString("category"));
+                    }
                     em.getTransaction().begin();
                     em.persist(alcohol);
                     em.getTransaction().commit();
@@ -138,5 +204,9 @@ public class AlcoholRepository {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         return user;
+    }
+
+    private boolean validateAlcoholType(String typeStr) {
+        return typeStr.equals("BEER") || typeStr.equals("WINE") || typeStr.equals("LIQUOR") || typeStr.equals("COCKTAIL");
     }
 }

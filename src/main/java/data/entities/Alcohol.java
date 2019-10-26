@@ -21,6 +21,7 @@ public class Alcohol {
     private String name;
     private float percentage;
     private int amount;
+    private String category;
 
     public Alcohol() {
     }
@@ -38,7 +39,8 @@ public class Alcohol {
                 .put("type", type.toString())
                 .put("name", name)
                 .put("percentage", percentage)
-                .put("amount", amount);
+                .put("amount", amount)
+                .put("category", category);
     }
 
     public long getId() {
@@ -47,6 +49,14 @@ public class Alcohol {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public AlcoholType getType() {
+        return type;
+    }
+
+    public void setType(AlcoholType type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -73,11 +83,11 @@ public class Alcohol {
         this.amount = amount;
     }
 
-    public AlcoholType getType() {
-        return type;
+    public String getCategory() {
+        return category;
     }
 
-    public void setType(AlcoholType type) {
-        this.type = type;
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
