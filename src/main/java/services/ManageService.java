@@ -71,7 +71,7 @@ public class ManageService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFavouritesOfType(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("type") String type) {
-        return alcoholRepo.getFavouritesOfType(getJwt(auth), type);
+        return alcoholRepo.getFavouritesOfType(getJwt(auth), type.toUpperCase());
     }
 
     @Path("favourites/{id}")

@@ -97,7 +97,7 @@ public class AlcoholRepository {
     }
 
     /**
-     * Returns the user favourite alcohols of this type.
+     * Returns the favourite alcohols of an user of this type.
      *
      * @param jwt     the json web token
      * @param typeStr the alcohol type
@@ -122,7 +122,7 @@ public class AlcoholRepository {
     }
 
     /**
-     * Adds a new favourite alcohol to an user
+     * Adds a new favourite alcohol of an user.
      *
      * @param jwt       the json web token
      * @param alcoholId the alcohol id
@@ -142,7 +142,7 @@ public class AlcoholRepository {
     }
 
     /**
-     * Removes a favourite alcohol of an user
+     * Removes a favourite alcohol of an user.
      *
      * @param jwt       the json web token
      * @param alcoholId the alcohol id
