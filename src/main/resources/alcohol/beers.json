@@ -18,5 +18,23 @@
     "name": "Zipfer Urtyp",
     "percentage": 5.4,
     "amount": 500
+  },
+  {
+    "name": "Zipfer Limetten Radler",
+    "percentage": 2.0,
+    "amount": 500,
+    "category": "shandy (Radler)"
+  },
+  {
+    "name": "Zipfer Limetten Radler",
+    "percentage": 2.0,
+    "amount": 300,
+    "category": "shandy (Radler)"
+  },
+  {
+    "name": "Bockbier",
+    "percentage": 6.5,
+    "amount": 500,
+    "category": "strong beer"
   }
 ]
