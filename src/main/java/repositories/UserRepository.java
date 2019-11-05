@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class UserRepository {
+
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
     private Mail mail = new Mail();

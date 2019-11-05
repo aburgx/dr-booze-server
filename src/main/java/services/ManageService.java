@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 @Path("manage")
 public class ManageService {
+
     private UserRepository userRepo = new UserRepository();
     private AlcoholRepository alcoholRepo = new AlcoholRepository();
     private ChallengeRepository challengeRepo = new ChallengeRepository();
@@ -65,6 +66,13 @@ public class ManageService {
                 drinkDTO.getLongitude(),
                 drinkDTO.getLatitude()
         );
+    }
+
+    @Path("drinks/{id}")
+    @DELETE
+    @Consumes
+    public Response removeDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long drinkId) {
+        return alcoholRepo.removeDrink(getJwt(auth), drinkId);
     }
 
     @Path("favourites/{type}")

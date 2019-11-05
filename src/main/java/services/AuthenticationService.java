@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 
 @Path("auth")
 public class AuthenticationService {
+
     private UserRepository userRepo = new UserRepository();
 
     @Path("register")

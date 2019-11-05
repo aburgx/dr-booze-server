@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class AlcoholRepository {
+
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
     private static Logger LOG = Logger.getLogger(AlcoholRepository.class.getName());
@@ -71,6 +72,27 @@ public class AlcoholRepository {
         }
         LOG.info("Returned drinks of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok(jsonArray.toString()).build();
+    }
+
+
+    /**
+     * Removes a drink of an user.
+     *
+     * @param jwt     the json web token
+     * @param drinkId the drink id
+     * @return a response containing either an OK or NOT_FOUND
+     */
+    public Response removeDrink(String jwt, long drinkId) {
+        User user = getUserFromJwt(jwt);
+        Drink drink = em.find(Drink.class, drinkId);
+        if (drink != null) {
+            em.getTransaction().begin();
+            user.getDrinks().remove(drink);
+            em.getTransaction().commit();
+            LOG.info("Removed drink from user: " + user.getId() + ", " + user.getUsername());
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     /**

@@ -47,7 +47,7 @@ public class User {
     @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Drink> drinks;
 
     @ManyToMany

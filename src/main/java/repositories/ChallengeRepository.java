@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 public class ChallengeRepository {
+
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
 
