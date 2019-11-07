@@ -42,6 +42,7 @@ public class Drink {
 
     public JSONObject toJson() {
         return new JSONObject()
+                .put("id", id)
                 .put("alcohol", alcohol.toJson())
                 .put("drankDate", drankDate.getTime())
                 .put("longitude", longitude)
