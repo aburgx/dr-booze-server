@@ -1,6 +1,7 @@
 package data.dto;
 
 public class ChangePasswordDTO {
+
     private int pin;
     private String password;
 

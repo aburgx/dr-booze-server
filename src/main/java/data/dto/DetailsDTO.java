@@ -1,6 +1,7 @@
 package data.dto;
 
 public class DetailsDTO {
+
     private String firstName;
     private String lastName;
     private String gender;

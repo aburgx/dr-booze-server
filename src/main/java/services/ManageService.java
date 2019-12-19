@@ -2,6 +2,7 @@ package services;
 
 import data.dto.DetailsDTO;
 import data.dto.DrinkDTO;
+import data.dto.PersonalAlcoholDTO;
 import repositories.AlcoholRepository;
 import repositories.ChallengeRepository;
 import repositories.UserRepository;
@@ -45,7 +46,7 @@ public class ManageService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAlcohols(@PathParam("type") String type) {
-        return alcoholRepo.getAlcohols(type.toUpperCase());
+        return alcoholRepo.getAlcohols(type);
     }
 
     @Path("drinks")
@@ -92,6 +93,33 @@ public class ManageService {
     @DELETE
     public Response removeFavourite(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
         return alcoholRepo.removeFavourite(getJwt(auth), alcoholId);
+    }
+
+    @Path("personal-alcohols/{type}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPersonalAlcoholsOfType(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("type") String type) {
+        return alcoholRepo.getPersonalAlcoholsOfType(getJwt(auth), type);
+    }
+
+    @Path("personal-alcohols")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addPersonalAlcohol(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonalAlcoholDTO alcoholDTO) {
+        return alcoholRepo.addPersonalAlcohol(
+                getJwt(auth),
+                alcoholDTO.getType(),
+                alcoholDTO.getName(),
+                alcoholDTO.getCategory(),
+                alcoholDTO.getPercentage(),
+                alcoholDTO.getAmount()
+        );
+    }
+
+    @Path("personal-alcohols/{id}")
+    @DELETE
+    public Response removePersonalAlcohol(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
+        return alcoholRepo.removePersonalAlcohol(getJwt(auth), alcoholId);
     }
 
     @Path("challenges")

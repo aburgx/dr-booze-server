@@ -20,6 +20,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+/**
+ * The repository for everything related to users.
+ * Note that every function that receives a jwt may throw a 401 UNAUTHORIZED Http Response
+ * if the jwt is not longer valid.
+ */
 public class UserRepository {
 
     private EntityManager em = EntityManagerHelper.getInstance();
