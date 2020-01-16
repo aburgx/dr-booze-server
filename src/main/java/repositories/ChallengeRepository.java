@@ -16,8 +16,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -31,31 +30,37 @@ public class ChallengeRepository {
 
     /**
      * Loads every template from the json file into the database
-     *
-     * @throws IOException while file reading
      */
-    public void loadTemplates() throws IOException {
-        String jsonFolder = "src/main/resources/challenges/";
+    public void loadTemplates() {
+        URL url = Thread.currentThread()
+                .getContextClassLoader()
+                .getResource("challenges/challenges.json");
+        if (url != null) {
+            try (InputStream inputStream = url.openStream()) {
+                JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
 
-        InputStream inputStream = Files.newInputStream(Paths.get(jsonFolder + "challenges.json"));
-        JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
+                jsonArray.forEach(item -> {
+                    //Parse Object to JSONObject
+                    JSONObject jsonObject = (JSONObject) item;
 
-        jsonArray.forEach(item -> {
-            //Parse Object to JSONObject
-            JSONObject jsonObject = (JSONObject) item;
+                    //Generate ChallengeTemplate from JSONObject
+                    ChallengeTemplate template = new ChallengeTemplate(
+                            jsonObject.getLong("id"),
+                            jsonObject.getString("content"),
+                            jsonObject.getInt("amount"),
+                            jsonObject.getEnum(ChallengeType.class, "type")
+                    );
 
-            //Generate ChallengeTemplate from JSONObject
-            ChallengeTemplate template = new ChallengeTemplate(
-                    jsonObject.getLong("id"),
-                    jsonObject.getString("content"),
-                    jsonObject.getInt("amount"),
-                    jsonObject.getEnum(ChallengeType.class, "type")
-            );
-
-            em.getTransaction().begin();
-            em.persist(template);
-            em.getTransaction().commit();
-        });
+                    em.getTransaction().begin();
+                    em.persist(template);
+                    em.getTransaction().commit();
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new RuntimeException("Challenge templates not found");
+        }
     }
 
     /**

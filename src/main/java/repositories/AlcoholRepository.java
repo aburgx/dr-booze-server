@@ -16,8 +16,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -291,7 +290,6 @@ public class AlcoholRepository {
      * Loads all alcohol from the json files into the database.
      */
     public void loadAlcohol() {
-        String folder = "src/main/resources/alcohol/";
         Map<AlcoholType, String> alcohols = new HashMap<>();
         alcohols.put(AlcoholType.BEER, "beers.json");
         alcohols.put(AlcoholType.WINE, "wine.json");
@@ -299,26 +297,34 @@ public class AlcoholRepository {
         alcohols.put(AlcoholType.COCKTAIL, "cocktails.json");
 
         alcohols.forEach((type, file) -> {
-            try {
-                InputStream inputStream = Files.newInputStream(Paths.get(folder + file));
-                JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
-                for (int i = 0; i < jsonArray.length(); ++i) {
-                    JSONObject json = jsonArray.getJSONObject(i);
-                    Alcohol alcohol = new Alcohol(
-                            type,
-                            json.getString("name"),
-                            json.getFloat("percentage"),
-                            json.getInt("amount")
-                    );
-                    if (json.has("category")) {
-                        alcohol.setCategory(json.getString("category"));
+            URL url = Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource("alcohol/" + file);
+
+            if (url != null) {
+                try (InputStream inputStream = url.openStream()) {
+                    // InputStream inputStream = Files.newInputStream(Paths.get(folder + file));
+                    JSONArray jsonArray = new JSONArray(new JSONTokener(inputStream));
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+                        JSONObject json = jsonArray.getJSONObject(i);
+                        Alcohol alcohol = new Alcohol(
+                                type,
+                                json.getString("name"),
+                                json.getFloat("percentage"),
+                                json.getInt("amount")
+                        );
+                        if (json.has("category")) {
+                            alcohol.setCategory(json.getString("category"));
+                        }
+                        em.getTransaction().begin();
+                        em.persist(alcohol);
+                        em.getTransaction().commit();
                     }
-                    em.getTransaction().begin();
-                    em.persist(alcohol);
-                    em.getTransaction().commit();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                throw new RuntimeException("Template file " + file + " not found");
             }
         });
     }

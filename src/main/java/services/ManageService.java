@@ -11,22 +11,24 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
-@Path("manage")
+@Provider
+@Path("/manage")
 public class ManageService {
 
     private UserRepository userRepo = new UserRepository();
     private AlcoholRepository alcoholRepo = new AlcoholRepository();
     private ChallengeRepository challengeRepo = new ChallengeRepository();
 
-    @Path("user")
+    @Path("/user")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
         return userRepo.getUser(getJwt(auth));
     }
 
-    @Path("details")
+    @Path("/details")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -42,21 +44,21 @@ public class ManageService {
         );
     }
 
-    @Path("alcohols/{type}")
+    @Path("/alcohols/{type}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAlcohols(@PathParam("type") String type) {
         return alcoholRepo.getAlcohols(type);
     }
 
-    @Path("drinks")
+    @Path("/drinks")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
         return alcoholRepo.getDrinks(getJwt(auth));
     }
 
-    @Path("drinks")
+    @Path("/drinks")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, DrinkDTO drinkDTO) {
@@ -69,40 +71,40 @@ public class ManageService {
         );
     }
 
-    @Path("drinks/{id}")
+    @Path("/drinks/{id}")
     @DELETE
     @Consumes
     public Response removeDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long drinkId) {
         return alcoholRepo.removeDrink(getJwt(auth), drinkId);
     }
 
-    @Path("favourites/{type}")
+    @Path("/favourites/{type}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFavouritesOfType(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("type") String type) {
         return alcoholRepo.getFavouritesOfType(getJwt(auth), type.toUpperCase());
     }
 
-    @Path("favourites/{id}")
+    @Path("/favourites/{id}")
     @POST
     public Response addFavourite(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
         return alcoholRepo.addFavourite(getJwt(auth), alcoholId);
     }
 
-    @Path("favourites/{id}")
+    @Path("/favourites/{id}")
     @DELETE
     public Response removeFavourite(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
         return alcoholRepo.removeFavourite(getJwt(auth), alcoholId);
     }
 
-    @Path("personal-alcohols/{type}")
+    @Path("/personal-alcohols/{type}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPersonalAlcoholsOfType(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("type") String type) {
         return alcoholRepo.getPersonalAlcoholsOfType(getJwt(auth), type);
     }
 
-    @Path("personal-alcohols")
+    @Path("/personal-alcohols")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response addPersonalAlcohol(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, PersonalAlcoholDTO alcoholDTO) {
@@ -116,13 +118,13 @@ public class ManageService {
         );
     }
 
-    @Path("personal-alcohols/{id}")
+    @Path("/personal-alcohols/{id}")
     @DELETE
     public Response removePersonalAlcohol(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("id") long alcoholId) {
         return alcoholRepo.removePersonalAlcohol(getJwt(auth), alcoholId);
     }
 
-    @Path("challenges")
+    @Path("/challenges")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String manageChallenges(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
