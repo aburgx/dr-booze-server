@@ -7,12 +7,15 @@ import repositories.UserRepository;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
-@Path("auth")
+@Provider
+@Path("/auth")
 public class AuthenticationService {
+
     private UserRepository userRepo = new UserRepository();
 
-    @Path("register")
+    @Path("/register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -20,7 +23,7 @@ public class AuthenticationService {
         return userRepo.register(user.getUsername(), user.getEmail(), user.getPassword());
     }
 
-    @Path("login")
+    @Path("/login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -28,7 +31,7 @@ public class AuthenticationService {
         return userRepo.login(user.getUsername(), user.getPassword());
     }
 
-    @Path("verify/{token}")
+    @Path("/verify/{token}")
     @GET
     public Response verify(@PathParam("token") String token) {
         if (userRepo.verify(token)) {
@@ -37,14 +40,14 @@ public class AuthenticationService {
         return Response.status(Response.Status.FORBIDDEN).entity("Failure. The user might already be verified.").build();
     }
 
-    @Path("request-password-change")
+    @Path("/request-password-change")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requestPasswordChange(UserDTO user) {
         return userRepo.requestPasswordChange(user.getEmail());
     }
 
-    @Path("change-password")
+    @Path("/change-password")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response changePassword(ChangePasswordDTO changePassword) {

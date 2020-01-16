@@ -17,6 +17,7 @@ import java.util.*;
         @NamedQuery(name = "User.get-with-email", query = "SELECT u FROM User u WHERE u.email = :email")
 })
 public class User {
+
     @Id
     @GeneratedValue
     private long id;
@@ -47,10 +48,11 @@ public class User {
     @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Drink> drinks;
 
     @ManyToMany
+    @JoinTable(name = "Booze_FavouriteAlcohol")
     private Set<Alcohol> favouriteAlcohols;
 
     @OneToMany

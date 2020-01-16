@@ -7,13 +7,14 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Booze_Alcohol")
-@NamedQueries({
-        @NamedQuery(name = "Alcohol.get-with-type", query = "SELECT a FROM Alcohol a WHERE a.type = :type")
-})
 public class Alcohol {
+
     @Id
     @GeneratedValue
     private long id;
+
+    @ManyToOne
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private AlcoholType type;
@@ -22,6 +23,11 @@ public class Alcohol {
     private float percentage;
     private int amount;
     private String category;
+
+    /**
+     * A boolean indicating if a personal alcohol was removed by an user.
+     */
+    private boolean isArchived = false;
 
     public Alcohol() {
     }
@@ -49,6 +55,14 @@ public class Alcohol {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public AlcoholType getType() {
@@ -89,5 +103,13 @@ public class Alcohol {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public boolean isArchived() {
+        return isArchived;
+    }
+
+    public void setArchived(boolean archived) {
+        isArchived = archived;
     }
 }

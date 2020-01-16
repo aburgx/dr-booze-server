@@ -20,7 +20,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+/**
+ * The repository for everything related to users.
+ * Note that every function that receives a jwt may throw a 401 UNAUTHORIZED Http Response
+ * if the jwt is not longer valid.
+ */
 public class UserRepository {
+
     private EntityManager em = EntityManagerHelper.getInstance();
     private JwtHelper jwtHelper = new JwtHelper();
     private Mail mail = new Mail();
@@ -213,7 +219,7 @@ public class UserRepository {
         int pin = Integer.parseInt(verificationToken.getToken());
 
         // async email sending
-        executor.execute(() -> mail.resetPasswordConfirmation(user, pin));
+        // executor.execute(() -> mail.resetPasswordConfirmation(user, pin));
 
         LOG.info("Requested password change of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok().build();

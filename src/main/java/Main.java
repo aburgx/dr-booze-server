@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
+
     private static Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws IOException {
@@ -25,9 +26,14 @@ public class Main {
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
 
-        // load alcohol and the challenge templates into the database
-        new AlcoholRepository().loadAlcohol();
-        new ChallengeRepository().loadTemplates();
+        if (args.length > 0) {
+            String arg = args[0];
+            if (arg.equals("templates")) {
+                // load alcohol and the challenge templates into the database
+                new AlcoholRepository().loadAlcohol();
+                new ChallengeRepository().loadTemplates();
+            }
+        }
 
         LOG.info(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));
         System.in.read();
