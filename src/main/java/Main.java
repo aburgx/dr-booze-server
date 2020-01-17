@@ -1,3 +1,4 @@
+import helper.EntityManagerHelper;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -7,6 +8,8 @@ import utils.Constants;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,9 +29,17 @@ public class Main {
         ch.setLevel(Level.FINE);
         l.addHandler(ch);
 
+        // reset the database if the reset argument was given
         if (args.length > 0) {
             String arg = args[0];
-            if (arg.equals("templates")) {
+            if (arg.equals("reset")) {
+                LOG.info("Resetting database...");
+
+                // set persistence.xml schema-generation to drop-and-create
+                Map<String, String> properties = new HashMap<>();
+                properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+                EntityManagerHelper.setProperties(properties);
+
                 // load alcohol and the challenge templates into the database
                 new AlcoholRepository().loadAlcohol();
                 new ChallengeRepository().loadTemplates();
@@ -36,6 +47,7 @@ public class Main {
         }
 
         LOG.info(String.format("Server starting at %s\nHit enter to stop ...", Constants.BASE_URI));
+        //noinspection ResultOfMethodCallIgnored
         System.in.read();
         server.shutdownNow();
         LOG.info("Server closed.");
