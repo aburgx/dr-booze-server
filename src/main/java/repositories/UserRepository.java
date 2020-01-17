@@ -219,7 +219,7 @@ public class UserRepository {
         int pin = Integer.parseInt(verificationToken.getToken());
 
         // async email sending
-        // executor.execute(() -> mail.resetPasswordConfirmation(user, pin));
+        executor.execute(() -> mail.resetPasswordConfirmation(user, pin));
 
         LOG.info("Requested password change of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok().build();
