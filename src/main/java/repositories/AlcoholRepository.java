@@ -61,22 +61,29 @@ public class AlcoholRepository {
     }
 
     /**
-     * Returns all drinks the user drank.
+     * Returns fifteen drinks that the user drank sorted by the date descending.
      *
-     * @param jwt the json web token
+     * @param jwt   the json web token
+     * @param count the position of the the first result (multiplied by fifteen)
      * @return a response containing either OK (with the drinks) or UNAUTHORIZED
      */
-    public Response getDrinks(String jwt) {
+    public Response getDrinks(String jwt, int count) {
         User user = getUserFromJwt(jwt);
         em.refresh(user);
+
+        List<Drink> drinks = em.createQuery("SELECT d FROM Drink d WHERE d.user = :user ORDER BY d.drankDate DESC", Drink.class)
+                .setParameter("user", user)
+                .setFirstResult(15 * count)
+                .setMaxResults(15)
+                .getResultList();
+
         JSONArray jsonArray = new JSONArray();
-        for (Drink drink : user.getDrinks()) {
+        for (Drink drink : drinks) {
             jsonArray.put(drink.toJson());
         }
         LOG.info("Returned drinks of user: " + user.getId() + ", " + user.getUsername());
         return Response.ok(jsonArray.toString()).build();
     }
-
 
     /**
      * Removes a drink of an user.

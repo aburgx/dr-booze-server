@@ -51,11 +51,11 @@ public class ManageService {
         return alcoholRepo.getAlcohols(type);
     }
 
-    @Path("/drinks")
+    @Path("/drinks/{count}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
-        return alcoholRepo.getDrinks(getJwt(auth));
+    public Response getDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, @PathParam("count") int count) {
+        return alcoholRepo.getDrinks(getJwt(auth), count);
     }
 
     @Path("/drinks")
