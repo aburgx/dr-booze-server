@@ -65,7 +65,7 @@ public class AlcoholRepository {
      *
      * @param jwt   the json web token
      * @param count the position of the the first result (multiplied by fifteen)
-     * @return a response containing either OK (with the drinks) or UNAUTHORIZED
+     * @return a response containing either OK (with the drinks)
      */
     public Response getDrinks(String jwt, int count) {
         User user = getUserFromJwt(jwt);
@@ -76,6 +76,26 @@ public class AlcoholRepository {
                 .setFirstResult(15 * count)
                 .setMaxResults(15)
                 .getResultList();
+
+        JSONArray jsonArray = new JSONArray();
+        for (Drink drink : drinks) {
+            jsonArray.put(drink.toJson());
+        }
+        LOG.info("Returned 15 drinks of user: " + user.getId() + ", " + user.getUsername());
+        return Response.ok(jsonArray.toString()).build();
+    }
+
+    /**
+     * Returns all drinks that the user drank
+     *
+     * @param jwt the json web token
+     * @return a response containing an OK (with the drinks)
+     */
+    public Response getAllDrinks(String jwt) {
+        User user = getUserFromJwt(jwt);
+        em.refresh(user);
+
+        List<Drink> drinks = user.getDrinks();
 
         JSONArray jsonArray = new JSONArray();
         for (Drink drink : drinks) {

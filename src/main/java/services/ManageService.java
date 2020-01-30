@@ -59,6 +59,13 @@ public class ManageService {
     }
 
     @Path("/drinks")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllDrinks(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth) {
+        return alcoholRepo.getAllDrinks(getJwt(auth));
+    }
+
+    @Path("/drinks")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addDrink(@HeaderParam(HttpHeaders.AUTHORIZATION) String auth, DrinkDTO drinkDTO) {
