@@ -13,20 +13,40 @@ import java.util.Date;
                 query = "SELECT d from Drink d where d.user.id = :id and (d.drankDate between :start and current_date)"),
 })
 public class Drink {
+
+    /**
+     * The unique id
+     */
     @Id
     @GeneratedValue
     private long id;
 
+    /**
+     * The user that drunk the drink
+     */
     @ManyToOne
     private User user;
 
+    /**
+     * The alcohol of the drink
+     */
     @ManyToOne
     private Alcohol alcohol;
 
+    /**
+     * When the drink was drunk
+     */
     @Temporal(TemporalType.TIMESTAMP)
     private Date drankDate;
 
+    /**
+     * The longitude geographic coordinate
+     */
     private BigDecimal longitude;
+
+    /**
+     * The latitude geographic coordinate
+     */
     private BigDecimal latitude;
 
     public Drink() {
@@ -40,6 +60,11 @@ public class Drink {
         this.latitude = latitude;
     }
 
+    /**
+     * Creates a {@link JSONObject} of specific drink properties
+     *
+     * @return the JSONObject
+     */
     public JSONObject toJson() {
         return new JSONObject()
                 .put("id", id)

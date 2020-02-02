@@ -9,19 +9,43 @@ import javax.persistence.*;
 @Table(name = "Booze_Alcohol")
 public class Alcohol {
 
+    /**
+     * The unique id
+     */
     @Id
     @GeneratedValue
     private long id;
 
+    /**
+     * The user if it is a personal alcohol
+     */
     @ManyToOne
     private User user;
 
+    /**
+     * The alcohol type
+     */
     @Enumerated(EnumType.STRING)
     private AlcoholType type;
 
+    /**
+     * the name
+     */
     private String name;
+
+    /**
+     * the percentage
+     */
     private float percentage;
+
+    /**
+     * the amount in ml
+     */
     private int amount;
+
+    /**
+     * The category if it has been set
+     */
     private String category;
 
     /**
@@ -39,6 +63,11 @@ public class Alcohol {
         this.amount = amount;
     }
 
+    /**
+     * Creates a {@link JSONObject} of specific alcohol properties
+     *
+     * @return the JSONObject
+     */
     public JSONObject toJson() {
         return new JSONObject()
                 .put("id", id)

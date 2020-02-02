@@ -18,43 +18,101 @@ import java.util.*;
 })
 public class User {
 
+    /**
+     * The unique id
+     */
     @Id
     @GeneratedValue
     private long id;
 
+    /**
+     * The username
+     */
     @Column(unique = true)
     private String username;
 
+    /**
+     * The email
+     */
     @Column(unique = true)
     private String email;
 
+    /**
+     * The encrypted password
+     */
     private String password;
+
+    /**
+     * The salt used for the encryption of the password
+     */
     private String salt;
+
+    /**
+     * If the email was confirmed
+     */
     private boolean enabled = false;
+
+    /**
+     * If the details (height, weight, ...) have been set
+     */
     private boolean detailsSet = false;
 
+    /**
+     * The first name
+     */
     private String firstName;
+
+    /**
+     * The last name
+     */
     private String lastName;
+
+    /**
+     * The gender
+     */
     private String gender;
 
+    /**
+     * The birthday
+     */
     @Temporal(TemporalType.DATE)
     private Date birthday;
 
+    /**
+     * The height
+     */
     private int height;
+
+    /**
+     * The weight
+     */
     private int weight;
 
+    /**
+     * The amount of booze points the user has collected with challenges
+     */
     private int points;
 
+    /**
+     * The token used for verification
+     */
     @OneToOne(cascade = CascadeType.MERGE)
     private VerificationToken verificationToken;
 
+    /**
+     * The drinks that the user has drunk
+     */
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Drink> drinks;
 
+    /**
+     * The favourite alcohols of the user
+     */
     @ManyToMany
     @JoinTable(name = "Booze_FavouriteAlcohol")
     private Set<Alcohol> favouriteAlcohols;
 
+    /** The current challenges for the user */
     @OneToMany
     private List<Challenge> challenges;
 
@@ -71,6 +129,11 @@ public class User {
         hashPassword(password);
     }
 
+    /**
+     * Creates a {@link JSONObject} of specific user properties
+     *
+     * @return the JSONObject
+     */
     public JSONObject toJson() {
         return new JSONObject()
                 .put("username", username)

@@ -11,26 +11,27 @@ import java.util.UUID;
         @NamedQuery(name = "Token.get-by-token", query = "SELECT v FROM VerificationToken v WHERE v.token = :token")
 })
 public class VerificationToken {
+
     /**
-     * the unique id
+     * The unique id
      */
     @Id
     @GeneratedValue
     private long id;
 
     /**
-     * the user of the verification token
+     * The user of the verification token
      */
     @OneToOne(mappedBy = "verificationToken", cascade = CascadeType.MERGE)
     private User user;
 
     /**
-     * the token for the verification
+     * The token for the verification
      */
     private String token;
 
     /**
-     * the expiry date of the token
+     * The expiry date of the token
      */
     @Temporal(value = TemporalType.DATE)
     private Date expiryDate;
