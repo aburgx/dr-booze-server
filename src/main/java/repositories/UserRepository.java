@@ -287,7 +287,7 @@ public class UserRepository {
     private boolean validatePassword(String password) {
         if (password != null) {
             return (password.length() >= 8 && password.length() <= 25
-                    && password.matches("^.*(?=.{8,})(?=.*\\d)((?=.*[a-z]))((?=.*[A-Z])).*$"));
+                    && password.matches("^.*(?=.{6,})((?=.*[a-z])).*$"));
         }
         return false;
     }

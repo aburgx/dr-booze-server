@@ -151,7 +151,7 @@ public class ChallengeRepository {
                 challenge.getParameter().add(drinks.size() / 7 - 2 <= 0 ? 1 : drinks.size() / 7 - 2);
                 challenge.getParameter().add(new Random().nextInt(5) + 1);// random amount of days between 1 and 5 days
                 break;
-            case MAXPERCENTAGE:// check if a user haven't had more than x ‰ (per mille)
+            case MAXPERCENTAGE:// check if a user haven't had more than x (per mille)
                 break;
             case MAXGAG:// always true
                 // Doesn't require any Parameter
@@ -241,7 +241,7 @@ public class ChallengeRepository {
                         challenge.setSuccess(false);
                     }
                     break;
-                case MAXPERCENTAGE:// check if a user haven't had more than x ‰ (per mille)
+                case MAXPERCENTAGE:// check if a user haven't had more than x  (per mille)
                     break;
                 case MAXGAG:// always true
                     challenge.setSuccess(true);
